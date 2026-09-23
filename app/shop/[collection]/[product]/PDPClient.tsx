@@ -3,60 +3,48 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Minus, Plus, ShoppingBag, Shield, Truck, RefreshCw } from "lucide-react"
-import { Accordion } from "@/components/ui/accordion"
+import { HandHeart, PackageCheck, Truck, ShoppingBag } from "lucide-react"
 import { useCartStore } from "@/store/cart"
 import { formatPrice } from "@/lib/utils"
-import type { Product, Variant } from "@/lib/types"
+import type { Product } from "@/lib/types"
 
 interface PDPClientProps {
   product: Product
   collectionHandle: string
 }
 
-const TRUST_ICONS = [
-  { Icon: Truck, text: "Free shipping $75+" },
-  { Icon: Shield, text: "Secure checkout" },
-  { Icon: RefreshCw, text: "Easy returns" },
+const customizations = [
+  { label: "Design Style", options: ["Honey Bee", "Wildflower", "Name + Initials"] },
+  { label: "Garment Style", options: ["Tee", "Crewneck", "Tank", "Crop Top"] },
+  { label: "Brand", options: ["Gildan", "Bella Canvas", "Comfort Colors"] },
+  { label: "Size", options: ["SM", "MED", "LG", "XL", "2X"] },
 ]
 
-const ACCORDION_ITEMS = (description: string) => [
-  {
-    title: "Product Details",
-    content: <p>{description}</p>,
-  },
-  {
-    title: "Shipping & Processing",
-    content: (
-      <ul className="space-y-1">
-        <li>• Orders typically process in 3–5 business days</li>
-        <li>• Standard shipping: 5–7 business days</li>
-        <li>• Free shipping on orders $75+</li>
-        <li>• Expedited options available at checkout</li>
-      </ul>
-    ),
-  },
-  {
-    title: "Care Instructions",
-    content: (
-      <ul className="space-y-1">
-        <li>• Machine wash cold, inside out</li>
-        <li>• Tumble dry low or hang dry</li>
-        <li>• Do not iron directly on print</li>
-        <li>• Do not bleach</li>
-      </ul>
-    ),
-  },
+const trustItems = [
+  { icon: HandHeart, label: "Handmade", detail: "with lots of love" },
+  { icon: PackageCheck, label: "Packed with Care", detail: "ready for gifting" },
+  { icon: Truck, label: "Fast Shipping", detail: "ships in 3–5 days" },
 ]
 
 export function PDPClient({ product, collectionHandle }: PDPClientProps) {
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
-    product.variants.find((v) => v.availableForSale) ?? null
-  )
   const [activeImage, setActiveImage] = useState(0)
-  const [qty, setQty] = useState(1)
+  const [color, setColor] = useState("")
   const [adding, setAdding] = useState(false)
+  const [choices, setChoices] = useState<Record<string, string>>(
+    Object.fromEntries(customizations.map(({ label, options }) => [label, options[0]])),
+  )
   const { addItem, openCart } = useCartStore()
+  const selectedVariant = product.variants.find((variant) => variant.availableForSale) ?? product.variants[0]
+  const gallery = product.images.length ? product.images : Array.from({ length: 5 }, (_, index) => ({
+    id: `custom-tee-${index}`,
+    url: "/images/products/custom-tee.png",
+    altText: "Custom HoneyBee Designs t-shirt",
+  }))
+  const collectionTitle = collectionHandle.split("-").map((word) => word[0].toUpperCase() + word.slice(1)).join(" ")
+
+  const updateChoice = (label: string, value: string) => {
+    setChoices((current) => ({ ...current, [label]: value }))
+  }
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return
@@ -64,193 +52,93 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
     await addItem(selectedVariant.id, {
       productId: product.id,
       title: product.title,
-      variantTitle: selectedVariant.title,
+      variantTitle: `${choices["Garment Style"]} · ${choices.Size}${color ? ` · ${color}` : ""}`,
       price: selectedVariant.price,
-      image: product.images[0]?.url,
+      image: gallery[0]?.url,
     })
     openCart()
     setAdding(false)
   }
 
-  const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
-
-  const optionName =
-    product.variants[0]?.selectedOptions[0]?.name ?? "Option"
-
-  const collectionTitle = collectionHandle
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ")
-
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-[12px] text-[var(--color-secondary)]">
-        <Link href="/shop" className="hover:text-[var(--color-coral)]">Shop</Link>
-        <span>/</span>
-        <Link href={`/shop/${collectionHandle}`} className="hover:text-[var(--color-coral)]">
-          {collectionTitle}
-        </Link>
-        <span>/</span>
-        <span className="text-[var(--color-ink)]">{product.title}</span>
+    <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-14">
+      <nav aria-label="Breadcrumb" className="mb-8 flex items-center gap-2 text-xs font-semibold text-[var(--color-gray)]">
+        <Link href="/shop" className="transition-colors hover:text-[var(--color-blush-dark)]">Shop</Link>
+        <span aria-hidden="true">/</span>
+        <Link href={`/shop/${collectionHandle}`} className="transition-colors hover:text-[var(--color-blush-dark)]">{collectionTitle}</Link>
+        <span aria-hidden="true">/</span>
+        <span className="truncate text-[var(--color-black)]">{product.title}</span>
       </nav>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        {/* Left — image gallery */}
-        <div>
-          <div className="relative aspect-square overflow-hidden rounded-2xl bg-[var(--color-topbar)]">
-            {product.images[activeImage] ? (
-              <Image
-                src={product.images[activeImage].url}
-                alt={product.images[activeImage].altText ?? product.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-8xl">🐝</div>
-            )}
-            {hasDiscount && (
-              <span className="absolute left-4 top-4 rounded-full bg-[var(--color-coral)] px-3 py-1 text-[11px] font-bold text-white">
-                SALE
-              </span>
-            )}
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:gap-20">
+        <section aria-label="Product images">
+          <div className="relative aspect-[4/4.5] overflow-hidden rounded-[2rem] bg-[var(--color-warm-beige)]">
+            <Image
+              src={gallery[activeImage]?.url ?? "/images/products/custom-tee.png"}
+              alt={gallery[activeImage]?.altText ?? product.title}
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 55vw"
+            />
+            <div className="absolute left-5 top-5 rounded-full bg-[var(--color-honey-yellow)] px-4 py-2 text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--color-black)]">Made just for you</div>
           </div>
+          <div className="mt-4 grid grid-cols-5 gap-3" aria-label="Choose product image">
+            {gallery.slice(0, 5).map((image, index) => (
+              <button
+                key={image.id ?? index}
+                type="button"
+                aria-label={`View product image ${index + 1}`}
+                aria-pressed={activeImage === index}
+                onClick={() => setActiveImage(index)}
+                className={`relative aspect-square overflow-hidden rounded-2xl border-2 bg-[var(--color-warm-beige)] transition-transform hover:-translate-y-1 ${activeImage === index ? "border-[var(--color-blush)]" : "border-transparent"}`}
+              >
+                <Image src={image.url} alt="" fill className="object-cover" sizes="120px" />
+              </button>
+            ))}
+          </div>
+        </section>
 
-          {product.images.length > 1 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto">
-              {product.images.map((img, i) => (
-                <button
-                  key={img.id ?? i}
-                  onClick={() => setActiveImage(i)}
-                  className={[
-                    "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-colors",
-                    activeImage === i
-                      ? "border-[var(--color-coral)]"
-                      : "border-transparent hover:border-[var(--color-coral-light)]",
-                  ].join(" ")}
+        <section className="flex flex-col justify-center">
+          <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.22em] text-[var(--color-blush-dark)]">{collectionTitle} · Custom made</p>
+          <h1 className="max-w-xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-[var(--color-black)] sm:text-5xl">{product.title}</h1>
+          <p className="mt-5 max-w-lg text-base leading-7 text-[var(--color-gray)]">{product.description}</p>
+          <p className="mt-6 text-3xl font-black text-[var(--color-blush-dark)]">{formatPrice(selectedVariant?.price ?? product.price)}</p>
+
+          <div className="mt-8 flex flex-col gap-4">
+            {customizations.map(({ label, options }) => (
+              <label key={label} className="flex flex-col gap-2 text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--color-black)]">
+                {label}
+                <select
+                  value={choices[label]}
+                  onChange={(event) => updateChoice(label, event.target.value)}
+                  className="h-12 rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-semibold normal-case tracking-normal text-[var(--color-black)] outline-none transition-colors focus:border-[var(--color-blush)] focus:ring-2 focus:ring-[var(--color-blush)]/30"
                 >
-                  <Image
-                    src={img.url}
-                    alt={img.altText ?? `${product.title} ${i + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Right — product info */}
-        <div className="flex flex-col gap-5">
-          <div>
-            <p className="text-[12px] font-bold uppercase tracking-widest text-[var(--color-coral)]">
-              {collectionTitle}
-            </p>
-            <h1 className="mt-1 text-[26px] font-black leading-tight text-[var(--color-ink)]">
-              {product.title}
-            </h1>
-
-            {/* Stars */}
-            <div className="mt-2 flex items-center gap-1.5">
-              <span className="text-[var(--color-coral)]">★★★★★</span>
-              {product.reviewCount && product.reviewCount > 0 && (
-                <span className="text-[12px] text-[var(--color-secondary)]">
-                  ({product.reviewCount} reviews)
-                </span>
-              )}
-            </div>
-
-            {/* Price */}
-            <div className="mt-3 flex items-baseline gap-3">
-              <span className="text-[24px] font-black text-[var(--color-ink)]">
-                {formatPrice(selectedVariant?.price ?? product.price)}
-              </span>
-              {hasDiscount && (
-                <span className="text-[16px] text-[var(--color-secondary)] line-through">
-                  {formatPrice(product.compareAtPrice!)}
-                </span>
-              )}
-            </div>
+                  {options.map((option) => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+            ))}
+            <label className="flex flex-col gap-2 text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--color-black)]">
+              Color
+              <input value={color} onChange={(event) => setColor(event.target.value)} placeholder="e.g. Buttercream" className="h-12 rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-semibold normal-case tracking-normal text-[var(--color-black)] outline-none placeholder:text-[var(--color-gray)] focus:border-[var(--color-blush)] focus:ring-2 focus:ring-[var(--color-blush)]/30" />
+            </label>
           </div>
 
-          {/* Variant picker */}
-          {product.variants.length > 1 && (
-            <div>
-              <p className="mb-2 text-[13px] font-bold uppercase tracking-wide text-[var(--color-ink)]">
-                {optionName}:{" "}
-                <span className="font-normal normal-case text-[var(--color-secondary)]">
-                  {selectedVariant?.title ?? "Select one"}
-                </span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {product.variants.map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => setSelectedVariant(v)}
-                    disabled={!v.availableForSale}
-                    className={[
-                      "rounded-full px-4 py-1.5 text-[13px] font-bold transition-all",
-                      selectedVariant?.id === v.id
-                        ? "bg-[var(--color-ink)] text-white"
-                        : "border border-[var(--color-border)] bg-white text-[var(--color-ink)] hover:border-[var(--color-ink)]",
-                      !v.availableForSale ? "line-through opacity-40 cursor-not-allowed" : "",
-                    ].join(" ")}
-                  >
-                    {v.title}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <button type="button" onClick={handleAddToCart} disabled={adding || !selectedVariant} className="mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-[var(--color-blush)] text-sm font-extrabold uppercase tracking-[0.12em] text-[var(--color-black)] shadow-[0_8px_0_0_#e8a0ac] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-honey-yellow)] hover:shadow-[0_8px_0_0_#f5b400] disabled:cursor-not-allowed disabled:opacity-60">
+            <ShoppingBag aria-hidden="true" />
+            {adding ? "Adding..." : "Add to Cart"}
+          </button>
 
-          {/* Qty + Add to cart */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Quantity stepper */}
-            <div className="flex items-center rounded-full border border-[var(--color-border)]">
-              <button
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="px-3.5 py-2 text-[var(--color-secondary)] hover:text-[var(--color-ink)]"
-                aria-label="Decrease quantity"
-              >
-                <Minus className="h-3.5 w-3.5" />
-              </button>
-              <span className="min-w-[32px] text-center text-[14px] font-semibold">{qty}</span>
-              <button
-                onClick={() => setQty((q) => q + 1)}
-                className="px-3.5 py-2 text-[var(--color-secondary)] hover:text-[var(--color-ink)]"
-                aria-label="Increase quantity"
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
-            <button
-              onClick={handleAddToCart}
-              disabled={!selectedVariant || adding}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[var(--color-coral)] px-6 py-3 text-[14px] font-bold text-white transition-all hover:bg-[var(--color-coral-dark)] disabled:opacity-60 sm:flex-none sm:min-w-[200px]"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              {adding ? "ADDING…" : "ADD TO CART ♥"}
-            </button>
-          </div>
-
-          {/* Trust badges */}
-          <div className="flex flex-wrap gap-4 border-t border-[var(--color-border)] pt-4">
-            {TRUST_ICONS.map(({ Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5 text-[12px] text-[var(--color-secondary)]">
-                <Icon className="h-3.5 w-3.5 text-[var(--color-coral)]" />
-                {text}
+          <div className="mt-12 grid grid-cols-3 gap-3 border-t border-[var(--color-border)] pt-6">
+            {trustItems.map(({ icon: Icon, label, detail }) => (
+              <div key={label} className="flex flex-col items-center gap-2 text-center">
+                <span className="flex size-11 items-center justify-center rounded-full bg-[var(--color-honey-yellow)] text-[var(--color-black)]"><Icon aria-hidden="true" /></span>
+                <span className="text-xs font-extrabold text-[var(--color-black)]">{label}</span>
+                <span className="text-[10px] leading-tight text-[var(--color-gray)]">{detail}</span>
               </div>
             ))}
           </div>
-
-          {/* Accordion */}
-          <Accordion items={ACCORDION_ITEMS(product.description)} defaultOpen={0} />
-        </div>
+        </section>
       </div>
     </div>
   )
