@@ -9,18 +9,18 @@ import {
   getProductByHandle,
   getProducts,
   type Product,
+  type ProductSummary,
 } from "../lib/storefront"
 
-const price = (p: Product) => {
-  const v = p.variants[0]
-  return v ? `${v.price.amount} ${v.price.currencyCode}` : "no variants"
-}
+const fmt = (m: { amount: string; currencyCode: string }) => `${m.amount} ${m.currencyCode}`
+const summaryPrice = (p: ProductSummary) => `from ${fmt(p.priceRange.min)}`
+const firstVariantPrice = (p: Product) => (p.variants[0] ? fmt(p.variants[0].price) : "no variants")
 
 async function main() {
   const products = await getProducts({ first: 5 })
   console.log(`getProducts(first:5): ${products.items.length} items, hasNextPage=${products.pageInfo.hasNextPage}`)
   for (const p of products.items) {
-    console.log(`  - ${p.title} [${p.handle}] first variant ${price(p)}, ${p.images.length} images, ${p.variants.length} variants`)
+    console.log(`  - ${p.title} [${p.handle}] ${summaryPrice(p)}, available=${p.availableForSale}, image=${p.featuredImage ? "yes" : "no"}`)
   }
   if (products.pageInfo.hasNextPage) {
     const next = await getProducts({ first: 5, after: products.pageInfo.endCursor })
@@ -30,7 +30,7 @@ async function main() {
   const first = products.items[0]
   if (first) {
     const byHandle = await getProductByHandle(first.handle)
-    console.log(`getProductByHandle(${first.handle}): ${byHandle ? `${byHandle.title}, ${price(byHandle)}` : "null"}`)
+    console.log(`getProductByHandle(${first.handle}): ${byHandle ? `${byHandle.title}, first variant ${firstVariantPrice(byHandle)}, ${byHandle.variants.length} variants, ${byHandle.images.length} images` : "null"}`)
   }
   const missing = await getProductByHandle("this-handle-does-not-exist")
   console.log(`getProductByHandle(missing): ${missing === null ? "null (expected)" : "UNEXPECTED non-null"}`)
@@ -43,7 +43,7 @@ async function main() {
   if (firstCollection) {
     const full = await getCollectionByHandle(firstCollection.handle, { first: 5 })
     console.log(`getCollectionByHandle(${firstCollection.handle}): ${full?.products.items.length ?? "null"} products`)
-    for (const p of full?.products.items ?? []) console.log(`    - ${p.title} [${p.handle}] ${price(p)}`)
+    for (const p of full?.products.items ?? []) console.log(`    - ${p.title} [${p.handle}] ${summaryPrice(p)}`)
   }
   const missingCollection = await getCollectionByHandle("this-handle-does-not-exist")
   console.log(`getCollectionByHandle(missing): ${missingCollection === null ? "null (expected)" : "UNEXPECTED non-null"}`)

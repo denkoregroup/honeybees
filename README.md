@@ -63,6 +63,10 @@ Shopify responses are normalised into the types in `lib/types.ts` so components 
 - `/api/newsletter` validates the email and logs it; it does not store or forward it (`TODO` in the code).
 - Placeholder variant IDs are not valid Shopify merchandise IDs, so placeholder products could not be bought through Shopify even if the cart calls worked.
 
+## Catalog layer
+
+`lib/storefront/` is a server-only, read-only layer over the Shopify Storefront API: `getProducts` and `getCollectionByHandle` return lightweight `ProductSummary` records for cards, `getProductByHandle` returns the full `Product` with all variants, and `getCollections` lists collections. Results are typed, flattened and cached with 5-minute revalidation and cache tags. Set `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_STOREFRONT_ACCESS_TOKEN` (see `.env.example`), then run `npm run verify:shopify` to check them against the store. That script uses `--env-file-if-exists` and needs Node 22.9 or newer.
+
 ## API routes
 
 - `POST /api/contact`: validates name/email/message, sends a `ContactEmail` via Resend, reply-to set to the submitter. Returns 503 if `RESEND_API_KEY` is unset.
