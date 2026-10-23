@@ -7,6 +7,9 @@ import { ShopifyApiError, ShopifyConfigError } from "./errors"
 /** Latest stable Storefront API version at time of writing; override with SHOPIFY_STOREFRONT_API_VERSION. */
 const DEFAULT_API_VERSION = "2026-10"
 
+// No Shopify-Storefront-Buyer-IP header is sent: it would require reading request headers and force
+// dynamic rendering of otherwise cached catalog pages.
+
 // Per-call cache tags travel to the fetch wrapper in this header, which is stripped before sending.
 const TAGS_HEADER = "x-storefront-cache-tags"
 
@@ -64,7 +67,8 @@ export async function storefrontRequest<T>(
       ? errors.graphQLErrors.map((e: { message?: string }) => e.message).join("; ")
       : errors?.message ?? "empty response"
     console.error(`[shopify] ${operation} failed`, { status, detail })
-    throw new ShopifyApiError(operation, detail, status)
+    // `errors` is the Storefront client's error object (message, status, graphQLErrors); it holds no request headers.
+    throw new ShopifyApiError(operation, detail, status, errors)
   }
   return data
 }
