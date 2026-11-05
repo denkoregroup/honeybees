@@ -81,6 +81,7 @@ Names and purpose only. Set them in `.env.local` locally and in the Vercel proje
 | --- | --- | --- |
 | `SHOPIFY_STOREFRONT_API_URL` | `lib/shopify.ts`, `app/api/checkout/route.ts` | Shopify store domain passed to the Storefront API client as `storeDomain` |
 | `SHOPIFY_STOREFRONT_ACCESS_TOKEN` | `lib/shopify.ts` | Storefront API public access token |
+| `SHOPIFY_STOREFRONT_TOKEN_TYPE` | `lib/storefront/client.ts` | Optional: `private` (default) or `public`, the kind of token `SHOPIFY_STOREFRONT_ACCESS_TOKEN` holds |
 | `RESEND_API_KEY` | `app/api/contact/route.ts` | Resend API key for contact-form email |
 | `CONTACT_EMAIL` | `app/api/contact/route.ts` | Recipient of contact-form messages (optional; the code has a default) |
 | `NEXT_PUBLIC_SITE_URL` | `app/layout.tsx` | Canonical site URL for metadata (optional; the code has a default) |

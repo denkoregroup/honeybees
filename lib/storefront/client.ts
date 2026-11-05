@@ -21,6 +21,16 @@ function requireEnv(name: string): string {
   return value
 }
 
+/** "private" (default) or "public", per SHOPIFY_STOREFRONT_TOKEN_TYPE; the token itself is always SHOPIFY_STOREFRONT_ACCESS_TOKEN. */
+function tokenOptions(): { privateAccessToken: string } | { publicAccessToken: string } {
+  const type = process.env.SHOPIFY_STOREFRONT_TOKEN_TYPE?.trim() || "private"
+  if (type !== "private" && type !== "public") {
+    throw new ShopifyConfigError('SHOPIFY_STOREFRONT_TOKEN_TYPE must be "private" or "public"')
+  }
+  const token = requireEnv("SHOPIFY_STOREFRONT_ACCESS_TOKEN")
+  return type === "public" ? { publicAccessToken: token } : { privateAccessToken: token }
+}
+
 function getClient(): StorefrontApiClient {
   if (client) return client
 
@@ -34,8 +44,8 @@ function getClient(): StorefrontApiClient {
   client = createStorefrontApiClient({
     storeDomain,
     apiVersion: process.env.SHOPIFY_STOREFRONT_API_VERSION?.trim() || DEFAULT_API_VERSION,
-    // Server-side requests use the Headless channel's *private* token (Shopify-Storefront-Private-Token).
-    privateAccessToken: requireEnv("SHOPIFY_STOREFRONT_ACCESS_TOKEN"),
+    // Private token by default (Shopify-Storefront-Private-Token); see tokenOptions().
+    ...tokenOptions(),
     customFetchApi: (url, init) => {
       const headers = new Headers(init?.headers)
       const tags = headers.get(TAGS_HEADER)?.split(",").filter(Boolean) ?? []
