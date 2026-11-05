@@ -1,0 +1,194 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { CACHE_TAGS } from "../cache"
+import {
+  type SentRequest,
+  gqlData,
+  rawProduct,
+  rawSummary,
+  rawVariant,
+  sentRequests,
+  stubFetch,
+  stubShopifyEnv,
+} from "./helpers"
+
+// Fresh module registry per test; the error class must come from the same registry as the code under test.
+async function loadProducts() {
+  vi.resetModules()
+  const [products, errors] = await Promise.all([import("../products"), import("../errors")])
+  return { ...products, ...errors }
+}
+
+let errorLog: ReturnType<typeof vi.spyOn>
+
+beforeEach(() => {
+  stubShopifyEnv()
+  errorLog = vi.spyOn(console, "error").mockImplementation(() => {})
+})
+
+describe("getProducts", () => {
+  it("returns summaries with page info", async () => {
+    const fetchMock = stubFetch(() =>
+      gqlData({
+        products: {
+          nodes: [rawSummary(), rawSummary({ id: "gid://shopify/Product/2", handle: "second" })],
+          pageInfo: { hasNextPage: true, endCursor: "cursor-2" },
+        },
+      })
+    )
+    const { getProducts } = await loadProducts()
+    const page = await getProducts({ first: 2 })
+
+    expect(page.items.map((p) => p.handle)).toEqual(["bee-kind-tumbler", "second"])
+    expect(page.pageInfo).toEqual({ hasNextPage: true, endCursor: "cursor-2" })
+    expect(Object.keys(page.items[0])).not.toContain("variants")
+
+    const [request] = sentRequests(fetchMock)
+    expect(request.variables).toEqual({ first: 2, after: null })
+    expect(request.next?.tags).toEqual([CACHE_TAGS.products])
+  })
+
+  it("passes the cursor and a default page size", async () => {
+    const fetchMock = stubFetch(() =>
+      gqlData({ products: { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } } })
+    )
+    const { getProducts } = await loadProducts()
+    const page = await getProducts({ after: "cursor-1" })
+
+    expect(sentRequests(fetchMock)[0].variables).toEqual({ first: 24, after: "cursor-1" })
+    expect(page).toEqual({ items: [], pageInfo: { hasNextPage: false, endCursor: null } })
+  })
+
+  it("rejects an invalid page size before making a request", async () => {
+    const fetchMock = stubFetch(() => gqlData({}))
+    const { getProducts } = await loadProducts()
+    await expect(getProducts({ first: 0 })).rejects.toBeInstanceOf(RangeError)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe("getProductByHandle", () => {
+  it("returns null for an unknown handle", async () => {
+    const fetchMock = stubFetch(() => gqlData({ product: null }))
+    const { getProductByHandle } = await loadProducts()
+    expect(await getProductByHandle("nope")).toBeNull()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(["", "   "])("returns null for the empty handle %j without making a request", async (handle) => {
+    const fetchMock = stubFetch(() => gqlData({ product: null }))
+    const { getProductByHandle } = await loadProducts()
+    expect(await getProductByHandle(handle)).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it("returns the full product and tags the request with the product handle", async () => {
+    const fetchMock = stubFetch(() => gqlData({ product: rawProduct() }))
+    const { getProductByHandle } = await loadProducts()
+    const product = await getProductByHandle("bee-kind-tumbler")
+
+    expect(product?.title).toBe("Bee Kind Tumbler")
+    expect(product?.variants).toHaveLength(1)
+    expect(product?.options).toEqual([{ name: "Size", values: ["20oz", "30oz"] }])
+    expect(sentRequests(fetchMock)[0].variables).toEqual({ handle: "bee-kind-tumbler" })
+    expect(sentRequests(fetchMock)[0].next?.tags).toEqual([
+      CACHE_TAGS.products,
+      CACHE_TAGS.product("bee-kind-tumbler"),
+    ])
+  })
+})
+
+describe("variant paging", () => {
+  const FIRST_PAGE = 100
+  const EXTRA_PAGE = 250
+
+  /** Fakes a store whose product has `total` variants, served in pages like the real API. */
+  function stubProductWithVariants(total: number) {
+    return stubFetch((req: SentRequest) => {
+      const isDetailQuery = req.query.includes("query ProductByHandle")
+      const start = isDetailQuery ? 0 : Number(String(req.variables.after).replace("cursor-", ""))
+      const size = isDetailQuery ? FIRST_PAGE : Number(req.variables.first)
+      const end = Math.min(start + size, total)
+      const nodes = Array.from({ length: end - start }, (_, i) => rawVariant(start + i))
+      const variants = { nodes, pageInfo: { hasNextPage: end < total, endCursor: `cursor-${end}` } }
+      return gqlData({
+        product: isDetailQuery ? { ...rawProduct({}, []), variants } : { variants },
+      })
+    })
+  }
+
+  it.each([
+    [50, 0],
+    [100, 0],
+    [101, 1],
+    [600, 2],
+    [1100, 4],
+  ])("a product with %i variants makes %i extra requests and returns them all", async (total, extra) => {
+    const fetchMock = stubProductWithVariants(total)
+    const { getProductByHandle } = await loadProducts()
+    const product = await getProductByHandle("big")
+
+    expect(fetchMock).toHaveBeenCalledTimes(1 + extra)
+    expect(product?.variants).toHaveLength(total)
+    expect(new Set(product?.variants.map((v) => v.id)).size).toBe(total)
+    expect(errorLog).not.toHaveBeenCalled()
+  })
+
+  it("requests follow-up pages of 250 using the previous cursor", async () => {
+    const fetchMock = stubProductWithVariants(600)
+    const { getProductByHandle } = await loadProducts()
+    await getProductByHandle("big")
+
+    const [, second, third] = sentRequests(fetchMock)
+    expect(second.variables).toEqual({ handle: "big", first: EXTRA_PAGE, after: "cursor-100" })
+    expect(third.variables).toEqual({ handle: "big", first: EXTRA_PAGE, after: "cursor-350" })
+    expect(second.next?.tags).toEqual([CACHE_TAGS.products, CACHE_TAGS.product("big")])
+  })
+
+  it("returns the capped variants and logs the error exactly once when the product is over the cap", async () => {
+    const fetchMock = stubProductWithVariants(1500)
+    const { getProductByHandle } = await loadProducts()
+    const product = await getProductByHandle("huge")
+
+    expect(fetchMock).toHaveBeenCalledTimes(1 + 4)
+    expect(product?.variants).toHaveLength(1100)
+    expect(errorLog).toHaveBeenCalledTimes(1)
+    expect(String(errorLog.mock.calls[0][0])).toContain("variant page cap reached")
+    expect(String(errorLog.mock.calls[0][0])).toContain("huge")
+  })
+
+  it("stops and returns what it has if a follow-up page says the product is gone", async () => {
+    const fetchMock = stubFetch((req) =>
+      req.query.includes("query ProductByHandle")
+        ? gqlData({
+            product: {
+              ...rawProduct({}, []),
+              variants: {
+                nodes: Array.from({ length: 100 }, (_, i) => rawVariant(i)),
+                pageInfo: { hasNextPage: true, endCursor: "cursor-100" },
+              },
+            },
+          })
+        : gqlData({ product: null })
+    )
+    const { getProductByHandle } = await loadProducts()
+    const product = await getProductByHandle("gone")
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(product?.variants).toHaveLength(100)
+  })
+
+  it("propagates an API failure on a follow-up page as ShopifyApiError", async () => {
+    stubFetch((req) =>
+      req.query.includes("query ProductByHandle")
+        ? gqlData({
+            product: {
+              ...rawProduct({}, []),
+              variants: { nodes: [rawVariant(0)], pageInfo: { hasNextPage: true, endCursor: "cursor-1" } },
+            },
+          })
+        : new Response("{}", { status: 500, statusText: "Server Error" })
+    )
+    const { getProductByHandle, ShopifyApiError } = await loadProducts()
+    await expect(getProductByHandle("flaky")).rejects.toBeInstanceOf(ShopifyApiError)
+  })
+})
