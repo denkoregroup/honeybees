@@ -7,6 +7,7 @@ import type {
   PageInfo,
   PriceRange,
   Product,
+  ProductSummary,
   Variant,
 } from "./types"
 
@@ -25,7 +26,7 @@ interface RawRange {
   minVariantPrice: RawMoney
   maxVariantPrice: RawMoney
 }
-interface RawVariant {
+export interface RawVariant {
   id: string
   title: string
   availableForSale: boolean
@@ -34,18 +35,20 @@ interface RawVariant {
   selectedOptions: { name: string; value: string }[]
   image: RawImage | null
 }
-export interface RawProduct {
+export interface RawProductSummary {
   id: string
   title: string
   handle: string
-  description: string
-  descriptionHtml: string
   tags: string[]
   availableForSale: boolean
   featuredImage: RawImage | null
-  images: { nodes: RawImage[] }
   priceRange: RawRange
   compareAtPriceRange: RawRange
+}
+export interface RawProduct extends RawProductSummary {
+  description: string
+  descriptionHtml: string
+  images: { nodes: RawImage[] }
   options: { name: string; optionValues: { name: string }[] }[]
   variants: { nodes: RawVariant[] }
   collections: { nodes: { id: string; title: string; handle: string }[] }
@@ -85,20 +88,26 @@ function variant(v: RawVariant): Variant {
   }
 }
 
-export function normalizeProduct(p: RawProduct): Product {
+export function normalizeProductSummary(p: RawProductSummary): ProductSummary {
   const compareAt = range(p.compareAtPriceRange)
   return {
     id: p.id,
     title: p.title,
     handle: p.handle,
-    description: p.description,
-    descriptionHtml: p.descriptionHtml,
     tags: p.tags,
     availableForSale: p.availableForSale,
     featuredImage: image(p.featuredImage),
-    images: p.images.nodes.map((i) => image(i)!),
     priceRange: range(p.priceRange),
     compareAtPriceRange: Number(compareAt.max.amount) > 0 ? compareAt : null,
+  }
+}
+
+export function normalizeProduct(p: RawProduct): Product {
+  return {
+    ...normalizeProductSummary(p),
+    description: p.description,
+    descriptionHtml: p.descriptionHtml,
+    images: p.images.nodes.map((i) => image(i)!),
     options: p.options.map((o) => ({ name: o.name, values: o.optionValues.map((v) => v.name) })),
     variants: p.variants.nodes.map(variant),
     collections: p.collections.nodes.map(({ id, title, handle }) => ({ id, title, handle })),
@@ -130,7 +139,7 @@ export function normalizePage<Raw, Out>(
 }
 
 export function normalizeCollectionWithProducts(
-  c: RawCollection & { products: RawConnection<RawProduct> }
+  c: RawCollection & { products: RawConnection<RawProductSummary> }
 ): CollectionWithProducts {
-  return { ...normalizeCollection(c), products: normalizePage(c.products, normalizeProduct) }
+  return { ...normalizeCollection(c), products: normalizePage(c.products, normalizeProductSummary) }
 }
