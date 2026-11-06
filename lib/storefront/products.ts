@@ -20,8 +20,8 @@ import {
 import type { Page, PageArgs, Product, ProductSummary } from "./types"
 
 /** Extra variant pages fetched beyond the first 100, at 250 per page (1,100 variants total). */
-const MAX_EXTRA_VARIANT_PAGES = 4
-const EXTRA_VARIANTS_PAGE_SIZE = 250
+export const MAX_EXTRA_VARIANT_PAGES = 4
+export const EXTRA_VARIANTS_PAGE_SIZE = 250
 
 export async function getProducts(args: PageArgs = {}): Promise<Page<ProductSummary>> {
   const data = await storefrontRequest<{ products: RawConnection<RawProductSummary> }>(
