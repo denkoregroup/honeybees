@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ProductCard } from "@/components/features/ProductCard"
 import { ShopFilters } from "@/components/features/ShopFilters"
-import type { Product } from "@/lib/types"
+import type { ProductSummary } from "@/lib/storefront/types"
 
 const FILTER_OPTIONS = [
   { label: "All", value: "all" },
@@ -19,7 +19,7 @@ const FILTER_OPTIONS = [
 ]
 
 interface ShopAllClientProps {
-  products: Product[]
+  products: ProductSummary[]
 }
 
 export function ShopAllClient({ products }: ShopAllClientProps) {
@@ -28,7 +28,7 @@ export function ShopAllClient({ products }: ShopAllClientProps) {
   const filtered =
     activeFilter === "all"
       ? products
-      : products.filter((p) => p.collections.includes(activeFilter))
+      : products.filter((p) => p.collections.some((c) => c.handle === activeFilter))
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">

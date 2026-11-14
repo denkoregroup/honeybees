@@ -2,24 +2,24 @@ import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { formatPrice } from "@/lib/utils"
-import type { Product } from "@/lib/types"
+import { formatMoney, saleCompareAt } from "@/lib/utils"
+import type { Product } from "@/lib/storefront/types"
 
 interface BundleCardProps {
   product: Product
 }
 
 export function BundleCard({ product }: BundleCardProps) {
-  const image = product.images[0]
-  const hasDiscount =
-    product.compareAtPrice && product.compareAtPrice > product.price
-  const savings = hasDiscount ? product.compareAtPrice! - product.price : 0
+  const image = product.featuredImage
+  const price = product.priceRange.min
+  const compareAt = saleCompareAt(price, product.compareAtPriceRange?.min ?? null)
+  const savings = compareAt ? Number(compareAt.amount) - Number(price.amount) : 0
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-honey/30 bg-gradient-to-br from-honey/5 to-cream-dark p-6 shadow-sm transition-shadow hover:shadow-md">
-      {hasDiscount && (
+      {compareAt && (
         <Badge className="absolute right-4 top-4 bg-honey text-ink">
-          Save {formatPrice(savings)}
+          Save {formatMoney({ amount: String(savings), currencyCode: price.currencyCode })}
         </Badge>
       )}
 
@@ -47,11 +47,11 @@ export function BundleCard({ product }: BundleCardProps) {
       <div className="mt-4 flex items-center justify-between">
         <div>
           <span className="text-xl font-bold text-primary">
-            {formatPrice(product.price)}
+            {formatMoney(price)}
           </span>
-          {hasDiscount && (
+          {compareAt && (
             <span className="ml-2 text-sm text-muted-foreground line-through">
-              {formatPrice(product.compareAtPrice!)}
+              {formatMoney(compareAt)}
             </span>
           )}
         </div>

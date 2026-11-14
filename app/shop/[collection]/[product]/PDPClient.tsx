@@ -6,8 +6,10 @@ import Link from "next/link"
 import { Minus, Plus, ShoppingBag, Shield, Truck, RefreshCw } from "lucide-react"
 import { Accordion } from "@/components/ui/accordion"
 import { useCartStore } from "@/store/cart"
-import { formatPrice } from "@/lib/utils"
-import type { Product, Variant } from "@/lib/types"
+import { VariantPicker } from "@/components/features/VariantPicker"
+import { formatMoney, saleCompareAt } from "@/lib/utils"
+import { initialVariant } from "@/lib/variant-selection"
+import type { Product, Variant } from "@/lib/storefront/types"
 
 interface PDPClientProps {
   product: Product
@@ -50,9 +52,7 @@ const ACCORDION_ITEMS = (description: string) => [
 ]
 
 export function PDPClient({ product, collectionHandle }: PDPClientProps) {
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
-    product.variants.find((v) => v.availableForSale) ?? null
-  )
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(initialVariant(product.variants))
   const [activeImage, setActiveImage] = useState(0)
   const [qty, setQty] = useState(1)
   const [adding, setAdding] = useState(false)
@@ -65,17 +65,15 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
       productId: product.id,
       title: product.title,
       variantTitle: selectedVariant.title,
-      price: selectedVariant.price,
-      image: product.images[0]?.url,
+      price: Number(selectedVariant.price.amount),
+      image: product.featuredImage?.url,
     })
     openCart()
     setAdding(false)
   }
 
-  const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
-
-  const optionName =
-    product.variants[0]?.selectedOptions[0]?.name ?? "Option"
+  const price = selectedVariant?.price ?? product.priceRange.min
+  const compareAt = saleCompareAt(price, selectedVariant?.compareAtPrice ?? null)
 
   const collectionTitle = collectionHandle
     .split("-")
@@ -111,7 +109,7 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
             ) : (
               <div className="flex h-full items-center justify-center text-8xl">🐝</div>
             )}
-            {hasDiscount && (
+            {compareAt && (
               <span className="absolute left-4 top-4 rounded-full bg-[var(--color-coral)] px-3 py-1 text-[11px] font-bold text-white">
                 SALE
               </span>
@@ -122,7 +120,7 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
             <div className="mt-3 flex gap-2 overflow-x-auto">
               {product.images.map((img, i) => (
                 <button
-                  key={img.id ?? i}
+                  key={img.url}
                   onClick={() => setActiveImage(i)}
                   className={[
                     "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-colors",
@@ -154,58 +152,21 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
               {product.title}
             </h1>
 
-            {/* Stars */}
-            <div className="mt-2 flex items-center gap-1.5">
-              <span className="text-[var(--color-coral)]">★★★★★</span>
-              {product.reviewCount && product.reviewCount > 0 && (
-                <span className="text-[12px] text-[var(--color-secondary)]">
-                  ({product.reviewCount} reviews)
-                </span>
-              )}
-            </div>
-
             {/* Price */}
             <div className="mt-3 flex items-baseline gap-3">
               <span className="text-[24px] font-black text-[var(--color-ink)]">
-                {formatPrice(selectedVariant?.price ?? product.price)}
+                {formatMoney(price)}
               </span>
-              {hasDiscount && (
+              {compareAt && (
                 <span className="text-[16px] text-[var(--color-secondary)] line-through">
-                  {formatPrice(product.compareAtPrice!)}
+                  {formatMoney(compareAt)}
                 </span>
               )}
             </div>
           </div>
 
           {/* Variant picker */}
-          {product.variants.length > 1 && (
-            <div>
-              <p className="mb-2 text-[13px] font-bold uppercase tracking-wide text-[var(--color-ink)]">
-                {optionName}:{" "}
-                <span className="font-normal normal-case text-[var(--color-secondary)]">
-                  {selectedVariant?.title ?? "Select one"}
-                </span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {product.variants.map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => setSelectedVariant(v)}
-                    disabled={!v.availableForSale}
-                    className={[
-                      "rounded-full px-4 py-1.5 text-[13px] font-bold transition-all",
-                      selectedVariant?.id === v.id
-                        ? "bg-[var(--color-ink)] text-white"
-                        : "border border-[var(--color-border)] bg-white text-[var(--color-ink)] hover:border-[var(--color-ink)]",
-                      !v.availableForSale ? "line-through opacity-40 cursor-not-allowed" : "",
-                    ].join(" ")}
-                  >
-                    {v.title}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <VariantPicker product={product} selected={selectedVariant} onSelect={setSelectedVariant} />
 
           {/* Qty + Add to cart */}
           <div className="flex flex-wrap items-center gap-3">

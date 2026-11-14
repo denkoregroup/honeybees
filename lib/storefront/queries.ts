@@ -4,7 +4,7 @@ export const VARIANTS_PAGE_SIZE = 100
 const MONEY = `amount currencyCode`
 const IMAGE = `url altText width height`
 
-/** Everything a product card needs; no variants, so list queries stay small. */
+/** Everything a product card needs; no variants, so list queries stay small. Collections drive the card link and shop filters. */
 const PRODUCT_CARD_FIELDS = `
   id
   title
@@ -14,6 +14,7 @@ const PRODUCT_CARD_FIELDS = `
   featuredImage { ${IMAGE} }
   priceRange { minVariantPrice { ${MONEY} } maxVariantPrice { ${MONEY} } }
   compareAtPriceRange { minVariantPrice { ${MONEY} } maxVariantPrice { ${MONEY} } }
+  collections(first: 10) { nodes { id title handle } }
 `
 
 const VARIANT_FIELDS = `
@@ -39,7 +40,6 @@ const PRODUCT_DETAIL_FIELDS = `
     nodes { ${VARIANT_FIELDS} }
     ${PAGE_INFO}
   }
-  collections(first: 10) { nodes { id title handle } }
 `
 
 const COLLECTION_FIELDS = `

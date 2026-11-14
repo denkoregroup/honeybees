@@ -111,6 +111,7 @@ export function rawSummary(overrides: Partial<RawProductSummary> = {}): RawProdu
     featuredImage: rawImage(),
     priceRange: { minVariantPrice: money("24.99"), maxVariantPrice: money("29.99") },
     compareAtPriceRange: { minVariantPrice: money("0.0"), maxVariantPrice: money("0.0") },
+    collections: { nodes: [{ id: "gid://shopify/Collection/1", title: "Drinkware", handle: "drinkware" }] },
     ...overrides,
   }
 }
@@ -126,7 +127,6 @@ export function rawProduct(
     images: { nodes: [rawImage()] },
     options: [{ name: "Size", optionValues: [{ name: "20oz" }, { name: "30oz" }] }],
     variants: { nodes: variants, pageInfo: { hasNextPage: false, endCursor: null } },
-    collections: { nodes: [{ id: "gid://shopify/Collection/1", title: "Drinkware", handle: "drinkware" }] },
     ...overrides,
   }
 }
