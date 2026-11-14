@@ -33,7 +33,7 @@ export function Header() {
     <header
       className="sticky top-0 z-40 w-full border-b"
       style={{
-        backgroundColor: "var(--color-surface)",
+        backgroundColor: "var(--color-cream)",
         borderColor: "var(--color-border)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
@@ -57,8 +57,8 @@ export function Header() {
             onClick={() => setMobileOpen((o) => !o)}
           >
             {mobileOpen
-              ? <X className="h-5 w-5" style={{ color: "var(--color-black)" }} />
-              : <Menu className="h-5 w-5" style={{ color: "var(--color-black)" }} />
+              ? <X className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
+              : <Menu className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
             }
           </button>
 
@@ -101,7 +101,7 @@ export function Header() {
               style={{
                 fontFamily: "var(--font-pacifico)",
                 fontSize: "28px",
-                color: "var(--color-sunflower)",
+                color: "oklch(0.74 0.10 78)",
                 display: "block",
                 letterSpacing: "1px",
                 lineHeight: 1.1,
@@ -114,7 +114,7 @@ export function Header() {
                 fontFamily: "var(--font-montserrat)",
                 fontSize: "13px",
                 fontWeight: 400,
-                color: "var(--color-black)",
+                color: "var(--color-gray)",
                 fontStyle: "italic",
                 display: "block",
                 marginTop: "-2px",
@@ -132,7 +132,7 @@ export function Header() {
             aria-label="Account"
             className="hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
           >
-            <User className="h-5 w-5" style={{ color: "var(--color-black)" }} />
+            <User className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
             <span className="text-[10px]" style={{ color: "var(--color-gray)" }}>Account</span>
           </button>
 
@@ -140,7 +140,7 @@ export function Header() {
             aria-label="Wishlist"
             className="hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
           >
-            <Heart className="h-5 w-5" style={{ color: "var(--color-black)" }} />
+            <Heart className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
             <span className="text-[10px]" style={{ color: "var(--color-gray)" }}>Wishlist</span>
           </button>
 
@@ -150,7 +150,7 @@ export function Header() {
             className="relative flex flex-col items-center gap-1 transition-opacity hover:opacity-70"
           >
             <div className="relative">
-              <ShoppingCart className="h-5 w-5" style={{ color: "var(--color-black)" }} />
+              <ShoppingCart className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
               <span
                 className="absolute -right-2 -top-2 flex items-center justify-center rounded-full text-[10px] font-bold text-white"
                 style={{
@@ -170,7 +170,7 @@ export function Header() {
       {/* ── Row 2: Nav (desktop) ── */}
       <nav
         className="hidden border-t lg:block"
-        style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-surface)", height: "40px" }}
+        style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-cream)", height: "40px" }}
       >
         <ul
           className="flex items-center justify-center h-full"
@@ -219,7 +219,7 @@ export function Header() {
       {mobileOpen && (
         <nav
           className="border-t px-4 py-3 lg:hidden"
-          style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-surface)" }}
+          style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-cream)" }}
         >
           <div className="relative mb-3">
             <input
