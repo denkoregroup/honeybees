@@ -7,6 +7,9 @@ import { ShopifyApiError, ShopifyConfigError } from "./errors"
 /** Latest stable Storefront API version at time of writing; override with SHOPIFY_STOREFRONT_API_VERSION. */
 const DEFAULT_API_VERSION = "2026-10"
 
+// No Shopify-Storefront-Buyer-IP header is sent: it would require reading request headers and force
+// dynamic rendering of otherwise cached catalog pages.
+
 // Per-call cache tags travel to the fetch wrapper in this header, which is stripped before sending.
 const TAGS_HEADER = "x-storefront-cache-tags"
 
@@ -16,6 +19,16 @@ function requireEnv(name: string): string {
   const value = process.env[name]?.trim()
   if (!value) throw new ShopifyConfigError(`Missing environment variable ${name}`)
   return value
+}
+
+/** "private" (default) or "public", per SHOPIFY_STOREFRONT_TOKEN_TYPE; the token itself is always SHOPIFY_STOREFRONT_ACCESS_TOKEN. */
+function tokenOptions(): { privateAccessToken: string } | { publicAccessToken: string } {
+  const type = process.env.SHOPIFY_STOREFRONT_TOKEN_TYPE?.trim() || "private"
+  if (type !== "private" && type !== "public") {
+    throw new ShopifyConfigError('SHOPIFY_STOREFRONT_TOKEN_TYPE must be "private" or "public"')
+  }
+  const token = requireEnv("SHOPIFY_STOREFRONT_ACCESS_TOKEN")
+  return type === "public" ? { publicAccessToken: token } : { privateAccessToken: token }
 }
 
 function getClient(): StorefrontApiClient {
@@ -31,8 +44,8 @@ function getClient(): StorefrontApiClient {
   client = createStorefrontApiClient({
     storeDomain,
     apiVersion: process.env.SHOPIFY_STOREFRONT_API_VERSION?.trim() || DEFAULT_API_VERSION,
-    // Server-side requests use the Headless channel's *private* token (Shopify-Storefront-Private-Token).
-    privateAccessToken: requireEnv("SHOPIFY_STOREFRONT_ACCESS_TOKEN"),
+    // Private token by default (Shopify-Storefront-Private-Token); see tokenOptions().
+    ...tokenOptions(),
     customFetchApi: (url, init) => {
       const headers = new Headers(init?.headers)
       const tags = headers.get(TAGS_HEADER)?.split(",").filter(Boolean) ?? []
@@ -64,7 +77,8 @@ export async function storefrontRequest<T>(
       ? errors.graphQLErrors.map((e: { message?: string }) => e.message).join("; ")
       : errors?.message ?? "empty response"
     console.error(`[shopify] ${operation} failed`, { status, detail })
-    throw new ShopifyApiError(operation, detail, status)
+    // `errors` is the Storefront client's error object (message, status, graphQLErrors); it holds no request headers.
+    throw new ShopifyApiError(operation, detail, status, errors)
   }
   return data
 }

@@ -42,19 +42,24 @@ export interface CollectionRef {
   handle: string
 }
 
-export interface Product {
+/** Card-level product data returned by list queries. */
+export interface ProductSummary {
   id: string
   title: string
   handle: string
-  description: string
-  descriptionHtml: string
   tags: string[]
   availableForSale: boolean
   featuredImage: Image | null
-  images: Image[]
   priceRange: PriceRange
   /** null when no variant has a compare-at price (Shopify reports 0.0 in that case). */
   compareAtPriceRange: PriceRange | null
+}
+
+/** Full product for the detail page, from getProductByHandle. */
+export interface Product extends ProductSummary {
+  description: string
+  descriptionHtml: string
+  images: Image[]
   options: ProductOption[]
   variants: Variant[]
   /** Collections the product belongs to; match against the collection handle. */
@@ -80,7 +85,7 @@ export interface Page<T> {
   pageInfo: PageInfo
 }
 
-export type CollectionWithProducts = Collection & { products: Page<Product> }
+export type CollectionWithProducts = Collection & { products: Page<ProductSummary> }
 
 export interface PageArgs {
   /** Page size, 1-250. */

@@ -8,7 +8,7 @@ import {
   normalizePage,
   type RawCollection,
   type RawConnection,
-  type RawProduct,
+  type RawProductSummary,
 } from "./normalize"
 import { pageVariables } from "./pagination"
 import { COLLECTIONS_QUERY, COLLECTION_BY_HANDLE_QUERY } from "./queries"
@@ -31,7 +31,7 @@ export async function getCollectionByHandle(
 ): Promise<CollectionWithProducts | null> {
   if (!handle.trim()) return null
   const data = await storefrontRequest<{
-    collection: (RawCollection & { products: RawConnection<RawProduct> }) | null
+    collection: (RawCollection & { products: RawConnection<RawProductSummary> }) | null
   }>(
     "getCollectionByHandle",
     COLLECTION_BY_HANDLE_QUERY,

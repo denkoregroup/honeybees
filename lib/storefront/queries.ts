@@ -1,29 +1,43 @@
+/** Variants fetched with the product; further pages come from PRODUCT_VARIANTS_QUERY. */
+export const VARIANTS_PAGE_SIZE = 100
+
 const MONEY = `amount currencyCode`
 const IMAGE = `url altText width height`
 
-const PRODUCT_FIELDS = `
+/** Everything a product card needs; no variants, so list queries stay small. */
+const PRODUCT_CARD_FIELDS = `
   id
   title
   handle
-  description
-  descriptionHtml
   tags
   availableForSale
   featuredImage { ${IMAGE} }
-  images(first: 20) { nodes { ${IMAGE} } }
   priceRange { minVariantPrice { ${MONEY} } maxVariantPrice { ${MONEY} } }
   compareAtPriceRange { minVariantPrice { ${MONEY} } maxVariantPrice { ${MONEY} } }
+`
+
+const VARIANT_FIELDS = `
+  id
+  title
+  availableForSale
+  price { ${MONEY} }
+  compareAtPrice { ${MONEY} }
+  selectedOptions { name value }
+  image { ${IMAGE} }
+`
+
+const PAGE_INFO = `pageInfo { hasNextPage endCursor }`
+
+/** Full detail selection for the product page. Variants are paginated; see getProductByHandle. */
+const PRODUCT_DETAIL_FIELDS = `
+  ${PRODUCT_CARD_FIELDS}
+  description
+  descriptionHtml
+  images(first: 20) { nodes { ${IMAGE} } }
   options { name optionValues { name } }
-  variants(first: 100) {
-    nodes {
-      id
-      title
-      availableForSale
-      price { ${MONEY} }
-      compareAtPrice { ${MONEY} }
-      selectedOptions { name value }
-      image { ${IMAGE} }
-    }
+  variants(first: ${VARIANTS_PAGE_SIZE}) {
+    nodes { ${VARIANT_FIELDS} }
+    ${PAGE_INFO}
   }
   collections(first: 10) { nodes { id title handle } }
 `
@@ -37,12 +51,10 @@ const COLLECTION_FIELDS = `
   image { ${IMAGE} }
 `
 
-const PAGE_INFO = `pageInfo { hasNextPage endCursor }`
-
 export const PRODUCTS_QUERY = `#graphql
   query Products($first: Int!, $after: String) {
     products(first: $first, after: $after) {
-      nodes { ${PRODUCT_FIELDS} }
+      nodes { ${PRODUCT_CARD_FIELDS} }
       ${PAGE_INFO}
     }
   }
@@ -50,7 +62,7 @@ export const PRODUCTS_QUERY = `#graphql
 
 export const PRODUCT_BY_HANDLE_QUERY = `#graphql
   query ProductByHandle($handle: String!) {
-    product(handle: $handle) { ${PRODUCT_FIELDS} }
+    product(handle: $handle) { ${PRODUCT_DETAIL_FIELDS} }
   }
 `
 
@@ -68,7 +80,18 @@ export const COLLECTION_BY_HANDLE_QUERY = `#graphql
     collection(handle: $handle) {
       ${COLLECTION_FIELDS}
       products(first: $first, after: $after) {
-        nodes { ${PRODUCT_FIELDS} }
+        nodes { ${PRODUCT_CARD_FIELDS} }
+        ${PAGE_INFO}
+      }
+    }
+  }
+`
+
+export const PRODUCT_VARIANTS_QUERY = `#graphql
+  query ProductVariants($handle: String!, $first: Int!, $after: String) {
+    product(handle: $handle) {
+      variants(first: $first, after: $after) {
+        nodes { ${VARIANT_FIELDS} }
         ${PAGE_INFO}
       }
     }

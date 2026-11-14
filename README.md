@@ -63,6 +63,14 @@ Shopify responses are normalised into the types in `lib/types.ts` so components 
 - `/api/newsletter` validates the email and logs it; it does not store or forward it (`TODO` in the code).
 - Placeholder variant IDs are not valid Shopify merchandise IDs, so placeholder products could not be bought through Shopify even if the cart calls worked.
 
+## Catalog layer
+
+`lib/storefront/` is a server-only, read-only layer over the Shopify Storefront API: `getProducts` and `getCollectionByHandle` return lightweight `ProductSummary` records for cards, `getProductByHandle` returns the full `Product` with all variants, and `getCollections` lists collections. Results are typed, flattened and cached with 5-minute revalidation and cache tags. Set `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_STOREFRONT_ACCESS_TOKEN` (see `.env.example`), then run `npm run verify:shopify` to check them against the store. That script uses `--env-file-if-exists` and needs Node 22.9 or newer.
+
+## Tests
+
+`pnpm test` runs the unit tests once (`pnpm test:watch` re-runs on change) with Vitest in a plain Node environment; no secrets or network are needed. They live next to the code in `lib/storefront/__tests__/` and cover the catalog layer: normalizing Shopify responses into the typed shapes, page-size validation, error types, client configuration and request options (env validation, token type, cache tags and revalidation, failure handling and logging), null results for unknown or empty handles, and variant paging with its cap. Fetch is mocked, so the tests say nothing about live Shopify behavior. Components, pages and routes are not covered here.
+
 ## API routes
 
 - `POST /api/contact`: validates name/email/message, sends a `ContactEmail` via Resend, reply-to set to the submitter. Returns 503 if `RESEND_API_KEY` is unset.
@@ -77,6 +85,7 @@ Names and purpose only. Set them in `.env.local` locally and in the Vercel proje
 | --- | --- | --- |
 | `SHOPIFY_STOREFRONT_API_URL` | `lib/shopify.ts`, `app/api/checkout/route.ts` | Shopify store domain passed to the Storefront API client as `storeDomain` |
 | `SHOPIFY_STOREFRONT_ACCESS_TOKEN` | `lib/shopify.ts` | Storefront API public access token |
+| `SHOPIFY_STOREFRONT_TOKEN_TYPE` | `lib/storefront/client.ts` | Optional: `private` (default) or `public`, the kind of token `SHOPIFY_STOREFRONT_ACCESS_TOKEN` holds |
 | `RESEND_API_KEY` | `app/api/contact/route.ts` | Resend API key for contact-form email |
 | `CONTACT_EMAIL` | `app/api/contact/route.ts` | Recipient of contact-form messages (optional; the code has a default) |
 | `NEXT_PUBLIC_SITE_URL` | `app/layout.tsx` | Canonical site URL for metadata (optional; the code has a default) |
