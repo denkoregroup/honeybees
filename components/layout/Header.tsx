@@ -19,8 +19,8 @@ export function Header() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [search, setSearch] = useState("")
-  const { items, openCart } = useCartStore()
-  const itemCount = items.reduce((s, i) => s + i.quantity, 0)
+  const { cart, openCart } = useCartStore()
+  const itemCount = cart?.totalQuantity ?? 0
 
   return (
     <header

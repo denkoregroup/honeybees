@@ -34,6 +34,7 @@ export interface SentRequest {
   query: string
   variables: Record<string, unknown>
   headers: Headers
+  cache: RequestCache | undefined
   next: { revalidate?: number | false; tags?: string[] } | undefined
 }
 
@@ -55,6 +56,7 @@ export function stubFetch(handler: (req: SentRequest) => Response | Promise<Resp
       query,
       variables: variables ?? {},
       headers: new Headers(init?.headers),
+      cache: init?.cache,
       next: init?.next,
     })
   })
@@ -71,6 +73,7 @@ export function sentRequests(fetchMock: ReturnType<typeof stubFetch>): SentReque
       query,
       variables: variables ?? {},
       headers: new Headers(init?.headers),
+      cache: init?.cache,
       next: init?.next,
     }
   })
@@ -141,4 +144,40 @@ export function rawCollection(overrides: Partial<RawCollection> = {}): RawCollec
     image: null,
     ...overrides,
   }
+}
+
+// ---- Cart fixtures ----
+
+export const CART_ID = "gid://shopify/Cart/c1-test-cart?key=secret-cart-key"
+export const NEW_CART_ID = "gid://shopify/Cart/c2-new-cart?key=another-secret-key"
+export const CHECKOUT_URL = "https://checkout.example.com/cart/c/c1-test-cart?key=secret-cart-key"
+export const VARIANT_ID = "gid://shopify/ProductVariant/42"
+export const LINE_ID = "gid://shopify/CartLine/line-1?cart=c1-test-cart"
+
+export function rawCart(id = CART_ID, quantity = 2) {
+  return {
+    id,
+    checkoutUrl: CHECKOUT_URL,
+    totalQuantity: quantity,
+    cost: { subtotalAmount: money("50.00"), totalAmount: money("50.00") },
+    lines: {
+      nodes: [
+        {
+          id: LINE_ID,
+          quantity,
+          cost: { amountPerQuantity: money("25.00"), totalAmount: money(String(25 * quantity) + ".00") },
+          merchandise: {
+            title: "20oz",
+            image: { url: "https://cdn.example.com/tumbler.png", altText: null, width: 800, height: 600 },
+            product: { title: "Bee Kind Tumbler" },
+          },
+        },
+      ],
+    },
+  }
+}
+
+/** Which cart operation a request is, from its GraphQL document. */
+export function cartOperation(query: string) {
+  return /(?:query|mutation) (\w+)/.exec(query)?.[1]
 }
