@@ -1,21 +1,19 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Star } from "lucide-react"
-import { formatPrice } from "@/lib/utils"
-import type { Product } from "@/lib/types"
+import { formatMoney, saleCompareAt } from "@/lib/utils"
+import type { ProductSummary } from "@/lib/storefront/types"
 
 interface ProductCardProps {
-  product: Product
+  product: ProductSummary
   collectionHandle?: string
 }
 
 export function ProductCard({ product, collectionHandle }: ProductCardProps) {
-  const collection = collectionHandle ?? product.collections[0] ?? "shop"
+  const collection = collectionHandle ?? product.collections[0]?.handle ?? "shop"
   const href = `/shop/${collection}/${product.handle}`
-  const image = product.images[0]
-  const hasDiscount = product.compareAtPrice != null && product.compareAtPrice > product.price
-  const rating = product.rating ?? 5
-  const reviewCount = product.reviewCount ?? 0
+  const image = product.featuredImage
+  const price = product.priceRange.min
+  const compareAt = saleCompareAt(price, product.compareAtPriceRange?.min ?? null)
 
   return (
     <Link
@@ -34,11 +32,10 @@ export function ProductCard({ product, collectionHandle }: ProductCardProps) {
           />
         ) : (
           <div className="flex h-full items-center justify-center text-5xl">
-            {/* TODO: replace with real product images */}
             🐝
           </div>
         )}
-        {hasDiscount && (
+        {compareAt && (
           <span className="absolute left-2 top-2 rounded-full bg-[var(--color-coral)] px-2 py-0.5 text-[10px] font-bold text-white">
             SALE
           </span>
@@ -51,23 +48,13 @@ export function ProductCard({ product, collectionHandle }: ProductCardProps) {
           {product.title}
         </p>
 
-        {/* Stars */}
-        <div className="flex items-center justify-center gap-0.5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className="h-3 w-3 fill-[var(--color-coral)] text-[var(--color-coral)]" />
-          ))}
-          {reviewCount > 0 && (
-            <span className="ml-1 text-[11px] text-[var(--color-secondary)]">({reviewCount})</span>
-          )}
-        </div>
-
         <div className="flex items-center justify-center gap-2">
           <span className="text-[14px] font-semibold text-[var(--color-ink)]">
-            {formatPrice(product.price)}
+            {formatMoney(price)}
           </span>
-          {hasDiscount && (
+          {compareAt && (
             <span className="text-[12px] text-[var(--color-secondary)] line-through">
-              {formatPrice(product.compareAtPrice!)}
+              {formatMoney(compareAt)}
             </span>
           )}
         </div>

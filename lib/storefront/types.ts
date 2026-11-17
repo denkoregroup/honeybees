@@ -53,6 +53,8 @@ export interface ProductSummary {
   priceRange: PriceRange
   /** null when no variant has a compare-at price (Shopify reports 0.0 in that case). */
   compareAtPriceRange: PriceRange | null
+  /** Collections the product belongs to; match against the collection handle. */
+  collections: CollectionRef[]
 }
 
 /** Full product for the detail page, from getProductByHandle. */
@@ -62,8 +64,6 @@ export interface Product extends ProductSummary {
   images: Image[]
   options: ProductOption[]
   variants: Variant[]
-  /** Collections the product belongs to; match against the collection handle. */
-  collections: CollectionRef[]
 }
 
 export interface Collection {

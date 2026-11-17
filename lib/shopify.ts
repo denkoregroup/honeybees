@@ -1,5 +1,7 @@
 import { createStorefrontApiClient } from "@shopify/storefront-api-client"
-import type { Collection, Product } from "@/lib/types"
+
+// Cart operations only. Products and collections are read through lib/storefront.
+// SHOPIFY_STOREFRONT_API_URL and the client below go away with #9.
 
 // ─── Client (lazy) ────────────────────────────────────────────────────────────
 let _client: ReturnType<typeof createStorefrontApiClient> | null = null
@@ -27,60 +29,6 @@ export const shopifyClient = {
   request: (...args: Parameters<ReturnType<typeof createStorefrontApiClient>["request"]>) =>
     getClient().request(...args),
 }
-
-// ─── GraphQL fragments / queries ──────────────────────────────────────────────
-const PRODUCT_FRAGMENT = `
-  id title handle description
-  priceRange { minVariantPrice { amount currencyCode } }
-  compareAtPriceRange { minVariantPrice { amount } }
-  images(first: 4) { edges { node { url altText width height } } }
-  variants(first: 10) { edges { node {
-    id title availableForSale
-    price { amount }
-    selectedOptions { name value }
-  }}}
-  collections(first: 5) { edges { node { id title handle } } }
-`
-
-const PRODUCTS_QUERY = `#graphql
-  query GetProducts($first: Int!) {
-    products(first: $first) {
-      edges { node { ${PRODUCT_FRAGMENT} } }
-    }
-  }
-`
-
-const COLLECTIONS_QUERY = `#graphql
-  query GetCollections($first: Int!) {
-    collections(first: $first) {
-      edges { node {
-        id title handle description
-        image { url altText }
-        products(first: 4) { edges { node {
-          id title
-          priceRange { minVariantPrice { amount } }
-          images(first: 1) { edges { node { url altText } } }
-        }}}
-      }}
-    }
-  }
-`
-
-const PRODUCT_BY_HANDLE_QUERY = `#graphql
-  query GetProductByHandle($handle: String!) {
-    product(handle: $handle) { ${PRODUCT_FRAGMENT} }
-  }
-`
-
-const COLLECTION_BY_HANDLE_QUERY = `#graphql
-  query GetCollectionByHandle($handle: String!) {
-    collection(handle: $handle) {
-      id title handle description
-      image { url altText }
-      products(first: 24) { edges { node { ${PRODUCT_FRAGMENT} } } }
-    }
-  }
-`
 
 // ─── Cart mutations ───────────────────────────────────────────────────────────
 const CART_FRAGMENT = `
@@ -127,43 +75,6 @@ const CART_LINES_UPDATE_MUTATION = `#graphql
 `
 
 // ─── Normalisers ──────────────────────────────────────────────────────────────
-function normalizeProduct(node: Record<string, unknown>): Product {
-  const pr = node.priceRange as { minVariantPrice: { amount: string } }
-  const cpr = node.compareAtPriceRange as { minVariantPrice: { amount: string } } | null
-  const imgs = node.images as { edges: { node: Record<string, unknown> }[] }
-  const vars = node.variants as { edges: { node: Record<string, unknown> }[] }
-  const cols = node.collections as { edges: { node: { handle: string } }[] }
-
-  return {
-    id: node.id as string,
-    title: node.title as string,
-    handle: node.handle as string,
-    description: node.description as string,
-    price: parseFloat(pr.minVariantPrice.amount),
-    compareAtPrice: cpr?.minVariantPrice.amount
-      ? parseFloat(cpr.minVariantPrice.amount)
-      : undefined,
-    images: imgs.edges.map(({ node: img }) => ({
-      id: img.id as string,
-      url: img.url as string,
-      altText: img.altText as string | undefined,
-      width: img.width as number | undefined,
-      height: img.height as number | undefined,
-    })),
-    variants: vars.edges.map(({ node: v }) => {
-      const vp = v.price as { amount: string }
-      return {
-        id: v.id as string,
-        title: v.title as string,
-        price: parseFloat(vp.amount),
-        availableForSale: v.availableForSale as boolean,
-        selectedOptions: v.selectedOptions as { name: string; value: string }[],
-      }
-    }),
-    collections: cols.edges.map(({ node: c }) => c.handle),
-  }
-}
-
 export interface ShopifyCart {
   id: string
   checkoutUrl: string
@@ -211,76 +122,6 @@ function normalizeCart(cart: Record<string, unknown>): ShopifyCart {
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
-
-export async function getProducts(first = 24): Promise<Product[]> {
-  if (!isConfigured()) return []
-  try {
-    const { data, errors } = await shopifyClient.request(PRODUCTS_QUERY, { variables: { first } })
-    if (errors || !data) return []
-    const result = data as { products: { edges: { node: Record<string, unknown> }[] } }
-    return result.products.edges.map(({ node }) => normalizeProduct(node))
-  } catch (err) {
-    devError("getProducts", err)
-    return []
-  }
-}
-
-export async function getCollections(first = 20): Promise<Collection[]> {
-  if (!isConfigured()) return []
-  try {
-    const { data, errors } = await shopifyClient.request(COLLECTIONS_QUERY, { variables: { first } })
-    if (errors || !data) return []
-    const result = data as { collections: { edges: { node: Record<string, unknown> }[] } }
-    return result.collections.edges.map(({ node }) => ({
-      id: node.id as string,
-      title: node.title as string,
-      handle: node.handle as string,
-      description: node.description as string,
-      image: node.image as { url: string; altText?: string } | undefined,
-    }))
-  } catch (err) {
-    devError("getCollections", err)
-    return []
-  }
-}
-
-export async function getProductByHandle(handle: string): Promise<Product | null> {
-  if (!isConfigured()) return null
-  try {
-    const { data, errors } = await shopifyClient.request(PRODUCT_BY_HANDLE_QUERY, { variables: { handle } })
-    if (errors || !data) return null
-    const result = data as { product: Record<string, unknown> | null }
-    return result.product ? normalizeProduct(result.product) : null
-  } catch (err) {
-    devError("getProductByHandle", err)
-    return null
-  }
-}
-
-export async function getCollectionByHandle(
-  handle: string
-): Promise<(Collection & { products: Product[] }) | null> {
-  if (!isConfigured()) return null
-  try {
-    const { data, errors } = await shopifyClient.request(COLLECTION_BY_HANDLE_QUERY, { variables: { handle } })
-    if (errors || !data) return null
-    const result = data as { collection: Record<string, unknown> | null }
-    if (!result.collection) return null
-    const col = result.collection
-    const products = col.products as { edges: { node: Record<string, unknown> }[] }
-    return {
-      id: col.id as string,
-      title: col.title as string,
-      handle: col.handle as string,
-      description: col.description as string,
-      image: col.image as { url: string; altText?: string } | undefined,
-      products: products.edges.map(({ node }) => normalizeProduct(node)),
-    }
-  } catch (err) {
-    devError("getCollectionByHandle", err)
-    return null
-  }
-}
 
 export async function createCart(): Promise<{ id: string; checkoutUrl: string } | null> {
   if (!isConfigured()) return null

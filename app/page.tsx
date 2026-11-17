@@ -6,15 +6,19 @@ import { PromoBanners } from "@/components/home/PromoBanners"
 import { HowItWorks } from "@/components/home/HowItWorks"
 import { ShopCollections } from "@/components/home/ShopCollections"
 import { EmailSignup } from "@/components/home/EmailSignup"
-import { placeholderProducts } from "@/data/products"
+import { getProducts } from "@/lib/storefront"
 
-export default function HomePage() {
+const FEATURED_COUNT = 12
+
+export default async function HomePage() {
+  const featured = await getProducts({ first: FEATURED_COUNT })
+
   return (
     <>
       <HeroSection />
       <TrustBar />
       <CategoryGrid />
-      <FeaturedProducts products={placeholderProducts} />
+      <FeaturedProducts products={featured.items} />
       <PromoBanners />
       <HowItWorks />
       <ShopCollections />

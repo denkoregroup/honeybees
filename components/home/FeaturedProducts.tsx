@@ -3,34 +3,11 @@
 import { useRef } from "react"
 import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Link from "next/link"
-import type { Product } from "@/lib/types"
-import { formatPrice } from "@/lib/utils"
+import type { ProductSummary } from "@/lib/storefront/types"
+import { formatMoney } from "@/lib/utils"
 
 interface FeaturedProductsProps {
-  products: Product[]
-}
-
-function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
-  return (
-    <div className="flex items-center justify-center" style={{ gap: "2px", marginTop: "4px" }}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span
-          key={i}
-          style={{
-            fontSize: "12px",
-            opacity: i < rating ? 1 : 0.25,
-          }}
-        >
-          ⭐
-        </span>
-      ))}
-      {reviews > 0 && (
-        <span style={{ fontFamily: "var(--font-inter)", fontSize: "11px", color: "var(--color-gray)", marginLeft: "2px" }}>
-          ({reviews})
-        </span>
-      )}
-    </div>
-  )
+  products: ProductSummary[]
 }
 
 export function FeaturedProducts({ products }: FeaturedProductsProps) {
@@ -94,9 +71,9 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
             style={{ gap: "12px", overflow: "hidden" }}
           >
             {products.map((p) => {
-              const collection = p.collections[0] ?? "shop"
+              const collection = p.collections[0]?.handle ?? "shop"
               const href = `/shop/${collection}/${p.handle}`
-              const image = p.images[0]
+              const image = p.featuredImage
 
               return (
                 <Link
@@ -138,7 +115,6 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       />
                     ) : (
-                      /* TODO: real product image */
                       <ImageIcon
                         style={{ width: "32px", height: "32px", color: "var(--color-gray)" }}
                       />
@@ -162,9 +138,6 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                     {p.title}
                   </p>
 
-                  {/* Stars */}
-                  <StarRating rating={p.rating ?? 5} reviews={p.reviewCount ?? 0} />
-
                   {/* Price */}
                   <p
                     style={{
@@ -176,7 +149,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                       textAlign: "center",
                     }}
                   >
-                    {formatPrice(p.price)}
+                    {formatMoney(p.priceRange.min)}
                   </p>
                 </Link>
               )

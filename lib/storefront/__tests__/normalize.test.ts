@@ -100,6 +100,7 @@ describe("variants and options", () => {
 describe("ProductSummary vs Product", () => {
   const SUMMARY_KEYS = [
     "availableForSale",
+    "collections",
     "compareAtPriceRange",
     "featuredImage",
     "handle",
@@ -116,7 +117,7 @@ describe("ProductSummary vs Product", () => {
   it("a product has the summary fields plus detail fields", () => {
     const product = normalizeProduct(rawProduct())
     expect(Object.keys(product).sort()).toEqual(
-      [...SUMMARY_KEYS, "collections", "description", "descriptionHtml", "images", "options", "variants"].sort()
+      [...SUMMARY_KEYS, "description", "descriptionHtml", "images", "options", "variants"].sort()
     )
     expect(product.collections).toEqual([
       { id: "gid://shopify/Collection/1", title: "Drinkware", handle: "drinkware" },

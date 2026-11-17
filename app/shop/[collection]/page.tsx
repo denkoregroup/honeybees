@@ -1,44 +1,34 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getCollectionByHandle, getProducts } from "@/lib/shopify"
-import { placeholderCollections, placeholderProducts } from "@/data/products"
+import { getCollectionByHandle } from "@/lib/storefront"
 import { ProductCard } from "@/components/features/ProductCard"
 
 interface Props {
   params: Promise<{ collection: string }>
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { collection } = await params
-  const col = placeholderCollections.find((c) => c.handle === collection)
-  return {
-    title: `${col?.title ?? collection} | HoneyBee Designs`,
-    description: col?.description,
-  }
-}
+// Largest page the Storefront API allows; there is no pagination UI.
+const PRODUCTS_PER_COLLECTION = 250
 
-export async function generateStaticParams() {
-  return placeholderCollections.map((c) => ({ collection: c.handle }))
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { collection: handle } = await params
+  const collection = await getCollectionByHandle(handle, { first: PRODUCTS_PER_COLLECTION })
+  if (!collection) notFound()
+  return {
+    title: `${collection.title} | HoneyBee Designs`,
+    description: collection.description,
+  }
 }
 
 export default async function CollectionPage({ params }: Props) {
   const { collection: handle } = await params
 
-  const liveCollection = await getCollectionByHandle(handle)
-  const placeholderCol = placeholderCollections.find((c) => c.handle === handle)
+  const collection = await getCollectionByHandle(handle, { first: PRODUCTS_PER_COLLECTION })
+  if (!collection) notFound()
 
-  if (!liveCollection && !placeholderCol) notFound()
-
-  const title = liveCollection?.title ?? placeholderCol?.title ?? handle
-  const description = liveCollection?.description ?? placeholderCol?.description ?? ""
-
-  let products = liveCollection?.products ?? []
-  if (products.length === 0) {
-    const all = await getProducts(48)
-    const pool = all.length > 0 ? all : placeholderProducts
-    products = pool.filter((p) => p.collections.includes(handle))
-  }
+  const { title, description } = collection
+  const products = collection.products.items
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">

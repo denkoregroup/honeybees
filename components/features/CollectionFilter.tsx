@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import type { Collection } from "@/lib/types"
+import type { Collection } from "@/lib/storefront/types"
 
 interface CollectionFilterProps {
   collections: Collection[]

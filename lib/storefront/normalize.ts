@@ -44,6 +44,7 @@ export interface RawProductSummary {
   featuredImage: RawImage | null
   priceRange: RawRange
   compareAtPriceRange: RawRange
+  collections: { nodes: { id: string; title: string; handle: string }[] }
 }
 export interface RawProduct extends RawProductSummary {
   description: string
@@ -51,7 +52,6 @@ export interface RawProduct extends RawProductSummary {
   images: { nodes: RawImage[] }
   options: { name: string; optionValues: { name: string }[] }[]
   variants: { nodes: RawVariant[] }
-  collections: { nodes: { id: string; title: string; handle: string }[] }
 }
 export interface RawCollection {
   id: string
@@ -99,6 +99,7 @@ export function normalizeProductSummary(p: RawProductSummary): ProductSummary {
     featuredImage: image(p.featuredImage),
     priceRange: range(p.priceRange),
     compareAtPriceRange: Number(compareAt.max.amount) > 0 ? compareAt : null,
+    collections: p.collections.nodes.map(({ id, title, handle }) => ({ id, title, handle })),
   }
 }
 
@@ -110,7 +111,6 @@ export function normalizeProduct(p: RawProduct): Product {
     images: p.images.nodes.map((i) => image(i)!),
     options: p.options.map((o) => ({ name: o.name, values: o.optionValues.map((v) => v.name) })),
     variants: p.variants.nodes.map(variant),
-    collections: p.collections.nodes.map(({ id, title, handle }) => ({ id, title, handle })),
   }
 }
 

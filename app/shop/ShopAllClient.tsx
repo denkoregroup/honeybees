@@ -3,23 +3,11 @@
 import { useState } from "react"
 import { ProductCard } from "@/components/features/ProductCard"
 import { ShopFilters } from "@/components/features/ShopFilters"
-import type { Product } from "@/lib/types"
-
-const FILTER_OPTIONS = [
-  { label: "All", value: "all" },
-  { label: "Apparel", value: "apparel" },
-  { label: "Drinkware", value: "drinkware" },
-  { label: "Keychains", value: "keychains" },
-  { label: "Stickers & Decals", value: "stickers-decals" },
-  { label: "Gift Ideas", value: "gift-ideas" },
-  { label: "Dog Tags", value: "dog-tags" },
-  { label: "Car Coasters", value: "car-coasters" },
-  { label: "Vinyl Decals", value: "vinyl-decals" },
-  { label: "Custom Signs", value: "custom-signs" },
-]
+import { collectionFilterOptions } from "@/lib/collection-filters"
+import type { ProductSummary } from "@/lib/storefront/types"
 
 interface ShopAllClientProps {
-  products: Product[]
+  products: ProductSummary[]
 }
 
 export function ShopAllClient({ products }: ShopAllClientProps) {
@@ -28,7 +16,7 @@ export function ShopAllClient({ products }: ShopAllClientProps) {
   const filtered =
     activeFilter === "all"
       ? products
-      : products.filter((p) => p.collections.includes(activeFilter))
+      : products.filter((p) => p.collections.some((c) => c.handle === activeFilter))
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -43,7 +31,7 @@ export function ShopAllClient({ products }: ShopAllClientProps) {
       {/* Filters */}
       <div className="mb-8">
         <ShopFilters
-          options={FILTER_OPTIONS}
+          options={collectionFilterOptions(products)}
           active={activeFilter}
           onChange={setActiveFilter}
         />
