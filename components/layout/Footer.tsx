@@ -1,15 +1,8 @@
 import Link from "next/link"
 
 const SHOP_LINKS = [
-  { label: "All Products",      href: "/shop" },
-  { label: "Custom Apparel",    href: "/shop/custom-apparel" },
-  { label: "Drinkware",         href: "/shop/drinkware" },
-  { label: "Accessories",       href: "/shop/accessories" },
-  { label: "Home & Lifestyle",  href: "/shop/home-lifestyle" },
-  { label: "Stickers & Decals", href: "/shop/stickers-decals" },
-  { label: "New Arrivals",      href: "/shop/new-arrivals" },
-  { label: "Gift Ideas",        href: "/shop/gift-ideas" },
-  { label: "Sale",              href: "/shop/sale" },
+  { label: "All Products", href: "/shop" },
+  { label: "Collections",  href: "/collections" },
 ]
 
 const HELP_LINKS = [

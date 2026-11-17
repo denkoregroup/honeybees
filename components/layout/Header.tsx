@@ -8,18 +8,11 @@ import { useCartStore } from "@/store/cart"
 import { cn } from "@/lib/utils"
 
 const NAV_LINKS = [
-  { label: "HOME",              href: "/" },
-  { label: "SHOP ALL",          href: "/shop" },
-  { label: "CUSTOM APPAREL",    href: "/shop/custom-apparel" },
-  { label: "DRINKWARE",         href: "/shop/drinkware" },
-  { label: "ACCESSORIES",       href: "/shop/accessories" },
-  { label: "HOME & LIFESTYLE",  href: "/shop/home-lifestyle" },
-  { label: "STICKERS & DECALS", href: "/shop/stickers-decals" },
-  { label: "NEW ARRIVALS",      href: "/shop/new-arrivals" },
-  { label: "GIFT IDEAS",        href: "/shop/gift-ideas" },
-  { label: "SALE",              href: "/shop/sale", sale: true },
-  { label: "ABOUT US",          href: "/about" },
-  { label: "CONTACT",           href: "/contact" },
+  { label: "HOME",        href: "/" },
+  { label: "SHOP ALL",    href: "/shop" },
+  { label: "COLLECTIONS", href: "/collections" },
+  { label: "ABOUT US",    href: "/about" },
+  { label: "CONTACT",     href: "/contact" },
 ]
 
 export function Header() {
@@ -187,23 +180,21 @@ export function Header() {
                   style={{
                     fontFamily: "var(--font-montserrat)",
                     fontSize: "12px",
-                    fontWeight: link.sale ? 700 : 500,
+                    fontWeight: 500,
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
-                    color: link.sale || isHome
-                      ? "var(--color-sunflower)"
-                      : active
+                    color: isHome || active
                       ? "var(--color-sunflower)"
                       : "var(--color-black)",
                     borderBottom: (active || isHome) ? "2px solid var(--color-sunflower)" : undefined,
                     paddingBottom: (active || isHome) ? "2px" : undefined,
                   }}
                   onMouseEnter={(e) => {
-                    if (!link.sale && !isHome && !active)
+                    if (!isHome && !active)
                       (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-primary)"
                   }}
                   onMouseLeave={(e) => {
-                    if (!link.sale && !isHome && !active)
+                    if (!isHome && !active)
                       (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-black)"
                   }}
                 >
@@ -244,7 +235,7 @@ export function Header() {
                   style={{
                     fontFamily: "var(--font-montserrat)",
                     fontWeight: 500,
-                    color: link.sale || pathname === link.href
+                    color: pathname === link.href
                       ? "var(--color-sunflower)"
                       : "var(--color-black)",
                   }}
