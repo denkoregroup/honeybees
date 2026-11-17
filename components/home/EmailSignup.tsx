@@ -38,18 +38,25 @@ const SOCIAL = [
 export function EmailSignup() {
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [errorMessage, setErrorMessage] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
     setStatus("loading")
+    setErrorMessage("")
     try {
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null
+        setErrorMessage(data?.error ?? "")
+        setStatus("error")
+        return
+      }
       setStatus("success")
       setEmail("")
     } catch {
@@ -163,7 +170,7 @@ export function EmailSignup() {
 
           {status === "error" && (
             <p style={{ fontFamily: "var(--font-inter)", fontSize: "12px", color: "#ef4444", margin: 0 }}>
-              Something went wrong. Please try again!
+              {errorMessage || "Something went wrong. Please try again!"}
             </p>
           )}
         </div>
