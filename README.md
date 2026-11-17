@@ -11,7 +11,6 @@ npm install
 Create `.env.local` with these variables:
 
 - `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_STOREFRONT_ACCESS_TOKEN`: required. The shop pages read products and collections through the server-only catalog layer in `lib/storefront/` (see below), and `pnpm build` and `pnpm dev` fail without them. `SHOPIFY_STOREFRONT_TOKEN_TYPE` is optional: `private` (default) or `public`, the kind of token the access token is.
-- `SHOPIFY_STOREFRONT_API_URL`: store domain for the cart and `/api/checkout` only (`lib/shopify.ts`); it goes away with #9.
 - `RESEND_API_KEY`: needed for the contact form (`/api/contact`).
 - `CONTACT_EMAIL`, `NEXT_PUBLIC_SITE_URL`: optional; both have defaults in code.
 
@@ -25,8 +24,9 @@ Open http://localhost:3000. `npm run lint` runs ESLint.
 
 - `app/`: routes and API routes (App Router)
 - `components/`: UI, grouped by `home/`, `features/`, `layout/`, `ui/` and `emails/`
-- `lib/`: the server-only catalog layer (`storefront/`), cart-only Shopify calls (`shopify.ts`), variant selection logic, helpers
-- `store/`: Zustand cart store
+- `lib/`: the server-only Shopify layer (`storefront/`: catalog and cart), input checks and variant selection logic, helpers
+- `app/actions/`: the cart Server Actions
+- `store/`: Zustand store for cart UI state
 - `public/`: static assets
 
 ## Catalog layer and data flow
@@ -42,9 +42,19 @@ The home, `/shop`, `/shop/[collection]`, `/shop/[collection]/[product]` and `/co
 - **Descriptions:** product descriptions are shown as plain text; `descriptionHtml` is not rendered.
 - **Collections:** `/collections` lists every collection Shopify returns. The catalog layer doesn't say whether a collection has products, so empty collections are listed too.
 
+## Cart and checkout
+
+The cart is a Shopify cart, handled entirely on the server so the Storefront token never reaches the browser. The product page, drawer and `/cart` page call the Server Actions in `app/actions/cart.ts` (`addToCart`, `updateLine`, `removeLine`, `getCart`), which call `lib/storefront/cart.ts`.
+
+- **Cart id:** kept in an httpOnly, SameSite=Lax cookie (Secure in production, 30 days). The browser never sees it. The actions return only the cart contents (lines, totals and the checkout URL), and the Zustand store in `store/cart.ts` holds that last snapshot plus drawer and pending state. Nothing is persisted in the browser.
+- **Validation:** the actions check inputs on the server (a ProductVariant id, a quantity from 1 to 99; 0 on update removes the line). Failures return a generic message and are logged without cart ids, URLs or tokens.
+- **Expired carts:** adding to a cart Shopify no longer has creates a new one with the item in it. Loading a cart Shopify no longer has clears the cookie and shows an empty cart.
+- **No caching:** cart requests use `cache: "no-store"` and no tags, unlike catalog reads (5-minute revalidation). With a private token, cart requests also send the buyer's IP (`Shopify-Storefront-Buyer-IP`); with a public token they don't, and catalog reads never do.
+- **Checkout:** the drawer and `/cart` link to the cart's `checkoutUrl`, Shopify's hosted checkout.
+
 ## Tests
 
-`pnpm test` runs the unit tests once (`pnpm test:watch` re-runs on change) with Vitest in a plain Node environment; no secrets or network are needed. They live in `lib/storefront/__tests__/` (the catalog layer, with fetch mocked, so they say nothing about live Shopify behavior) and `lib/__tests__/` (variant selection). CI runs lint, tests and build on every pull request.
+`pnpm test` runs the unit tests once (`pnpm test:watch` re-runs on change) with Vitest in a plain Node environment; no secrets or network are needed. They live in `lib/storefront/__tests__/` (the catalog layer, with fetch mocked, so they say nothing about live Shopify behavior) and `lib/__tests__/` and `app/actions/__tests__/` (variant selection, input checks and the cart Server Actions, again with fetch mocked). CI runs lint, tests and build on every pull request.
 
 ## Deployment
 

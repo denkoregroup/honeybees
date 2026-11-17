@@ -8,6 +8,7 @@ import { Accordion } from "@/components/ui/accordion"
 import { useCartStore } from "@/store/cart"
 import { VariantPicker } from "@/components/features/VariantPicker"
 import { formatMoney, saleCompareAt } from "@/lib/utils"
+import { MAX_QUANTITY } from "@/lib/cart-input"
 import { initialVariant } from "@/lib/variant-selection"
 import type { Product, Variant } from "@/lib/storefront/types"
 
@@ -55,21 +56,12 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(initialVariant(product.variants))
   const [activeImage, setActiveImage] = useState(0)
   const [qty, setQty] = useState(1)
-  const [adding, setAdding] = useState(false)
-  const { addItem, openCart } = useCartStore()
+  const { addItem, openCart, isPending } = useCartStore()
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return
-    setAdding(true)
-    await addItem(selectedVariant.id, {
-      productId: product.id,
-      title: product.title,
-      variantTitle: selectedVariant.title,
-      price: Number(selectedVariant.price.amount),
-      image: product.featuredImage?.url,
-    })
+    await addItem(selectedVariant.id, qty)
     openCart()
-    setAdding(false)
   }
 
   const price = selectedVariant?.price ?? product.priceRange.min
@@ -181,7 +173,7 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
               </button>
               <span className="min-w-[32px] text-center text-[14px] font-semibold">{qty}</span>
               <button
-                onClick={() => setQty((q) => q + 1)}
+                onClick={() => setQty((q) => Math.min(MAX_QUANTITY, q + 1))}
                 className="px-3.5 py-2 text-[var(--color-secondary)] hover:text-[var(--color-ink)]"
                 aria-label="Increase quantity"
               >
@@ -191,11 +183,11 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
 
             <button
               onClick={handleAddToCart}
-              disabled={!selectedVariant || adding}
+              disabled={!selectedVariant || isPending}
               className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[var(--color-coral)] px-6 py-3 text-[14px] font-bold text-white transition-all hover:bg-[var(--color-coral-dark)] disabled:opacity-60 sm:flex-none sm:min-w-[200px]"
             >
               <ShoppingBag className="h-4 w-4" />
-              {adding ? "ADDING…" : "ADD TO CART ♥"}
+              {isPending ? "ADDING…" : "ADD TO CART ♥"}
             </button>
           </div>
 
