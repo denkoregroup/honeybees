@@ -1,138 +1,59 @@
 "use client"
 
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
-import type { CartItem } from "@/lib/types"
-import { createCart, addToCart, removeFromCart, updateCartQuantity } from "@/lib/shopify"
+import { addToCart, getCart, removeLine, updateLine, type CartResult } from "@/app/actions/cart"
+import type { Cart } from "@/lib/storefront/types"
+
+// UI state only. The cart itself lives at Shopify and its id in an httpOnly cookie on the server;
+// `cart` is just the last snapshot a server action returned.
+
+const REQUEST_FAILED = "Something went wrong with your cart. Please try again."
 
 interface CartStore {
-  cartId: string | null
-  checkoutUrl: string | null
-  items: CartItem[]
+  cart: Cart | null
+  /** True once the first snapshot (or error) has come back, so pages don't flash an empty cart. */
+  loaded: boolean
   isOpen: boolean
-  isLoading: boolean
+  isPending: boolean
+  error: string | null
+  /** Repeats the operation that failed; null when there is no error. */
+  retry: (() => Promise<void>) | null
   openCart: () => void
   closeCart: () => void
-  initCart: () => Promise<void>
-  addItem: (variantId: string, productInfo: Partial<CartItem>) => Promise<void>
-  removeItem: (lineId: string) => Promise<void>
+  refresh: () => Promise<void>
+  addItem: (variantId: string, quantity: number) => Promise<void>
   updateQuantity: (lineId: string, quantity: number) => Promise<void>
-  total: () => number
-  itemCount: () => number
+  removeItem: (lineId: string) => Promise<void>
 }
 
-export const useCartStore = create<CartStore>()(
-  persist(
-    (set, get) => ({
-      cartId: null,
-      checkoutUrl: null,
-      items: [],
-      isOpen: false,
-      isLoading: false,
-
-      openCart: () => set({ isOpen: true }),
-      closeCart: () => set({ isOpen: false }),
-
-      initCart: async () => {
-        if (get().cartId) return
-        const result = await createCart()
-        if (result) {
-          set({ cartId: result.id, checkoutUrl: result.checkoutUrl })
-        }
-      },
-
-      addItem: async (variantId, productInfo) => {
-        set({ isLoading: true })
-        try {
-          let { cartId } = get()
-          if (!cartId) {
-            const result = await createCart()
-            if (!result) return
-            cartId = result.id
-            set({ cartId, checkoutUrl: result.checkoutUrl })
-          }
-          const cart = await addToCart(cartId, variantId, 1)
-          if (cart) {
-            set({
-              checkoutUrl: cart.checkoutUrl,
-              items: cart.lines.map((line) => ({
-                variantId: line.variantId,
-                productId: line.productId,
-                title: line.productTitle,
-                variantTitle: line.variantTitle,
-                price: line.price,
-                quantity: line.quantity,
-                image: line.image,
-                lineId: line.id,
-              } as CartItem & { lineId: string })),
-            })
-          }
-        } finally {
-          set({ isLoading: false })
-        }
-      },
-
-      removeItem: async (lineId) => {
-        const { cartId } = get()
-        if (!cartId) return
-        set({ isLoading: true })
-        try {
-          const cart = await removeFromCart(cartId, lineId)
-          if (cart) {
-            set({
-              items: cart.lines.map((line) => ({
-                variantId: line.variantId,
-                productId: line.productId,
-                title: line.productTitle,
-                variantTitle: line.variantTitle,
-                price: line.price,
-                quantity: line.quantity,
-                image: line.image,
-                lineId: line.id,
-              } as CartItem & { lineId: string })),
-            })
-          }
-        } finally {
-          set({ isLoading: false })
-        }
-      },
-
-      updateQuantity: async (lineId, quantity) => {
-        const { cartId } = get()
-        if (!cartId) return
-        if (quantity <= 0) {
-          await get().removeItem(lineId)
-          return
-        }
-        set({ isLoading: true })
-        try {
-          const cart = await updateCartQuantity(cartId, lineId, quantity)
-          if (cart) {
-            set({
-              items: cart.lines.map((line) => ({
-                variantId: line.variantId,
-                productId: line.productId,
-                title: line.productTitle,
-                variantTitle: line.variantTitle,
-                price: line.price,
-                quantity: line.quantity,
-                image: line.image,
-                lineId: line.id,
-              } as CartItem & { lineId: string })),
-            })
-          }
-        } finally {
-          set({ isLoading: false })
-        }
-      },
-
-      total: () => get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-
-      itemCount: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
-    }),
-    {
-      name: "honeybee-cart",
-      partialize: (state) => ({ cartId: state.cartId, checkoutUrl: state.checkoutUrl }),
+export const useCartStore = create<CartStore>()((set) => {
+  const run = async (operation: () => Promise<CartResult>): Promise<void> => {
+    set({ isPending: true, error: null, retry: null })
+    let result: CartResult
+    try {
+      result = await operation()
+    } catch {
+      result = { ok: false, error: REQUEST_FAILED }
     }
-  )
-)
+    if (result.ok) {
+      set({ cart: result.cart, loaded: true, isPending: false })
+    } else {
+      set({ error: result.error, loaded: true, isPending: false, retry: () => run(operation) })
+    }
+  }
+
+  return {
+    cart: null,
+    loaded: false,
+    isOpen: false,
+    isPending: false,
+    error: null,
+    retry: null,
+    openCart: () => set({ isOpen: true }),
+    closeCart: () => set({ isOpen: false }),
+    refresh: () => run(() => getCart()),
+    addItem: (variantId, quantity) => run(() => addToCart(variantId, quantity)),
+    updateQuantity: (lineId, quantity) => run(() => updateLine(lineId, quantity)),
+    removeItem: (lineId) => run(() => removeLine(lineId)),
+  }
+})

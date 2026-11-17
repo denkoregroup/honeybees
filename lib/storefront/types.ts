@@ -93,3 +93,24 @@ export interface PageArgs {
   /** `pageInfo.endCursor` from the previous page. */
   after?: string | null
 }
+
+export interface CartLine {
+  /** Line id for update and remove calls. */
+  id: string
+  /** Product title. */
+  title: string
+  variantTitle: string
+  image: Image | null
+  quantity: number
+  unitPrice: Money
+  totalPrice: Money
+}
+
+/** What the browser gets for a cart. The cart id never leaves the server; it lives in an httpOnly cookie. */
+export interface Cart {
+  lines: CartLine[]
+  totalQuantity: number
+  subtotal: Money
+  total: Money
+  checkoutUrl: string
+}

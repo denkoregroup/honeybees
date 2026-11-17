@@ -14,8 +14,8 @@ const navLinks = [
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { items, openCart } = useCartStore()
-  const itemCount = items.reduce((sum, i) => sum + i.quantity, 0)
+  const { cart, openCart } = useCartStore()
+  const itemCount = cart?.totalQuantity ?? 0
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
