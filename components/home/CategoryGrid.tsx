@@ -82,9 +82,42 @@ function CategoryTile({ name, handle }: { name: string; handle: string }) {
   )
 }
 
+const MOBILE_TILE_COUNT = 8
+
 export function CategoryGrid() {
   return (
-    <section style={{ backgroundColor: "var(--color-cream)", padding: "48px 0" }}>
+    <>
+    {/* Mobile (below md): swipe row of small tiles, the next one peeking */}
+    <section className="pb-8 md:hidden">
+      <h2
+        className="mb-6 px-4 text-center text-[28px] font-extrabold uppercase leading-9"
+        style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+      >
+        Shop by category
+      </h2>
+      <ul className="no-scrollbar flex snap-x gap-2 overflow-x-auto px-4">
+        {CATEGORIES.slice(0, MOBILE_TILE_COUNT).map(({ name, handle }) => (
+          <li key={handle} className="w-[92px] flex-shrink-0 snap-start">
+            <Link href={`/shop/${handle}`} className="focus-ring flex flex-col items-center gap-2">
+              <span
+                className="flex h-[92px] w-[92px] items-center justify-center rounded-xl border"
+                style={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }}
+              >
+                <ImageIcon className="h-8 w-8" style={{ color: "var(--color-gray)" }} aria-hidden />
+              </span>
+              <span
+                className="text-center text-[11px] font-semibold uppercase leading-4 tracking-[0.04em]"
+                style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+              >
+                {name}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section className="hidden md:block" style={{ backgroundColor: "var(--color-cream)", padding: "48px 0" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         {/* Heading */}
         <div
@@ -148,5 +181,6 @@ export function CategoryGrid() {
         </div>
       </div>
     </section>
+    </>
   )
 }
