@@ -31,6 +31,114 @@ export function Header() {
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
+      {/* ── Mobile (below md): 56px bar with menu, centered logo, search and cart ── */}
+      <div className="md:hidden">
+        <div className="grid h-14 grid-cols-[88px_1fr_88px] items-center px-2">
+          <button
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            className="focus-ring flex h-11 w-11 items-center justify-center"
+            onClick={() => setMobileOpen((o) => !o)}
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+
+          <Link
+            href="/"
+            aria-label="HoneyBee Designs home"
+            className="focus-ring flex h-12 flex-col items-center justify-center leading-none"
+          >
+            <span
+              style={{
+                fontFamily: "var(--font-pacifico)",
+                fontSize: "26px",
+                color: "oklch(0.74 0.10 78)",
+                letterSpacing: "1px",
+                lineHeight: 1.1,
+              }}
+            >
+              HoneyBee
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-montserrat)",
+                fontSize: "12px",
+                color: "var(--color-gray)",
+                fontStyle: "italic",
+                letterSpacing: "0.1em",
+                marginTop: "-2px",
+              }}
+            >
+              designs
+            </span>
+          </Link>
+
+          <div className="flex items-center justify-end">
+            {/* No search UI exists yet, so this goes to the shop. */}
+            <Link href="/shop" aria-label="Search the shop" className="focus-ring flex h-11 w-11 items-center justify-center">
+              <Search className="h-6 w-6" />
+            </Link>
+            <button
+              aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ""}`}
+              onClick={openCart}
+              className="focus-ring relative flex h-11 w-11 items-center justify-center"
+            >
+              <ShoppingCart className="h-6 w-6" />
+              <span
+                className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold leading-none text-white"
+                style={{ backgroundColor: "var(--color-coral-ink)" }}
+              >
+                {itemCount > 9 ? "9+" : itemCount}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {mobileOpen && (
+          <nav
+            id="mobile-menu"
+            aria-label="Main menu"
+            className="border-t px-4 pb-4 pt-2"
+            style={{ borderColor: "var(--color-border)" }}
+          >
+            <ul>
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="focus-ring flex min-h-11 items-center text-[14px] font-bold uppercase tracking-[0.06em]"
+                    style={{
+                      fontFamily: "var(--font-montserrat)",
+                      color: "var(--color-ink)",
+                      textDecoration: pathname === link.href ? "underline" : undefined,
+                      textUnderlineOffset: "4px",
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ul className="mt-2 border-t pt-2" style={{ borderColor: "var(--color-border)" }}>
+              <li>
+                <button className="focus-ring flex min-h-11 w-full items-center gap-3 text-[14px] font-bold uppercase tracking-[0.06em]" style={{ fontFamily: "var(--font-montserrat)" }}>
+                  <User className="h-5 w-5" /> Account
+                </button>
+              </li>
+              <li>
+                <button className="focus-ring flex min-h-11 w-full items-center gap-3 text-[14px] font-bold uppercase tracking-[0.06em]" style={{ fontFamily: "var(--font-montserrat)" }}>
+                  <Heart className="h-5 w-5" /> Wishlist
+                </button>
+              </li>
+            </ul>
+          </nav>
+        )}
+      </div>
+
+      {/* ── md and up: unchanged ── */}
+      <div className="hidden md:contents">
       {/* ── Row 1: Hamburger · Search · Logo · Icons ── */}
       <div
         className="grid px-6"
@@ -248,6 +356,7 @@ export function Header() {
           </ul>
         </nav>
       )}
+      </div>
     </header>
   )
 }

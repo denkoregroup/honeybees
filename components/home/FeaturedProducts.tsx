@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Link from "next/link"
 import type { ProductSummary } from "@/lib/storefront/types"
 import { formatMoney } from "@/lib/utils"
+import { mobileFeatured } from "./featured"
 
 interface FeaturedProductsProps {
   products: ProductSummary[]
@@ -20,7 +21,61 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
   }
 
   return (
-    <section style={{ backgroundColor: "var(--color-surface)", padding: "48px 0" }}>
+    <>
+    {/* Mobile (below md): the first four products in two columns */}
+    <section className="px-4 pb-8 md:hidden">
+      <h2
+        className="mb-6 text-center text-[28px] font-extrabold uppercase leading-9"
+        style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+      >
+        Featured products
+      </h2>
+      <ul className="grid grid-cols-2 gap-3">
+        {mobileFeatured(products).map((p) => (
+          <li key={p.id}>
+            <Link
+              href={`/shop/${p.collections[0]?.handle ?? "shop"}/${p.handle}`}
+              className="focus-ring flex h-full flex-col gap-2 rounded-xl border p-2"
+              style={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }}
+            >
+              <span
+                className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-lg"
+                style={{ backgroundColor: "var(--color-gray-light)" }}
+              >
+                {p.featuredImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={p.featuredImage.url}
+                    alt={p.featuredImage.altText ?? p.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ImageIcon className="h-8 w-8" style={{ color: "var(--color-gray)" }} aria-hidden />
+                )}
+              </span>
+              <span
+                className="line-clamp-2 text-[14px] font-medium leading-5"
+                style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+              >
+                {p.title}
+              </span>
+              <span
+                className="text-[16px] font-bold"
+                style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+              >
+                {formatMoney(p.priceRange.min)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <Link href="/shop" className="btn-outline focus-ring mt-6 w-full">
+        Shop all products
+      </Link>
+    </section>
+
+    <section className="hidden md:block" style={{ backgroundColor: "var(--color-surface)", padding: "48px 0" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 32px" }}>
         {/* Heading */}
         <h2
@@ -184,5 +239,6 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
         </div>
       </div>
     </section>
+    </>
   )
 }

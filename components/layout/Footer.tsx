@@ -41,9 +41,62 @@ const linkStyle: React.CSSProperties = {
 }
 
 export function Footer() {
+  const accordions = [
+    { title: "Shop", links: SHOP_LINKS },
+    { title: "Help", links: HELP_LINKS },
+    { title: "About", links: ABOUT_LINKS },
+  ]
+
   return (
+    <>
+    {/* Mobile (below md): cream ground, collapsed link groups */}
+    <footer className="border-t px-4 pb-8 pt-8 md:hidden" style={{ borderColor: "var(--color-border)" }}>
+      <Link href="/" aria-label="HoneyBee Designs home" className="focus-ring inline-flex h-[88px] flex-col items-start justify-center leading-none">
+        <span style={{ fontFamily: "var(--font-pacifico)", fontSize: "32px", color: "oklch(0.74 0.10 78)", letterSpacing: "1px", lineHeight: 1.1 }}>
+          HoneyBee
+        </span>
+        <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "14px", color: "var(--color-gray)", fontStyle: "italic", letterSpacing: "0.1em", marginTop: "-2px" }}>
+          designs
+        </span>
+      </Link>
+      <p className="mt-2 text-[16px] leading-6" style={{ fontFamily: "var(--font-inter)", color: "var(--color-ink)" }}>
+        Thank you for supporting my small business. Every order means the world to me!
+      </p>
+
+      <div className="mt-6 border-t" style={{ borderColor: "var(--color-border)" }}>
+        {accordions.map(({ title, links }) => (
+          <details key={title} className="group border-b" style={{ borderColor: "var(--color-border)" }}>
+            <summary
+              className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between text-[14px] font-bold uppercase tracking-[0.06em] [&::-webkit-details-marker]:hidden"
+              style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+            >
+              {title}
+              <span aria-hidden className="text-[18px] leading-none transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <ul className="pb-2">
+              {links.map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    className="focus-ring flex min-h-11 items-center text-[16px]"
+                    style={{ fontFamily: "var(--font-inter)", color: "var(--color-ink)" }}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
+      </div>
+
+      <p className="mt-6 text-[12px]" style={{ fontFamily: "var(--font-inter)", color: "var(--color-gray)" }}>
+        © {new Date().getFullYear()}, Honey Bee Designs. All rights reserved.
+      </p>
+    </footer>
+
     <footer
-      className="border-t"
+      className="hidden border-t md:block"
       style={{
         backgroundColor: "var(--color-surface)",
         borderColor: "var(--color-border)",
@@ -207,5 +260,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
+    </>
   )
 }
