@@ -4,10 +4,12 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react"
+import { Logo } from "@/components/layout/Logo"
+import { PARENT_COLLECTION_HANDLE } from "@/lib/storefront/hierarchy"
 import { useCartStore } from "@/store/cart"
 import { cn } from "@/lib/utils"
 
-const NAV_LINKS = [
+const BASE_NAV_LINKS = [
   { label: "HOME",        href: "/" },
   { label: "SHOP ALL",    href: "/shop" },
   { label: "COLLECTIONS", href: "/collections" },
@@ -15,7 +17,10 @@ const NAV_LINKS = [
   { label: "CONTACT",     href: "/contact" },
 ]
 
-export function Header() {
+export function Header({ pawsAndClaws }: { pawsAndClaws: boolean }) {
+  const NAV_LINKS = pawsAndClaws
+    ? [...BASE_NAV_LINKS.slice(0, 3), { label: "PAWS & CLAWS", href: `/shop/${PARENT_COLLECTION_HANDLE}` }, ...BASE_NAV_LINKS.slice(3)]
+    : BASE_NAV_LINKS
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -44,34 +49,8 @@ export function Header() {
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
 
-          <Link
-            href="/"
-            aria-label="HoneyBee Designs home"
-            className="focus-ring flex h-12 flex-col items-center justify-center leading-none"
-          >
-            <span
-              style={{
-                fontFamily: "var(--font-pacifico)",
-                fontSize: "26px",
-                color: "oklch(0.74 0.10 78)",
-                letterSpacing: "1px",
-                lineHeight: 1.1,
-              }}
-            >
-              HoneyBee
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-montserrat)",
-                fontSize: "12px",
-                color: "var(--color-gray)",
-                fontStyle: "italic",
-                letterSpacing: "0.1em",
-                marginTop: "-2px",
-              }}
-            >
-              designs
-            </span>
+          <Link href="/" className="focus-ring flex h-12 items-center justify-center">
+            <Logo className="h-12 w-auto" />
           </Link>
 
           <div className="flex items-center justify-end">
@@ -196,34 +175,8 @@ export function Header() {
 
         {/* Center: Logo */}
         <div className="flex justify-center">
-          <Link href="/" className="flex flex-col items-center leading-none" aria-label="HoneyBee Designs home">
-            {/* TODO: swap with real logo PNG: <img src="/images/logo.png" height="70" alt="HoneyBee Designs" /> */}
-            <span
-              style={{
-                fontFamily: "var(--font-pacifico)",
-                fontSize: "28px",
-                color: "oklch(0.74 0.10 78)",
-                display: "block",
-                letterSpacing: "1px",
-                lineHeight: 1.1,
-              }}
-            >
-              HoneyBee
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-montserrat)",
-                fontSize: "13px",
-                fontWeight: 400,
-                color: "var(--color-gray)",
-                fontStyle: "italic",
-                display: "block",
-                marginTop: "-2px",
-                letterSpacing: "0.1em",
-              }}
-            >
-              designs
-            </span>
+          <Link href="/" className="flex items-center">
+            <Logo className="h-14 w-auto" />
           </Link>
         </div>
 
