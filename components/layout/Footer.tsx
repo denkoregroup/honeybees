@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Logo } from "@/components/layout/Logo"
 
 const SHOP_LINKS = [
   { label: "All Products", href: "/shop" },
@@ -51,13 +52,8 @@ export function Footer() {
     <>
     {/* Mobile (below md): cream ground, collapsed link groups */}
     <footer className="border-t px-4 pb-8 pt-8 md:hidden" style={{ borderColor: "var(--color-border)" }}>
-      <Link href="/" aria-label="HoneyBee Designs home" className="focus-ring inline-flex h-[88px] flex-col items-start justify-center leading-none">
-        <span style={{ fontFamily: "var(--font-pacifico)", fontSize: "32px", color: "oklch(0.74 0.10 78)", letterSpacing: "1px", lineHeight: 1.1 }}>
-          HoneyBee
-        </span>
-        <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "14px", color: "var(--color-gray)", fontStyle: "italic", letterSpacing: "0.1em", marginTop: "-2px" }}>
-          designs
-        </span>
+      <Link href="/" className="focus-ring inline-flex h-20 items-center">
+        <Logo className="h-20 w-auto" />
       </Link>
       <p className="mt-2 text-[16px] leading-6" style={{ fontFamily: "var(--font-inter)", color: "var(--color-ink)" }}>
         Thank you for supporting my small business. Every order means the world to me!
@@ -110,34 +106,8 @@ export function Footer() {
 
           {/* Col 1 — Brand */}
           <div>
-            <Link href="/" className="inline-block leading-none">
-              {/* TODO: swap with real logo PNG: <img src="/images/logo.png" height="80" alt="HoneyBee Designs" /> */}
-              <span
-                style={{
-                  fontFamily: "var(--font-pacifico)",
-                  fontSize: "24px",
-                  color: "var(--color-sunflower)",
-                  display: "block",
-                  letterSpacing: "1px",
-                  lineHeight: 1.1,
-                }}
-              >
-                HoneyBee
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-montserrat)",
-                  fontSize: "12px",
-                  fontWeight: 400,
-                  color: "var(--color-black)",
-                  fontStyle: "italic",
-                  display: "block",
-                  marginTop: "-2px",
-                  letterSpacing: "0.1em",
-                }}
-              >
-                designs
-              </span>
+            <Link href="/" className="inline-block">
+              <Logo className="h-20 w-auto" />
             </Link>
             <p
               className="mt-3 italic"

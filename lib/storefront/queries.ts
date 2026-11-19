@@ -97,3 +97,16 @@ export const PRODUCT_VARIANTS_QUERY = `#graphql
     }
   }
 `
+
+/** Every collection with its parent (custom.parent_collection) and whether it has any product. */
+export const COLLECTION_HIERARCHY_QUERY = `#graphql
+  query CollectionHierarchy($first: Int!) {
+    collections(first: $first) {
+      nodes {
+        ${COLLECTION_FIELDS}
+        parent: metafield(namespace: "custom", key: "parent_collection") { value }
+        products(first: 1) { nodes { id } }
+      }
+    }
+  }
+`
