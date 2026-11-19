@@ -52,8 +52,8 @@ export function Footer() {
     <>
     {/* Mobile (below md): cream ground, collapsed link groups */}
     <footer className="border-t px-4 pb-8 pt-8 md:hidden" style={{ borderColor: "var(--color-border)" }}>
-      <Link href="/" className="focus-ring inline-flex h-20 items-center">
-        <Logo className="h-20 w-auto" />
+      <Link href="/" className="focus-ring inline-flex h-[104px] items-center">
+        <Logo className="h-[104px] w-auto" />
       </Link>
       <p className="mt-2 text-[16px] leading-6" style={{ fontFamily: "var(--font-inter)", color: "var(--color-ink)" }}>
         Thank you for supporting my small business. Every order means the world to me!
@@ -107,7 +107,7 @@ export function Footer() {
           {/* Col 1 — Brand */}
           <div>
             <Link href="/" className="inline-block">
-              <Logo className="h-20 w-auto" />
+              <Logo className="h-[100px] w-auto" />
             </Link>
             <p
               className="mt-3 italic"

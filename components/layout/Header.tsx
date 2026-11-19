@@ -36,9 +36,9 @@ export function Header({ pawsAndClaws }: { pawsAndClaws: boolean }) {
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
-      {/* ── Mobile (below md): 56px bar with menu, centered logo, search and cart ── */}
+      {/* ── Mobile (below md): 72px bar with menu, centered logo, search and cart ── */}
       <div className="md:hidden">
-        <div className="grid h-14 grid-cols-[88px_1fr_88px] items-center px-2">
+        <div className="grid h-[72px] grid-cols-[88px_1fr_88px] items-center px-2">
           <button
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -49,8 +49,8 @@ export function Header({ pawsAndClaws }: { pawsAndClaws: boolean }) {
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
 
-          <Link href="/" className="focus-ring flex h-12 items-center justify-center">
-            <Logo className="h-12 w-auto" />
+          <Link href="/" className="focus-ring flex h-16 items-center justify-center">
+            <Logo className="h-16 w-auto" />
           </Link>
 
           <div className="flex items-center justify-end">
@@ -122,7 +122,8 @@ export function Header({ pawsAndClaws }: { pawsAndClaws: boolean }) {
       <div
         className="grid px-6"
         style={{
-          height: "80px",
+          minHeight: "80px",
+          paddingBlock: "8px",
           gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
           maxWidth: "1200px",
@@ -176,7 +177,7 @@ export function Header({ pawsAndClaws }: { pawsAndClaws: boolean }) {
         {/* Center: Logo */}
         <div className="flex justify-center">
           <Link href="/" className="flex items-center">
-            <Logo className="h-14 w-auto" />
+            <Logo className="h-[70px] w-auto" />
           </Link>
         </div>
 
