@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { getCollections } from "@/lib/storefront"
+import { getCollectionTree } from "@/lib/storefront"
+import type { CollectionNode } from "@/lib/storefront/types"
 
 export const metadata: Metadata = {
   title: "Collections | HoneyBee Designs",
@@ -34,9 +35,27 @@ const EMOJI: Record<string, string> = {
 }
 const DEFAULT_EMOJI = "🐝"
 
+function CollectionTiles({ collections }: { collections: CollectionNode[] }) {
+  return (
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
+      {collections.map(({ id, title, handle }) => (
+        <Link
+          key={id}
+          href={`/shop/${handle}`}
+          className="group flex flex-col items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white p-4 text-center transition-all hover:border-[var(--color-coral)] hover:shadow-md"
+        >
+          <span className="text-3xl">{EMOJI[handle] ?? DEFAULT_EMOJI}</span>
+          <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-ink)] group-hover:text-[var(--color-coral)]">
+            {title}
+          </span>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
 export default async function CollectionsPage() {
-  // Largest page the Storefront API allows; there is no pagination UI.
-  const collections = await getCollections({ first: 250 })
+  const { groups, flat } = await getCollectionTree()
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -48,21 +67,31 @@ export default async function CollectionsPage() {
         Find the perfect custom gift for every person &amp; every moment.
       </p>
 
-      {/* Collection grid */}
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
-        {collections.items.map(({ id, title, handle }) => (
-          <Link
-            key={id}
-            href={`/shop/${handle}`}
-            className="group flex flex-col items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white p-4 text-center transition-all hover:border-[var(--color-coral)] hover:shadow-md"
-          >
-            <span className="text-3xl">{EMOJI[handle] ?? DEFAULT_EMOJI}</span>
-            <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-ink)] group-hover:text-[var(--color-coral)]">
-              {title}
-            </span>
-          </Link>
-        ))}
-      </div>
+      {/* Parent collections, each with its children */}
+      {groups.map(({ parent, children }) => (
+        <section key={parent.handle} className="mb-10">
+          <h2 className="mb-4 text-center text-[20px] font-black uppercase text-[var(--color-ink)]">
+            {parent.hasProducts ? (
+              <Link href={`/shop/${parent.handle}`} className="hover:text-[var(--color-coral)]">
+                {parent.title}
+              </Link>
+            ) : (
+              parent.title
+            )}
+          </h2>
+          <CollectionTiles collections={children} />
+        </section>
+      ))}
+
+      {/* Everything else */}
+      {flat.length > 0 && (
+        <section>
+          {groups.length > 0 && (
+            <h2 className="mb-4 text-center text-[20px] font-black uppercase text-[var(--color-ink)]">More collections</h2>
+          )}
+          <CollectionTiles collections={flat} />
+        </section>
+      )}
 
       {/* Custom order CTA */}
       <div className="my-14 rounded-2xl bg-[var(--color-ink)] px-8 py-10 text-center text-white">

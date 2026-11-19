@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getCollectionByHandle } from "@/lib/storefront"
+import { getCollectionByHandle, getCollectionTree } from "@/lib/storefront"
+import { CollectionChips } from "@/components/features/CollectionChips"
 import { ProductCard } from "@/components/features/ProductCard"
 
 interface Props {
@@ -24,8 +25,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CollectionPage({ params }: Props) {
   const { collection: handle } = await params
 
-  const collection = await getCollectionByHandle(handle, { first: PRODUCTS_PER_COLLECTION })
+  const [collection, tree] = await Promise.all([
+    getCollectionByHandle(handle, { first: PRODUCTS_PER_COLLECTION }),
+    getCollectionTree(),
+  ])
   if (!collection) notFound()
+
+  // A parent collection lists its non-empty children as chips above the grid.
+  const group = tree.groups.find((g) => g.parent.handle === handle)
 
   const { title, description } = collection
   const products = collection.products.items
@@ -53,6 +60,8 @@ export default async function CollectionPage({ params }: Props) {
           {products.length} product{products.length !== 1 ? "s" : ""}
         </p>
       </div>
+
+      {group && <CollectionChips group={group} />}
 
       {/* Grid */}
       {products.length === 0 ? (

@@ -93,3 +93,25 @@ export interface PageArgs {
   /** `pageInfo.endCursor` from the previous page. */
   after?: string | null
 }
+
+/**
+ * A collection plus what the hierarchy needs. Shopify has no nested collections, so a child names its
+ * parent in the `custom.parent_collection` metafield (the parent's handle).
+ */
+export interface CollectionNode extends Collection {
+  parentHandle: string | null
+  hasProducts: boolean
+}
+
+export interface CollectionGroup {
+  parent: CollectionNode
+  /** Only children that have products. */
+  children: CollectionNode[]
+}
+
+export interface CollectionTree {
+  /** Parents that have at least one child with products. */
+  groups: CollectionGroup[]
+  /** Everything else that has products and isn't under a parent. */
+  flat: CollectionNode[]
+}
