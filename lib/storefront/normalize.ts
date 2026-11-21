@@ -1,6 +1,5 @@
 import type {
   Collection,
-  CollectionNode,
   CollectionWithProducts,
   Image,
   Money,
@@ -143,17 +142,4 @@ export function normalizeCollectionWithProducts(
   c: RawCollection & { products: RawConnection<RawProductSummary> }
 ): CollectionWithProducts {
   return { ...normalizeCollection(c), products: normalizePage(c.products, normalizeProductSummary) }
-}
-
-export interface RawCollectionNode extends RawCollection {
-  parent: { value: string } | null
-  products: { nodes: { id: string }[] }
-}
-
-export function normalizeCollectionNode(c: RawCollectionNode): CollectionNode {
-  return {
-    ...normalizeCollection(c),
-    parentHandle: c.parent?.value.trim() || null,
-    hasProducts: c.products.nodes.length > 0,
-  }
 }

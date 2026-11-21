@@ -40,7 +40,7 @@ The home, `/shop`, `/shop/[collection]`, `/shop/[collection]/[product]` and `/co
 - **Unknown handles:** an unknown collection or product handle returns a 404. A product page ignores the collection in its URL except for the breadcrumb.
 - **Variants:** the product page shows one picker row per option with more than one value, so a product with only the default "Title" option shows none. Availability is Shopify's `availableForSale`; inventory counts are not used, because items are made to order.
 - **Descriptions:** product descriptions are shown as plain text; `descriptionHtml` is not rendered.
-- **Collections:** `/collections` lists every collection Shopify returns. The catalog layer doesn't say whether a collection has products, so empty collections are listed too.
+- **Collections:** `/collections` lists collections that have at least one product; `getCollections` drops empty ones, so a page can come back shorter than asked.
 
 ## Tests
 

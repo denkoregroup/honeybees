@@ -5,11 +5,10 @@ import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react"
 import { Logo } from "@/components/layout/Logo"
-import { PARENT_COLLECTION_HANDLE } from "@/lib/storefront/hierarchy"
 import { useCartStore } from "@/store/cart"
 import { cn } from "@/lib/utils"
 
-const BASE_NAV_LINKS = [
+const NAV_LINKS = [
   { label: "HOME",        href: "/" },
   { label: "SHOP ALL",    href: "/shop" },
   { label: "COLLECTIONS", href: "/collections" },
@@ -17,10 +16,7 @@ const BASE_NAV_LINKS = [
   { label: "CONTACT",     href: "/contact" },
 ]
 
-export function Header({ pawsAndClaws }: { pawsAndClaws: boolean }) {
-  const NAV_LINKS = pawsAndClaws
-    ? [...BASE_NAV_LINKS.slice(0, 3), { label: "PAWS & CLAWS", href: `/shop/${PARENT_COLLECTION_HANDLE}` }, ...BASE_NAV_LINKS.slice(3)]
-    : BASE_NAV_LINKS
+export function Header() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [search, setSearch] = useState("")

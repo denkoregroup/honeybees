@@ -5,7 +5,6 @@ import { TopBar } from "@/components/layout/TopBar"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { CartDrawer } from "@/components/features/CartDrawer"
-import { PARENT_COLLECTION_HANDLE, getCollectionByHandle } from "@/lib/storefront"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,30 +50,16 @@ export const metadata: Metadata = {
   },
 }
 
-/** The nav links to the Paws & Claws line only once it has products, so it never points at an empty page. */
-async function parentCollectionHasProducts() {
-  try {
-    const collection = await getCollectionByHandle(PARENT_COLLECTION_HANDLE, { first: 1 })
-    return (collection?.products.items.length ?? 0) > 0
-  } catch (error) {
-    // The nav is on every page; a Shopify failure shouldn't take down pages that don't need Shopify.
-    console.error("[nav] could not check the Paws & Claws collection", error instanceof Error ? error.name : "unknown error")
-    return false
-  }
-}
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const pawsAndClaws = await parentCollectionHasProducts()
-
   return (
     <html lang="en" className={`${inter.variable} ${montserrat.variable} ${pacifico.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-[var(--color-cream)] text-[var(--color-ink)]">
         <TopBar />
-        <Header pawsAndClaws={pawsAndClaws} />
+        <Header />
         <main className="flex-1">{children}</main>
         <Footer />
         <CartDrawer />
