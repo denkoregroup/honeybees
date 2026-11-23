@@ -15,11 +15,6 @@ const ITEMS = [
     desc: "Fast, reliable shipping straight to you!",
   },
   {
-    icon: "🚚",
-    title: "FREE SHIPPING ON ORDERS $75+",
-    desc: "Because you deserve it!",
-  },
-  {
     icon: "⭐",
     title: "5,000+ HAPPY CUSTOMERS",
     desc: "Thank you for supporting my small business!",
@@ -40,7 +35,7 @@ export function TrustBar() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(5, 1fr)",
+            gridTemplateColumns: "repeat(4, 1fr)",
           }}
         >
           {ITEMS.map(({ icon, title, desc }, i) => (

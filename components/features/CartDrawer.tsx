@@ -7,9 +7,7 @@ import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react"
 import { LineAttributes } from "@/components/features/LineAttributes"
 import { CheckoutButton } from "@/components/features/CheckoutButton"
 import { useCartStore } from "@/store/cart"
-import { formatMoney, formatPrice } from "@/lib/utils"
-
-const FREE_SHIPPING_THRESHOLD = 75
+import { formatMoney } from "@/lib/utils"
 
 export function CartDrawer() {
   const { cart, isOpen, closeCart, removeItem, updateQuantity, isPending, error, retry, refresh } =
@@ -21,9 +19,6 @@ export function CartDrawer() {
   }, [refresh])
 
   const lines = cart?.lines ?? []
-  const cartTotal = cart ? Number(cart.subtotal.amount) : 0
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal)
-  const progressPct = Math.min(100, (cartTotal / FREE_SHIPPING_THRESHOLD) * 100)
 
   return (
     <AnimatePresence>
@@ -84,33 +79,6 @@ export function CartDrawer() {
                     Retry
                   </button>
                 )}
-              </div>
-            )}
-
-            {/* Free shipping progress */}
-            {lines.length > 0 && (
-              <div className="border-b border-[var(--color-border)] bg-[var(--color-topbar)] px-5 py-3">
-                {remaining > 0 ? (
-                  <p className="mb-2 text-[12px] text-[var(--color-secondary)]">
-                    You&apos;re{" "}
-                    <span className="font-bold text-[var(--color-ink)]">
-                      {formatPrice(remaining)}
-                    </span>{" "}
-                    away from free shipping!
-                  </p>
-                ) : (
-                  <p className="mb-2 text-[12px] font-bold text-[var(--color-coral)]">
-                    🎉 You&apos;ve unlocked FREE shipping!
-                  </p>
-                )}
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
-                  <motion.div
-                    className="h-full rounded-full bg-[var(--color-coral)]"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPct}%` }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                </div>
               </div>
             )}
 

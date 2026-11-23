@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Minus, Plus, ShoppingBag, Shield, Truck, RefreshCw } from "lucide-react"
+import { Minus, Plus, ShoppingBag, Shield, RefreshCw } from "lucide-react"
 import { Accordion } from "@/components/ui/accordion"
 import { useCartStore } from "@/store/cart"
 import { VariantPicker } from "@/components/features/VariantPicker"
@@ -20,7 +20,6 @@ interface PDPClientProps {
 }
 
 const TRUST_ICONS = [
-  { Icon: Truck, text: "Free shipping $75+" },
   { Icon: Shield, text: "Secure checkout" },
   { Icon: RefreshCw, text: "Easy returns" },
 ]
@@ -36,7 +35,6 @@ const ACCORDION_ITEMS = (description: string) => [
       <ul className="space-y-1">
         <li>• Orders typically process in 3–5 business days</li>
         <li>• Standard shipping: 5–7 business days</li>
-        <li>• Free shipping on orders $75+</li>
         <li>• Expedited options available at checkout</li>
       </ul>
     ),

@@ -2,26 +2,12 @@ const ITEMS = [
   { icon: "🤍", text: "Made with Love" },
   { icon: "📦", text: "Packed with Care" },
   { icon: "🚚", text: "Shipped with Smiles" },
-  { icon: "🚚", text: "Free Shipping on Orders $75+" },
   { icon: "⭐", text: "5,000+ Happy Customers" },
 ]
 
 export function TopBar() {
   return (
     <>
-      {/* Mobile: one message on honey */}
-      <div
-        className="flex h-8 items-center justify-center px-4 md:hidden"
-        style={{ backgroundColor: "var(--color-honey-yellow)" }}
-      >
-        <p
-          className="text-[11px] font-semibold uppercase tracking-wide"
-          style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
-        >
-          Free shipping on orders $75+
-        </p>
-      </div>
-
       <div className="hidden md:contents">
         <div
       className="border-b overflow-hidden"
