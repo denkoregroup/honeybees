@@ -27,17 +27,6 @@ export function HeroSection() {
         to make you smile!
       </p>
 
-      {/* Same image slot as desktop; it stays a placeholder until the hero photos arrive */}
-      <div
-        className="mt-6 flex aspect-[4/3] w-full flex-col items-center justify-center gap-1 rounded-xl border px-4 text-center"
-        style={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }}
-      >
-        <span className="text-5xl" aria-hidden>🐝</span>
-        <p className="text-[14px] font-semibold" style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}>
-          Product photos coming from Sarah!
-        </p>
-      </div>
-
       <Link href="/shop" className="btn-primary focus-ring mt-6 w-full">
         Shop now ♥
       </Link>

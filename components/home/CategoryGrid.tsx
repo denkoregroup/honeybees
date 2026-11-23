@@ -3,16 +3,14 @@
 import Link from "next/link"
 import { ImageIcon } from "lucide-react"
 
-const CATEGORIES = [
-  { name: "APPAREL",           handle: "apparel" },
-  { name: "DRINKWARE",         handle: "drinkware" },
-  { name: "TOTE BAGS",         handle: "tote-bags" },
-  { name: "KEYCHAINS",         handle: "keychains" },
-  { name: "DECALS & STICKERS", handle: "stickers-decals" },
-  { name: "HOME DECOR",        handle: "home-lifestyle" },
-  { name: "CUSTOM ITEMS",      handle: "custom-items" },
-  { name: "GIFTS",             handle: "gift-ideas" },
-  { name: "NEW ARRIVALS",      handle: "new-arrivals" },
+// Handles must exist in Shopify and have products today, or the tile 404s / lands on an empty page.
+// Add or remove a tile here only after checking the collection in the store.
+export const CATEGORIES = [
+  { name: "APPAREL",               handle: "apparel-1" },
+  { name: "TURTLEY AWESOME MERCH", handle: "turtley-awesome-merch" },
+  { name: "TURTLEY COASTERS",      handle: "turtley-coasters" },
+  { name: "TURTLEY DECALS",        handle: "turtley-decals" },
+  { name: "TURTLEY KEYCHAINS",     handle: "turtley-keychains" },
 ]
 
 function CategoryTile({ name, handle }: { name: string; handle: string }) {
