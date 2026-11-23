@@ -203,6 +203,52 @@ button, .btn {
   text-transform: uppercase;
   text-decoration: none;
 }
+/*
+ * Main call to action (Add to cart, Checkout). Ink fill with cream text: about 16:1 text contrast and
+ * about 16:1 against the cream page, where honey or blush would be too faint (honey on cream is 1.4:1).
+ * 48px minimum height. Disabled (the attribute, or aria-disabled on a link) is clearly muted gray.
+ */
+@utility btn-cta {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  padding: 10px 24px;
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, transform 0.1s;
+  &:hover:not(:disabled, [aria-disabled="true"]) {
+    background-color: var(--color-sunflower);
+    color: var(--color-ink);
+  }
+  &:active:not(:disabled, [aria-disabled="true"]) {
+    background-color: var(--color-honey-dark);
+    color: var(--color-ink);
+    transform: scale(0.98);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  &:disabled,
+  &[aria-disabled="true"] {
+    border-color: oklch(0.86 0 0);
+    background-color: oklch(0.89 0 0);
+    color: oklch(0.45 0 0);
+    cursor: not-allowed;
+  }
+}
 @utility btn-secondary {
   display: inline-flex;
   min-height: 44px;

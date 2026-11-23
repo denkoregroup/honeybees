@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "motion/react"
 import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react"
+import { CheckoutButton } from "@/components/features/CheckoutButton"
 import { useCartStore } from "@/store/cart"
 import { formatMoney, formatPrice } from "@/lib/utils"
 
@@ -220,13 +221,7 @@ export function CartDrawer() {
                     Shipping &amp; taxes calculated at checkout
                   </p>
 
-                  <a
-                    href={cart!.checkoutUrl}
-                    aria-disabled={isPending}
-                    className="mt-4 flex w-full items-center justify-center rounded-full bg-[var(--color-coral)] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[var(--color-coral-dark)] aria-disabled:pointer-events-none aria-disabled:opacity-60"
-                  >
-                    CHECKOUT →
-                  </a>
+                  <CheckoutButton href={cart!.checkoutUrl} disabled={isPending} className="mt-4" />
                   <button
                     onClick={closeCart}
                     className="mt-2 w-full text-center text-[13px] text-[var(--color-secondary)] underline underline-offset-2 hover:text-[var(--color-coral)]"

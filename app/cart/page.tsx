@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { CheckoutButton } from "@/components/features/CheckoutButton"
 import { useCartStore } from "@/store/cart"
 import { formatMoney } from "@/lib/utils"
 
@@ -153,13 +154,7 @@ export default function CartPage() {
               <span>Estimated Total</span>
               <span>{formatMoney(cart.total)}</span>
             </div>
-            <a
-              href={cart.checkoutUrl}
-              aria-disabled={isPending}
-              className="mt-5 flex w-full items-center justify-center rounded-full bg-[var(--color-coral)] py-3.5 text-[14px] font-bold text-white hover:bg-[var(--color-coral-dark)] aria-disabled:pointer-events-none aria-disabled:opacity-60"
-            >
-              PROCEED TO CHECKOUT →
-            </a>
+            <CheckoutButton href={cart.checkoutUrl} disabled={isPending} className="mt-5" />
             <p className="mt-2 text-center text-[11px] text-[var(--color-secondary)]">
               Secure checkout powered by Shopify
             </p>

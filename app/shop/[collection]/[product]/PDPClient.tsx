@@ -9,12 +9,14 @@ import { useCartStore } from "@/store/cart"
 import { VariantPicker } from "@/components/features/VariantPicker"
 import { formatMoney, saleCompareAt } from "@/lib/utils"
 import { MAX_QUANTITY } from "@/lib/cart-input"
-import { initialVariant } from "@/lib/variant-selection"
-import type { Product, Variant } from "@/lib/storefront/types"
+import { purchaseState, type Selection } from "@/lib/variant-selection"
+import type { Product } from "@/lib/storefront/types"
 
 interface PDPClientProps {
   product: Product
   collectionHandle: string
+  /** Options that start selected: single-value options and any named in the URL. Usually none else. */
+  preselected: Selection
 }
 
 const TRUST_ICONS = [
@@ -52,20 +54,21 @@ const ACCORDION_ITEMS = (description: string) => [
   },
 ]
 
-export function PDPClient({ product, collectionHandle }: PDPClientProps) {
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(initialVariant(product.variants))
+export function PDPClient({ product, collectionHandle, preselected }: PDPClientProps) {
+  const [selection, setSelection] = useState<Selection>(preselected)
   const [activeImage, setActiveImage] = useState(0)
   const [qty, setQty] = useState(1)
   const { addItem, openCart, isPending } = useCartStore()
 
+  const { variant, showFrom, price, canAdd, label, helper } = purchaseState(product, selection)
+
   const handleAddToCart = async () => {
-    if (!selectedVariant) return
-    await addItem(selectedVariant.id, qty)
+    if (!variant || !canAdd) return
+    await addItem(variant.id, qty)
     openCart()
   }
 
-  const price = selectedVariant?.price ?? product.priceRange.min
-  const compareAt = saleCompareAt(price, selectedVariant?.compareAtPrice ?? null)
+  const compareAt = variant ? saleCompareAt(price, variant.compareAtPrice) : null
 
   const collectionTitle = collectionHandle
     .split("-")
@@ -147,6 +150,7 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
             {/* Price */}
             <div className="mt-3 flex items-baseline gap-3">
               <span className="text-[24px] font-black text-[var(--color-ink)]">
+                {showFrom && <span className="mr-1.5 text-[14px] font-bold text-[var(--color-secondary)]">From</span>}
                 {formatMoney(price)}
               </span>
               {compareAt && (
@@ -158,7 +162,11 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
           </div>
 
           {/* Variant picker */}
-          <VariantPicker product={product} selected={selectedVariant} onSelect={setSelectedVariant} />
+          <VariantPicker
+            product={product}
+            selection={selection}
+            onSelect={(name, value) => setSelection((s) => ({ ...s, [name]: value }))}
+          />
 
           {/* Qty + Add to cart */}
           <div className="flex flex-wrap items-center gap-3">
@@ -182,14 +190,25 @@ export function PDPClient({ product, collectionHandle }: PDPClientProps) {
             </div>
 
             <button
+              type="button"
               onClick={handleAddToCart}
-              disabled={!selectedVariant || isPending}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[var(--color-coral)] px-6 py-3 text-[14px] font-bold text-white transition-all hover:bg-[var(--color-coral-dark)] disabled:opacity-60 sm:flex-none sm:min-w-[200px]"
+              disabled={!canAdd || isPending}
+              aria-describedby="add-to-cart-help"
+              className="btn-cta min-w-[200px] flex-1 sm:flex-none"
             >
-              <ShoppingBag className="h-4 w-4" />
-              {isPending ? "ADDING…" : "ADD TO CART ♥"}
+              <ShoppingBag className="h-4 w-4 flex-shrink-0" aria-hidden />
+              {isPending ? "Adding…" : label}
             </button>
           </div>
+
+          {/* Says what is missing; polite so each pick is announced without interrupting */}
+          <p
+            id="add-to-cart-help"
+            aria-live="polite"
+            className="-mt-2 min-h-[20px] text-[13px] text-[var(--color-secondary)]"
+          >
+            {helper}
+          </p>
 
           {/* Trust badges */}
           <div className="flex flex-wrap gap-4 border-t border-[var(--color-border)] pt-4">
