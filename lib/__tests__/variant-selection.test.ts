@@ -8,7 +8,6 @@ import {
   pickerOptions,
   purchaseState,
   resolveVariant,
-  selectLabel,
 } from "../variant-selection"
 
 const money = { amount: "10.00", currencyCode: "USD" }
@@ -123,49 +122,41 @@ describe("fromPrice", () => {
   })
 })
 
-describe("selectLabel", () => {
-  it("names what is missing", () => {
-    expect(selectLabel(["Size"])).toBe("Select a size")
-    expect(selectLabel(["Option"])).toBe("Select an option")
-    expect(selectLabel(["Size", "Color"])).toBe("Select size and color")
-    expect(selectLabel(["Size", "Style", "Color"])).toBe("Select size, style and color")
-  })
-})
-
 describe("purchaseState", () => {
-  it("before any choice: no variant, a 'From' price, Add to cart disabled and says what is missing", () => {
+  it("before any choice: no variant, a 'From' price, and Add to cart not allowed", () => {
     const state = purchaseState(product, {})
     expect(state.variant).toBeNull()
     expect(state.showFrom).toBe(true)
     expect(state.price.amount).toBe("20.00")
     expect(state.canAdd).toBe(false)
-    expect(state.label).toBe("Select size and color")
-    expect(state.helper).toMatch(/select size and color/i)
   })
 
-  it("half selected: still disabled, and names only what is left", () => {
+  it("half selected: still no variant and not allowed; the 'From' price narrows to what is chosen", () => {
     const state = purchaseState(product, { Size: "Medium" })
+    expect(state.variant).toBeNull()
     expect(state.canAdd).toBe(false)
-    expect(state.label).toBe("Select a color")
     expect(state.showFrom).toBe(true)
     expect(state.price.amount).toBe("24.00")
   })
 
-  it("complete: the resolved variant, its exact price, Add to cart enabled, no helper text", () => {
+  it("complete: the resolved variant, its exact price, and Add to cart allowed", () => {
     const state = purchaseState(product, { Size: "Medium", Color: "Blue" })
     expect(state.variant?.id).toBe("m-blue")
     expect(state.showFrom).toBe(false)
     expect(state.price.amount).toBe("25.00")
     expect(state.canAdd).toBe(true)
-    expect(state.label).toBe("Add to cart")
-    expect(state.helper).toBe("")
   })
 
   it("a complete selection that is sold out can't be added", () => {
     const state = purchaseState(product, { Size: "Large", Color: "Red" })
     expect(state.variant?.id).toBe("l-red")
     expect(state.canAdd).toBe(false)
-    expect(state.label).toBe("Unavailable")
+  })
+
+  it("a complete selection that doesn't exist can't be added", () => {
+    const state = purchaseState(product, { Size: "Small", Color: "Blue" })
+    expect(state.variant).toBeNull()
+    expect(state.canAdd).toBe(false)
   })
 
   it("a product with only a default title is ready to add straight away", () => {

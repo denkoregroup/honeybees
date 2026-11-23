@@ -46,7 +46,9 @@ function render(params: Record<string, string> = {}) {
   )
 }
 
-const addToCart = (html: string) => html.match(/<button[^>]*aria-describedby="add-to-cart-help"[^>]*>[\s\S]*?<\/button>/)?.[0] ?? ""
+// The Add to cart button is the only one with the btn-cta class
+const addToCart = (html: string) => html.match(/<button[^>]*btn-cta[^>]*>[\s\S]*?<\/button>/)?.[0] ?? ""
+const visibleText = (button: string) => button.replace(/<[^>]*>/g, "").trim()
 
 describe("PDP before anything is selected", () => {
   const html = render()
@@ -60,15 +62,15 @@ describe("PDP before anything is selected", () => {
     expect(html).toMatch(/From<\/span>\$20\.00/)
   })
 
-  it("disables Add to cart, labelled with what is missing, and keeps it visible", () => {
+  it("disables Add to cart (still visible, label unchanged)", () => {
     const button = addToCart(html)
     expect(button).toMatch(/\sdisabled(=|\s|>)/)
-    expect(button).toContain("Select size and color")
-    expect(button).not.toContain("Add to cart")
+    expect(visibleText(button)).toBe("Add to cart")
   })
 
-  it("has a polite live helper line saying what is missing", () => {
-    expect(html).toMatch(/<p id="add-to-cart-help" aria-live="polite"[^>]*>Select size and color to add this to your cart\./)
+  it("shows no message about what is missing", () => {
+    expect(html).not.toContain("aria-live")
+    expect(html).not.toMatch(/Select (a |an )?(size|color|option)/i)
   })
 
   it("greys out no value that can be bought", () => {
@@ -85,8 +87,8 @@ describe("PDP half selected, from the URL", () => {
     expect(html).toMatch(/aria-pressed="true"[^>]*>(<svg[^>]*>[\s\S]*?<\/svg>)Small/)
   })
 
-  it("is still disabled and names the missing option", () => {
-    expect(addToCart(html)).toContain("Select a color")
+  it("is still disabled, with the same label", () => {
+    expect(visibleText(addToCart(html))).toBe("Add to cart")
     expect(addToCart(html)).toMatch(/\sdisabled(=|\s|>)/)
   })
 
@@ -103,6 +105,6 @@ describe("PDP complete", () => {
     expect(html).not.toContain(">From<")
     const button = addToCart(html)
     expect(button).not.toMatch(/\sdisabled(=|\s|>)/)
-    expect(button).toContain("Add to cart")
+    expect(visibleText(button)).toBe("Add to cart")
   })
 })

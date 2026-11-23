@@ -66,54 +66,26 @@ export function fromPrice(product: Pick<Product, "variants" | "priceRange">, sel
   return pool.reduce((low, v) => (Number(v.price.amount) < Number(low.amount) ? v.price : low), pool[0].price)
 }
 
-/** "Select a size", "Select size and color", "Select size, style and color". */
-export function selectLabel(names: string[]): string {
-  const lower = names.map((n) => n.toLowerCase())
-  if (lower.length === 1) return `Select ${/^[aeiou]/.test(lower[0]) ? "an" : "a"} ${lower[0]}`
-  return `Select ${lower.slice(0, -1).join(", ")} and ${lower[lower.length - 1]}`
-}
-
 export interface PurchaseState {
   /** The resolved variant, or null until every option has a value (or when that combination doesn't exist). */
   variant: Variant | null
   /** True while the price should read "From $X". */
   showFrom: boolean
   price: Money
+  /** Add to cart is enabled only for a resolved variant that can be bought. */
   canAdd: boolean
-  /** Add to cart button text. */
-  label: string
-  /** The line under the button, for screen readers and sighted shoppers alike. Empty when ready. */
-  helper: string
 }
 
 export function purchaseState(
   product: Pick<Product, "options" | "variants" | "priceRange">,
   selection: Selection
 ): PurchaseState {
-  const missing = missingOptions(product.options, selection)
-  if (missing.length > 0) {
-    const label = selectLabel(missing)
-    return {
-      variant: null,
-      showFrom: true,
-      price: fromPrice(product, selection),
-      canAdd: false,
-      label,
-      helper: `${label} to add this to your cart.`,
-    }
+  if (missingOptions(product.options, selection).length > 0) {
+    return { variant: null, showFrom: true, price: fromPrice(product, selection), canAdd: false }
   }
   const variant = resolveVariant(product.variants, product.options, selection)
-  if (!variant || !variant.availableForSale) {
-    return {
-      variant,
-      showFrom: false,
-      price: variant?.price ?? fromPrice(product, {}),
-      canAdd: false,
-      label: "Unavailable",
-      helper: "That combination is sold out. Try a different option.",
-    }
-  }
-  return { variant, showFrom: false, price: variant.price, canAdd: true, label: "Add to cart", helper: "" }
+  if (!variant) return { variant: null, showFrom: false, price: fromPrice(product, {}), canAdd: false }
+  return { variant, showFrom: false, price: variant.price, canAdd: variant.availableForSale }
 }
 
 /** Options that need a picker. A "Title: Default Title" product has one value, so it gets none. */

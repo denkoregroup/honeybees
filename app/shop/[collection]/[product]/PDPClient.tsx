@@ -60,7 +60,7 @@ export function PDPClient({ product, collectionHandle, preselected }: PDPClientP
   const [qty, setQty] = useState(1)
   const { addItem, openCart, isPending } = useCartStore()
 
-  const { variant, showFrom, price, canAdd, label, helper } = purchaseState(product, selection)
+  const { variant, showFrom, price, canAdd } = purchaseState(product, selection)
 
   const handleAddToCart = async () => {
     if (!variant || !canAdd) return
@@ -193,22 +193,12 @@ export function PDPClient({ product, collectionHandle, preselected }: PDPClientP
               type="button"
               onClick={handleAddToCart}
               disabled={!canAdd || isPending}
-              aria-describedby="add-to-cart-help"
               className="btn-cta min-w-[200px] flex-1 sm:flex-none"
             >
               <ShoppingBag className="h-4 w-4 flex-shrink-0" aria-hidden />
-              {isPending ? "Adding…" : label}
+              {isPending ? "Adding…" : "Add to cart"}
             </button>
           </div>
-
-          {/* Says what is missing; polite so each pick is announced without interrupting */}
-          <p
-            id="add-to-cart-help"
-            aria-live="polite"
-            className="-mt-2 min-h-[20px] text-[13px] text-[var(--color-secondary)]"
-          >
-            {helper}
-          </p>
 
           {/* Trust badges */}
           <div className="flex flex-wrap gap-4 border-t border-[var(--color-border)] pt-4">
