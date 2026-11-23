@@ -104,6 +104,8 @@ export interface CartLine {
   quantity: number
   unitPrice: Money
   totalPrice: Money
+  /** Extra details on the line, such as the "Requested color" a customer typed in. */
+  attributes: { key: string; value: string }[]
 }
 
 /** What the browser gets for a cart. The cart id never leaves the server; it lives in an httpOnly cookie. */

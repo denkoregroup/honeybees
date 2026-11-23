@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "motion/react"
 import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react"
+import { LineAttributes } from "@/components/features/LineAttributes"
 import { CheckoutButton } from "@/components/features/CheckoutButton"
 import { useCartStore } from "@/store/cart"
 import { formatMoney, formatPrice } from "@/lib/utils"
@@ -164,6 +165,7 @@ export function CartDrawer() {
                                   {item.variantTitle}
                                 </p>
                               )}
+                              <LineAttributes attributes={item.attributes} />
                             </div>
                             <button
                               onClick={() => removeItem(item.id)}

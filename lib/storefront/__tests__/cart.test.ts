@@ -145,6 +145,7 @@ describe("getCart", () => {
           image: { url: "https://cdn.example.com/tumbler.png", altText: null, width: 800, height: 600 },
           quantity: 2,
           unitPrice: { amount: "25.00", currencyCode: "USD" },
+          attributes: [],
           totalPrice: { amount: "50.00", currencyCode: "USD" },
         },
       ],
@@ -186,6 +187,52 @@ describe("addLine", () => {
     expect(stored.cartId).toBe(CART_ID)
   })
 
+  it("sends line attributes with a new cart, an existing cart and a replacement cart", async () => {
+    stubShopifyEnv()
+    const attributes = [{ key: "Requested color", value: "Forest green" }]
+    const line = { merchandiseId: VARIANT_ID, quantity: 1, attributes }
+
+    let fetchMock = stubCartApi()
+    let mod = await load()
+    await mod.addLine(undefined, VARIANT_ID, 1, attributes)
+    expect(sentRequests(fetchMock)[0].variables).toEqual({ lines: [line] })
+
+    fetchMock = stubCartApi()
+    mod = await load()
+    await mod.addLine(CART_ID, VARIANT_ID, 1, attributes)
+    expect(sentRequests(fetchMock)[0].variables).toEqual({ cartId: CART_ID, lines: [line] })
+
+    fetchMock = stubCartApi({
+      CartLinesAdd: () => ({ cartLinesAdd: { cart: null, userErrors: [{ code: "INVALID", field: ["cartId"] }] } }),
+      Cart: () => ({ cart: null }),
+    })
+    mod = await load()
+    await mod.addLine(CART_ID, VARIANT_ID, 1, attributes)
+    expect(operations(fetchMock)).toEqual(["CartLinesAdd", "Cart", "CartCreate"])
+    expect(sentRequests(fetchMock)[2].variables).toEqual({ lines: [line] })
+  })
+
+  it("sends no attributes key at all when there are none", async () => {
+    stubShopifyEnv()
+    const fetchMock = stubCartApi()
+    const { addLine } = await load()
+    await addLine(CART_ID, VARIANT_ID, 1, [])
+    const line = (sentRequests(fetchMock)[0].variables.lines as Record<string, unknown>[])[0]
+    expect(line).toEqual({ merchandiseId: VARIANT_ID, quantity: 1 })
+    expect("attributes" in line).toBe(false)
+  })
+
+  it("asks Shopify for the attributes of each cart line, and never caches the request", async () => {
+    stubShopifyEnv()
+    const fetchMock = stubCartApi()
+    const { addLine } = await load()
+    await addLine(CART_ID, VARIANT_ID, 1, [{ key: "Requested color", value: "Sage" }])
+    const request = sentRequests(fetchMock)[0]
+    expect(request.query).toMatch(/attributes \{ key value \}/)
+    expect(request.cache).toBe("no-store")
+    expect(request.next).toBeUndefined()
+  })
+
   it("starts a fresh cart with the line when Shopify says the cart is gone or expired", async () => {
     stubShopifyEnv()
     const fetchMock = stubCartApi({
@@ -209,6 +256,36 @@ describe("addLine", () => {
 
     await expect(addLine(CART_ID, VARIANT_ID, 1)).rejects.toBeInstanceOf(ShopifyApiError)
     expect(operations(fetchMock)).toEqual(["CartLinesAdd", "Cart"])
+  })
+})
+
+describe("lines with different attributes", () => {
+  it("stay separate: the same variant with two typed colors comes back as two lines, each with its own color", async () => {
+    stubShopifyEnv()
+    const base = rawCart(CART_ID, 2).lines.nodes[0]
+    const line = (id: string, color: string) => ({ ...base, id, quantity: 1, attributes: [{ key: "Requested color", value: color }] })
+    stubCartApi({
+      Cart: () => ({ cart: { ...rawCart(CART_ID, 2), lines: { nodes: [line("l1", "Forest green"), line("l2", "Sage")] } } }),
+    })
+    const { getCart } = await load()
+    const stored = await getCart(CART_ID)
+
+    expect(stored?.cart.lines.map((l) => [l.id, l.attributes])).toEqual([
+      ["l1", [{ key: "Requested color", value: "Forest green" }]],
+      ["l2", [{ key: "Requested color", value: "Sage" }]],
+    ])
+  })
+
+  it("are added by separate requests that each carry their own attribute; nothing is merged on our side", async () => {
+    stubShopifyEnv()
+    const fetchMock = stubCartApi()
+    const { addLine } = await load()
+    await addLine(CART_ID, VARIANT_ID, 1, [{ key: "Requested color", value: "Forest green" }])
+    await addLine(CART_ID, VARIANT_ID, 1, [{ key: "Requested color", value: "Sage" }])
+    await addLine(CART_ID, VARIANT_ID, 1)
+
+    const colors = sentRequests(fetchMock).map((r) => (r.variables.lines as { attributes?: { value: string }[] }[])[0].attributes?.[0]?.value)
+    expect(colors).toEqual(["Forest green", "Sage", undefined])
   })
 })
 

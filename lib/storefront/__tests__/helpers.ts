@@ -165,6 +165,7 @@ export function rawCart(id = CART_ID, quantity = 2) {
         {
           id: LINE_ID,
           quantity,
+          attributes: [] as { key: string; value: string }[],
           cost: { amountPerQuantity: money("25.00"), totalAmount: money(String(25 * quantity) + ".00") },
           merchandise: {
             title: "20oz",

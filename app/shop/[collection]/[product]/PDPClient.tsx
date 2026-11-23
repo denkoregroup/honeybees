@@ -56,15 +56,16 @@ const ACCORDION_ITEMS = (description: string) => [
 
 export function PDPClient({ product, collectionHandle, preselected }: PDPClientProps) {
   const [selection, setSelection] = useState<Selection>(preselected)
+  const [typedRequestedColor, setTypedRequestedColor] = useState("")
   const [activeImage, setActiveImage] = useState(0)
   const [qty, setQty] = useState(1)
   const { addItem, openCart, isPending } = useCartStore()
 
-  const { variant, showFrom, price, canAdd } = purchaseState(product, selection)
+  const { variant, showFrom, price, canAdd, requestedColor } = purchaseState(product, selection, typedRequestedColor)
 
   const handleAddToCart = async () => {
     if (!variant || !canAdd) return
-    await addItem(variant.id, qty)
+    await addItem(variant.id, qty, requestedColor)
     openCart()
   }
 
@@ -166,6 +167,8 @@ export function PDPClient({ product, collectionHandle, preselected }: PDPClientP
             product={product}
             selection={selection}
             onSelect={(name, value) => setSelection((s) => ({ ...s, [name]: value }))}
+            requestedColor={typedRequestedColor}
+            onRequestedColorChange={setTypedRequestedColor}
           />
 
           {/* Qty + Add to cart */}

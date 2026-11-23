@@ -39,6 +39,7 @@ The home, `/shop`, `/shop/[collection]`, `/shop/[collection]/[product]` and `/co
 - **Failures:** if Shopify can't be reached or the env vars are missing, the page renders the error state in `app/error.tsx`, and the failure is logged server-side. A build fails the same way.
 - **Unknown handles:** an unknown collection or product handle returns a 404. A product page ignores the collection in its URL except for the breadcrumb.
 - **Variants:** the product page shows one picker row per option with more than one value, so a product with only the default "Title" option shows none. Availability is Shopify's `availableForSale`; inventory counts are not used, because items are made to order.
+- **Requested colors:** a product whose Color option has a value named exactly "Other" shows it last as "Other (request a color)". Choosing it reveals a text box (1 to 40 characters, trimmed); Add to cart stays disabled until something is typed. The text is sent as the cart line attribute "Requested color" and shown on the line in the cart. Lines for the same variant with different typed colors stay separate lines. The text is never put in a URL and is only ever rendered as escaped text.
 - **Descriptions:** product descriptions are shown as plain text; `descriptionHtml` is not rendered.
 - **Collections:** `/collections` lists collections that have at least one product; `getCollections` drops empty ones, so a page can come back shorter than asked.
 

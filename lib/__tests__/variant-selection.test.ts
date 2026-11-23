@@ -4,7 +4,9 @@ import {
   fromPrice,
   initialSelection,
   isValueAvailable,
+  isOtherColor,
   missingOptions,
+  orderedValues,
   pickerOptions,
   purchaseState,
   resolveVariant,
@@ -211,5 +213,85 @@ describe("pickerOptions", () => {
       { name: "Color", values: ["Red", "Blue"] },
     ]
     expect(pickerOptions({ options }).map((o) => o.name)).toEqual(["Size", "Color"])
+  })
+})
+
+// A product whose Color has an "Other" value, listed first by Shopify to show that it still sorts last.
+const withOther = {
+  options: [
+    { name: "Size", values: ["Small", "Large"] },
+    { name: "Color", values: ["Other", "Sand", "Blue"] },
+  ],
+  variants: [
+    priced("s-sand", { Size: "Small", Color: "Sand" }, "20.00"),
+    priced("s-other", { Size: "Small", Color: "Other" }, "20.00"),
+    priced("l-sand", { Size: "Large", Color: "Sand" }, "26.00"),
+    priced("l-other", { Size: "Large", Color: "Other" }, "26.00"),
+  ],
+  priceRange: { min: { amount: "20.00", currencyCode: "USD" }, max: { amount: "26.00", currencyCode: "USD" } },
+}
+
+describe("orderedValues", () => {
+  it("puts 'Other' last in the Color row and keeps the rest in Shopify's order", () => {
+    expect(orderedValues(withOther.options[1])).toEqual(["Sand", "Blue", "Other"])
+  })
+
+  it("leaves an option without 'Other' exactly as it is", () => {
+    for (const option of options) expect(orderedValues(option)).toBe(option.values)
+  })
+
+  it("only treats 'Other' as special in the Color option, and only when named exactly 'Other'", () => {
+    const size = { name: "Size", values: ["Other", "Small"] }
+    expect(orderedValues(size)).toBe(size.values)
+    const lower = { name: "Color", values: ["other", "Red"] }
+    expect(orderedValues(lower)).toBe(lower.values)
+    expect(isOtherColor("Color", "Other")).toBe(true)
+    expect(isOtherColor("Color", "other")).toBe(false)
+    expect(isOtherColor("Size", "Other")).toBe(false)
+  })
+})
+
+describe("purchaseState with 'Other'", () => {
+  const other = { Size: "Large", Color: "Other" }
+
+  it("is disabled while the box is empty, or holds only spaces", () => {
+    expect(purchaseState(withOther, other, "").canAdd).toBe(false)
+    expect(purchaseState(withOther, other, "   ").canAdd).toBe(false)
+  })
+
+  it("is enabled once there is a non-space character, and sends the trimmed text", () => {
+    const state = purchaseState(withOther, other, "  Forest green ")
+    expect(state.canAdd).toBe(true)
+    expect(state.requestedColor).toBe("Forest green")
+    expect(state.variant?.id).toBe("l-other")
+    expect(state.price.amount).toBe("26.00")
+  })
+
+  it("still needs every option, even with a typed color", () => {
+    const state = purchaseState(withOther, { Color: "Other" }, "Forest green")
+    expect(state.canAdd).toBe(false)
+    expect(state.requestedColor).toBeNull()
+  })
+
+  it("sends no color for a normal color, even if text was typed before switching back", () => {
+    const state = purchaseState(withOther, { Size: "Large", Color: "Sand" }, "Forest green")
+    expect(state.canAdd).toBe(true)
+    expect(state.requestedColor).toBeNull()
+  })
+
+  it("follows the variant's availability like any other color", () => {
+    const soldOut = { ...withOther, variants: withOther.variants.map((v) => (v.id === "l-other" ? { ...v, availableForSale: false } : v)) }
+    expect(purchaseState(soldOut, other, "Forest green").canAdd).toBe(false)
+  })
+})
+
+describe("products without 'Other' are unchanged", () => {
+  it("send no requested color and ignore any typed text", () => {
+    const state = purchaseState(product, { Size: "Medium", Color: "Blue" }, "Forest green")
+    expect(state.canAdd).toBe(true)
+    expect(state.requestedColor).toBeNull()
+    expect(purchaseState(product, { Size: "Medium", Color: "Blue" })).toEqual(
+      purchaseState(product, { Size: "Medium", Color: "Blue" }, "x")
+    )
   })
 })

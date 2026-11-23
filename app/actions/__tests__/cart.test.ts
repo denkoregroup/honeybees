@@ -231,3 +231,45 @@ describe("getCart", () => {
     expect(cookieDelete).toHaveBeenCalledWith("cart")
   })
 })
+
+describe("addToCart with a requested color", () => {
+  const attributesOf = (fetchMock: ReturnType<typeof stubCartApi>, index = 0) =>
+    (sentRequests(fetchMock)[index].variables.lines as { attributes?: unknown }[])[0].attributes
+
+  it("sends the trimmed color as the 'Requested color' line attribute", async () => {
+    const fetchMock = stubCartApi()
+    const { addToCart } = await loadActions()
+    expect((await addToCart(VARIANT_ID, 1, "  Forest green ")).ok).toBe(true)
+    expect(attributesOf(fetchMock)).toEqual([{ key: "Requested color", value: "Forest green" }])
+  })
+
+  it("sends no attribute when there is no color, or null", async () => {
+    const fetchMock = stubCartApi()
+    const { addToCart } = await loadActions()
+    await addToCart(VARIANT_ID, 1)
+    await addToCart(VARIANT_ID, 1, null)
+    expect(attributesOf(fetchMock, 0)).toBeUndefined()
+    expect(attributesOf(fetchMock, 1)).toBeUndefined()
+  })
+
+  it("keeps different typed colors on separate requests, each with its own attribute", async () => {
+    const fetchMock = stubCartApi()
+    const { addToCart } = await loadActions()
+    await addToCart(VARIANT_ID, 1, "Forest green")
+    await addToCart(VARIANT_ID, 1, "Sage")
+    expect([0, 1].map((i) => attributesOf(fetchMock, i))).toEqual([
+      [{ key: "Requested color", value: "Forest green" }],
+      [{ key: "Requested color", value: "Sage" }],
+    ])
+  })
+
+  it.each([["empty", ""], ["only spaces", "   "], ["too long", "x".repeat(41)], ["with a line break", "a\nb"], ["not a string", 7]])(
+    "rejects a requested color that is %s without calling Shopify",
+    async (_name, color) => {
+      const fetchMock = stubCartApi()
+      const { addToCart } = await loadActions()
+      expect(await addToCart(VARIANT_ID, 1, color as string)).toEqual({ ok: false, error: GENERIC_ERROR })
+      expect(fetchMock).not.toHaveBeenCalled()
+    }
+  )
+})
