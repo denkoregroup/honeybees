@@ -1,18 +1,26 @@
 "use client"
 
+import { useEffect } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "motion/react"
 import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react"
+import { CheckoutButton } from "@/components/features/CheckoutButton"
 import { useCartStore } from "@/store/cart"
-import { formatPrice } from "@/lib/utils"
+import { formatMoney, formatPrice } from "@/lib/utils"
 
 const FREE_SHIPPING_THRESHOLD = 75
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, total, checkoutUrl, isLoading } =
+  const { cart, isOpen, closeCart, removeItem, updateQuantity, isPending, error, retry, refresh } =
     useCartStore()
 
-  const cartTotal = total()
+  // Load the saved cart once so the header count and drawer are right after a page load.
+  useEffect(() => {
+    void refresh()
+  }, [refresh])
+
+  const lines = cart?.lines ?? []
+  const cartTotal = cart ? Number(cart.subtotal.amount) : 0
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal)
   const progressPct = Math.min(100, (cartTotal / FREE_SHIPPING_THRESHOLD) * 100)
 
@@ -46,9 +54,9 @@ export function CartDrawer() {
                 <ShoppingCart className="h-5 w-5 text-[var(--color-coral)]" />
                 <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
                   Your Cart
-                  {items.length > 0 && (
+                  {cart && cart.totalQuantity > 0 && (
                     <span className="ml-1.5 text-[13px] font-normal text-[var(--color-secondary)]">
-                      ({items.length} item{items.length !== 1 ? "s" : ""})
+                      ({cart.totalQuantity} item{cart.totalQuantity !== 1 ? "s" : ""})
                     </span>
                   )}
                 </h2>
@@ -62,8 +70,24 @@ export function CartDrawer() {
               </button>
             </div>
 
+            {/* Error */}
+            {error && (
+              <div role="alert" className="flex items-center justify-between gap-3 border-b border-[var(--color-border)] bg-red-50 px-5 py-3">
+                <p className="text-[12px] text-red-600">{error}</p>
+                {retry && (
+                  <button
+                    onClick={() => void retry()}
+                    disabled={isPending}
+                    className="flex-shrink-0 rounded-full border border-red-300 px-3 py-1 text-[12px] font-semibold text-red-600 hover:bg-red-100 disabled:opacity-40"
+                  >
+                    Retry
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Free shipping progress */}
-            {items.length > 0 && (
+            {lines.length > 0 && (
               <div className="border-b border-[var(--color-border)] bg-[var(--color-topbar)] px-5 py-3">
                 {remaining > 0 ? (
                   <p className="mb-2 text-[12px] text-[var(--color-secondary)]">
@@ -90,7 +114,7 @@ export function CartDrawer() {
             )}
 
             {/* Content */}
-            {items.length === 0 ? (
+            {lines.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-4 px-5 text-center">
                 <span className="text-5xl">🛒</span>
                 <p className="text-[16px] font-semibold text-[var(--color-ink)]">
@@ -110,16 +134,15 @@ export function CartDrawer() {
               <>
                 {/* Items list */}
                 <ul className="flex-1 divide-y divide-[var(--color-border)] overflow-y-auto px-5 py-2">
-                  {items.map((item) => {
-                    const lineId = (item as typeof item & { lineId?: string }).lineId ?? item.variantId
+                  {lines.map((item) => {
                     return (
-                      <li key={item.variantId} className="flex gap-4 py-4">
+                      <li key={item.id} className="flex gap-4 py-4">
                         {/* Image */}
                         <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-[var(--color-topbar)]">
                           {item.image ? (
                             <Image
-                              src={item.image}
-                              alt={item.title}
+                              src={item.image.url}
+                              alt={item.image.altText ?? item.title}
                               fill
                               className="object-cover"
                               sizes="80px"
@@ -136,16 +159,16 @@ export function CartDrawer() {
                               <p className="text-[14px] font-semibold leading-tight text-[var(--color-ink)]">
                                 {item.title}
                               </p>
-                              {item.variantTitle && item.variantTitle !== "Default Title" && (
+                              {item.variantTitle !== "Default Title" && (
                                 <p className="mt-0.5 text-[12px] text-[var(--color-secondary)]">
                                   {item.variantTitle}
                                 </p>
                               )}
                             </div>
                             <button
-                              onClick={() => removeItem(lineId)}
+                              onClick={() => removeItem(item.id)}
                               aria-label="Remove item"
-                              disabled={isLoading}
+                              disabled={isPending}
                               className="flex-shrink-0 rounded p-0.5 text-[var(--color-secondary)] transition-colors hover:text-red-500 disabled:opacity-40"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -156,9 +179,9 @@ export function CartDrawer() {
                             {/* Qty */}
                             <div className="flex items-center rounded-lg border border-[var(--color-border)]">
                               <button
-                                onClick={() => updateQuantity(lineId, item.quantity - 1)}
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                 aria-label="Decrease quantity"
-                                disabled={isLoading}
+                                disabled={isPending}
                                 className="px-2.5 py-1 text-[var(--color-secondary)] transition-colors hover:text-[var(--color-coral)] disabled:opacity-40"
                               >
                                 <Minus className="h-3 w-3" />
@@ -167,9 +190,9 @@ export function CartDrawer() {
                                 {item.quantity}
                               </span>
                               <button
-                                onClick={() => updateQuantity(lineId, item.quantity + 1)}
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                 aria-label="Increase quantity"
-                                disabled={isLoading}
+                                disabled={isPending}
                                 className="px-2.5 py-1 text-[var(--color-secondary)] transition-colors hover:text-[var(--color-coral)] disabled:opacity-40"
                               >
                                 <Plus className="h-3 w-3" />
@@ -177,7 +200,7 @@ export function CartDrawer() {
                             </div>
                             {/* Price */}
                             <span className="text-[14px] font-semibold text-[var(--color-ink)]">
-                              {formatPrice(item.price * item.quantity)}
+                              {formatMoney(item.totalPrice)}
                             </span>
                           </div>
                         </div>
@@ -191,28 +214,14 @@ export function CartDrawer() {
                   <div className="flex items-center justify-between text-[15px]">
                     <span className="text-[var(--color-secondary)]">Subtotal</span>
                     <span className="font-bold text-[var(--color-ink)]">
-                      {formatPrice(cartTotal)}
+                      {formatMoney(cart!.subtotal)}
                     </span>
                   </div>
                   <p className="mt-1 text-[12px] text-[var(--color-secondary)]">
                     Shipping &amp; taxes calculated at checkout
                   </p>
 
-                  {checkoutUrl ? (
-                    <a
-                      href={checkoutUrl}
-                      className="mt-4 flex w-full items-center justify-center rounded-full bg-[var(--color-coral)] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[var(--color-coral-dark)]"
-                    >
-                      CHECKOUT →
-                    </a>
-                  ) : (
-                    <button
-                      disabled
-                      className="mt-4 flex w-full items-center justify-center rounded-full bg-[var(--color-coral)] py-3.5 text-[15px] font-bold text-white opacity-60"
-                    >
-                      CHECKOUT →
-                    </button>
-                  )}
+                  <CheckoutButton href={cart!.checkoutUrl} disabled={isPending} className="mt-4" />
                   <button
                     onClick={closeCart}
                     className="mt-2 w-full text-center text-[13px] text-[var(--color-secondary)] underline underline-offset-2 hover:text-[var(--color-coral)]"

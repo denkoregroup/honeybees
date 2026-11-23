@@ -5,13 +5,17 @@ import Image from "next/image"
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { CheckoutButton } from "@/components/features/CheckoutButton"
 import { useCartStore } from "@/store/cart"
-import { formatPrice } from "@/lib/utils"
+import { formatMoney } from "@/lib/utils"
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, total, checkoutUrl, isLoading } = useCartStore()
+  const { cart, loaded, removeItem, updateQuantity, isPending, error, retry } = useCartStore()
 
-  if (items.length === 0) {
+  // The saved cart is loaded by the cart drawer in the root layout; wait for it instead of flashing "empty".
+  if (!loaded) return null
+
+  if (!cart || cart.lines.length === 0) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-4 py-32 text-center">
         <ShoppingBag className="mb-4 h-16 w-16 text-[var(--color-secondary)]" />
@@ -19,6 +23,20 @@ export default function CartPage() {
         <p className="mt-2 text-[14px] text-[var(--color-secondary)]">
           Looks like you haven&apos;t added anything yet.
         </p>
+        {error && (
+          <div role="alert" className="mt-4 flex items-center gap-3 text-[13px] text-red-600">
+            <span>{error}</span>
+            {retry && (
+              <button
+                onClick={() => void retry()}
+                disabled={isPending}
+                className="rounded-full border border-red-300 px-3 py-1 font-semibold hover:bg-red-50 disabled:opacity-40"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        )}
         <Link
           href="/shop"
           className="mt-6 rounded-full bg-[var(--color-coral)] px-6 py-2.5 text-[14px] font-bold text-white hover:bg-[var(--color-coral-dark)]"
@@ -40,17 +58,31 @@ export default function CartPage() {
         <h1 className="text-[24px] font-black text-[var(--color-ink)]">Shopping Cart</h1>
       </div>
 
+      {error && (
+        <div role="alert" className="mb-6 flex items-center justify-between gap-3 rounded-xl bg-red-50 px-4 py-3">
+          <p className="text-[13px] text-red-600">{error}</p>
+          {retry && (
+            <button
+              onClick={() => void retry()}
+              disabled={isPending}
+              className="flex-shrink-0 rounded-full border border-red-300 px-3 py-1 text-[12px] font-semibold text-red-600 hover:bg-red-100 disabled:opacity-40"
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
         {/* Items */}
         <div className="lg:col-span-2">
           <ul className="space-y-6">
-            {items.map((item) => {
-              const lineId = (item as typeof item & { lineId?: string }).lineId ?? item.variantId
+            {cart.lines.map((item) => {
               return (
-                <li key={item.variantId} className="flex gap-5">
+                <li key={item.id} className="flex gap-5">
                   <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[var(--color-topbar)]">
                     {item.image ? (
-                      <Image src={item.image} alt={item.title} fill className="object-cover" />
+                      <Image src={item.image.url} alt={item.image.altText ?? item.title} fill className="object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center text-3xl">🐝</div>
                     )}
@@ -59,19 +91,19 @@ export default function CartPage() {
                     <div className="flex justify-between">
                       <div>
                         <p className="font-semibold text-[var(--color-ink)]">{item.title}</p>
-                        {item.variantTitle && item.variantTitle !== "Default Title" && (
+                        {item.variantTitle !== "Default Title" && (
                           <p className="text-[12px] text-[var(--color-secondary)]">{item.variantTitle}</p>
                         )}
                       </div>
                       <p className="font-semibold text-[var(--color-ink)]">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatMoney(item.totalPrice)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1 rounded-full border border-[var(--color-border)]">
                         <button
-                          disabled={isLoading}
-                          onClick={() => updateQuantity(lineId, item.quantity - 1)}
+                          disabled={isPending}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="px-3 py-1.5 text-[var(--color-secondary)] hover:text-[var(--color-coral)] disabled:opacity-40"
                           aria-label="Decrease"
                         >
@@ -79,8 +111,8 @@ export default function CartPage() {
                         </button>
                         <span className="w-7 text-center text-[13px] font-semibold">{item.quantity}</span>
                         <button
-                          disabled={isLoading}
-                          onClick={() => updateQuantity(lineId, item.quantity + 1)}
+                          disabled={isPending}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="px-3 py-1.5 text-[var(--color-secondary)] hover:text-[var(--color-coral)] disabled:opacity-40"
                           aria-label="Increase"
                         >
@@ -88,8 +120,8 @@ export default function CartPage() {
                         </button>
                       </div>
                       <button
-                        disabled={isLoading}
-                        onClick={() => removeItem(lineId)}
+                        disabled={isPending}
+                        onClick={() => removeItem(item.id)}
                         className="p-1.5 text-[var(--color-secondary)] hover:text-red-500 disabled:opacity-40"
                         aria-label="Remove"
                       >
@@ -110,7 +142,7 @@ export default function CartPage() {
             <div className="space-y-2 text-[13px]">
               <div className="flex justify-between">
                 <span className="text-[var(--color-secondary)]">Subtotal</span>
-                <span className="font-semibold">{formatPrice(total())}</span>
+                <span className="font-semibold">{formatMoney(cart.subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--color-secondary)]">Shipping</span>
@@ -120,23 +152,9 @@ export default function CartPage() {
             <Separator className="my-4" />
             <div className="flex justify-between text-[15px] font-bold">
               <span>Estimated Total</span>
-              <span>{formatPrice(total())}</span>
+              <span>{formatMoney(cart.total)}</span>
             </div>
-            {checkoutUrl ? (
-              <a
-                href={checkoutUrl}
-                className="mt-5 flex w-full items-center justify-center rounded-full bg-[var(--color-coral)] py-3.5 text-[14px] font-bold text-white hover:bg-[var(--color-coral-dark)]"
-              >
-                PROCEED TO CHECKOUT →
-              </a>
-            ) : (
-              <button
-                disabled
-                className="mt-5 flex w-full items-center justify-center rounded-full bg-[var(--color-coral)] py-3.5 text-[14px] font-bold text-white opacity-60"
-              >
-                PROCEED TO CHECKOUT →
-              </button>
-            )}
+            <CheckoutButton href={cart.checkoutUrl} disabled={isPending} className="mt-5" />
             <p className="mt-2 text-center text-[11px] text-[var(--color-secondary)]">
               Secure checkout powered by Shopify
             </p>
