@@ -14,7 +14,8 @@ import type { Product } from "@/lib/storefront/types"
 
 interface PDPClientProps {
   product: Product
-  collectionHandle: string
+  /** The collection named in the URL, with Shopify's real title; null when Shopify has no such collection. */
+  collection: { handle: string; title: string } | null
   /** Options that start selected: single-value options and any named in the URL. Usually none else. */
   preselected: Selection
 }
@@ -54,7 +55,7 @@ const ACCORDION_ITEMS = (description: string) => [
   },
 ]
 
-export function PDPClient({ product, collectionHandle, preselected }: PDPClientProps) {
+export function PDPClient({ product, collection, preselected }: PDPClientProps) {
   const [selection, setSelection] = useState<Selection>(preselected)
   const [typedRequestedColor, setTypedRequestedColor] = useState("")
   const [activeImage, setActiveImage] = useState(0)
@@ -71,21 +72,20 @@ export function PDPClient({ product, collectionHandle, preselected }: PDPClientP
 
   const compareAt = variant ? saleCompareAt(price, variant.compareAtPrice) : null
 
-  const collectionTitle = collectionHandle
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ")
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-[12px] text-[var(--color-secondary)]">
         <Link href="/shop" className="hover:text-[var(--color-coral)]">Shop</Link>
         <span>/</span>
-        <Link href={`/shop/${collectionHandle}`} className="hover:text-[var(--color-coral)]">
-          {collectionTitle}
-        </Link>
-        <span>/</span>
+        {collection && (
+          <>
+            <Link href={`/shop/${collection.handle}`} className="hover:text-[var(--color-coral)]">
+              {collection.title}
+            </Link>
+            <span>/</span>
+          </>
+        )}
         <span className="text-[var(--color-ink)]">{product.title}</span>
       </nav>
 
@@ -141,9 +141,11 @@ export function PDPClient({ product, collectionHandle, preselected }: PDPClientP
         {/* Right — product info */}
         <div className="flex flex-col gap-5">
           <div>
-            <p className="text-[12px] font-bold uppercase tracking-widest text-[var(--color-coral)]">
-              {collectionTitle}
-            </p>
+            {collection && (
+              <p className="text-[12px] font-bold uppercase tracking-widest text-[var(--color-coral)]">
+                {collection.title}
+              </p>
+            )}
             <h1 className="mt-1 text-[26px] font-black leading-tight text-[var(--color-ink)]">
               {product.title}
             </h1>
