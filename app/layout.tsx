@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | HoneyBee Designs",
   },
   description:
-    "Custom sublimation apparel, drinkware, keychains, accessories and gifts. Handmade with love, shipped with smiles. 5,000+ happy customers!",
+    "Custom sublimation apparel, drinkware, keychains, accessories and gifts. Handmade with love, shipped with smiles.",
   keywords: [
     "sublimation",
     "custom merch",

@@ -14,11 +14,6 @@ const ITEMS = [
     title: "SHIPPED WITH SMILES",
     desc: "Fast, reliable shipping straight to you!",
   },
-  {
-    icon: "⭐",
-    title: "5,000+ HAPPY CUSTOMERS",
-    desc: "Thank you for supporting my small business!",
-  },
 ]
 
 export function TrustBar() {
@@ -35,7 +30,7 @@ export function TrustBar() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: `repeat(${ITEMS.length}, 1fr)`,
           }}
         >
           {ITEMS.map(({ icon, title, desc }, i) => (

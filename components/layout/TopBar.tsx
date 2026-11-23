@@ -2,7 +2,6 @@ const ITEMS = [
   { icon: "🤍", text: "Made with Love" },
   { icon: "📦", text: "Packed with Care" },
   { icon: "🚚", text: "Shipped with Smiles" },
-  { icon: "⭐", text: "5,000+ Happy Customers" },
 ]
 
 export function TopBar() {
@@ -18,7 +17,7 @@ export function TopBar() {
       }}
       aria-label="Site announcements"
     >
-      {/* Desktop: static row, all 5 visible */}
+      {/* Desktop: static row, every item visible */}
       <div className="hidden h-full lg:flex items-center justify-center">
         {ITEMS.map((item, i) => (
           <span
