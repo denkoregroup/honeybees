@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react"
+import { Logo } from "@/components/layout/Logo"
 import { useCartStore } from "@/store/cart"
 import { cn } from "@/lib/utils"
 
@@ -31,9 +32,9 @@ export function Header() {
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
-      {/* ── Mobile (below md): 56px bar with menu, centered logo, search and cart ── */}
+      {/* ── Mobile (below md): 72px bar with menu, centered logo, search and cart ── */}
       <div className="md:hidden">
-        <div className="grid h-14 grid-cols-[88px_1fr_88px] items-center px-2">
+        <div className="grid h-[72px] grid-cols-[88px_1fr_88px] items-center px-2">
           <button
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -44,34 +45,8 @@ export function Header() {
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
 
-          <Link
-            href="/"
-            aria-label="HoneyBee Designs home"
-            className="focus-ring flex h-12 flex-col items-center justify-center leading-none"
-          >
-            <span
-              style={{
-                fontFamily: "var(--font-pacifico)",
-                fontSize: "26px",
-                color: "oklch(0.74 0.10 78)",
-                letterSpacing: "1px",
-                lineHeight: 1.1,
-              }}
-            >
-              HoneyBee
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-montserrat)",
-                fontSize: "12px",
-                color: "var(--color-gray)",
-                fontStyle: "italic",
-                letterSpacing: "0.1em",
-                marginTop: "-2px",
-              }}
-            >
-              designs
-            </span>
+          <Link href="/" className="focus-ring flex h-16 items-center justify-center">
+            <Logo className="h-16 w-auto" />
           </Link>
 
           <div className="flex items-center justify-end">
@@ -143,7 +118,8 @@ export function Header() {
       <div
         className="grid px-6"
         style={{
-          height: "80px",
+          minHeight: "80px",
+          paddingBlock: "8px",
           gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
           maxWidth: "1200px",
@@ -196,34 +172,8 @@ export function Header() {
 
         {/* Center: Logo */}
         <div className="flex justify-center">
-          <Link href="/" className="flex flex-col items-center leading-none" aria-label="HoneyBee Designs home">
-            {/* TODO: swap with real logo PNG: <img src="/images/logo.png" height="70" alt="HoneyBee Designs" /> */}
-            <span
-              style={{
-                fontFamily: "var(--font-pacifico)",
-                fontSize: "28px",
-                color: "oklch(0.74 0.10 78)",
-                display: "block",
-                letterSpacing: "1px",
-                lineHeight: 1.1,
-              }}
-            >
-              HoneyBee
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-montserrat)",
-                fontSize: "13px",
-                fontWeight: 400,
-                color: "var(--color-gray)",
-                fontStyle: "italic",
-                display: "block",
-                marginTop: "-2px",
-                letterSpacing: "0.1em",
-              }}
-            >
-              designs
-            </span>
+          <Link href="/" className="flex items-center">
+            <Logo className="h-[70px] w-auto" />
           </Link>
         </div>
 

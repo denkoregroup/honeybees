@@ -69,7 +69,10 @@ export const PRODUCT_BY_HANDLE_QUERY = `#graphql
 export const COLLECTIONS_QUERY = `#graphql
   query Collections($first: Int!, $after: String) {
     collections(first: $first, after: $after) {
-      nodes { ${COLLECTION_FIELDS} }
+      nodes {
+        ${COLLECTION_FIELDS}
+        products(first: 1) { nodes { id } }
+      }
       ${PAGE_INFO}
     }
   }

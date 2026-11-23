@@ -12,12 +12,18 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {})
 })
 
+const withProduct = { products: { nodes: [{ id: "gid://shopify/Product/1" }] } }
+const noProducts = { products: { nodes: [] } }
+
 describe("getCollections", () => {
   it("returns collections with page info", async () => {
     const fetchMock = stubFetch(() =>
       gqlData({
         collections: {
-          nodes: [rawCollection(), rawCollection({ id: "gid://shopify/Collection/2", handle: "keychains" })],
+          nodes: [
+            { ...rawCollection(), ...withProduct },
+            { ...rawCollection({ id: "gid://shopify/Collection/2", handle: "keychains" }), ...withProduct },
+          ],
           pageInfo: { hasNextPage: true, endCursor: "cursor-2" },
         },
       })
@@ -30,6 +36,25 @@ describe("getCollections", () => {
     const [request] = sentRequests(fetchMock)
     expect(request.variables).toEqual({ first: 20, after: null })
     expect(request.next?.tags).toEqual([CACHE_TAGS.collections])
+  })
+
+  it("drops collections with no products and asks for one product per collection", async () => {
+    const fetchMock = stubFetch(() =>
+      gqlData({
+        collections: {
+          nodes: [
+            { ...rawCollection({ handle: "mama" }), ...withProduct },
+            { ...rawCollection({ id: "gid://shopify/Collection/2", handle: "empty" }), ...noProducts },
+          ],
+          pageInfo: { hasNextPage: false, endCursor: null },
+        },
+      })
+    )
+    const { getCollections } = await loadCollections()
+    const page = await getCollections()
+
+    expect(page.items.map((c) => c.handle)).toEqual(["mama"])
+    expect(sentRequests(fetchMock)[0].query).toMatch(/products\(first: 1\)/)
   })
 
   it("rejects an invalid page size before making a request", async () => {
