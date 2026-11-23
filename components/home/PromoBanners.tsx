@@ -31,14 +31,13 @@ export function PromoBanners() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gap: "12px",
           padding: "0 24px",
           maxWidth: "1200px",
           margin: "0 auto",
           width: "100%",
         }}
-        className="lg:grid-cols-4 md:grid-cols-2"
       >
         {/* Panel 1 — Black / Custom Order */}
         <div
@@ -111,49 +110,7 @@ export function PromoBanners() {
           {/* TODO: bee mascot illustration — position absolute, right 0, bottom 0, height 90% */}
         </div>
 
-        {/* Panel 2 — White / Free Shipping */}
-        <div
-          className="flex flex-col items-center justify-center text-center overflow-hidden"
-          style={{
-            backgroundColor: "white",
-            border: "1px solid var(--color-border)",
-            minHeight: "220px",
-            padding: "28px 24px",
-            borderRadius: "16px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "var(--font-montserrat)",
-              fontSize: "22px",
-              fontWeight: 900,
-              color: "var(--color-black)",
-              textTransform: "uppercase",
-              marginBottom: "4px",
-            }}
-          >
-            🚚 FREE SHIPPING
-          </p>
-          <p
-            style={{
-              fontFamily: "var(--font-montserrat)",
-              fontSize: "26px",
-              fontWeight: 900,
-              color: "var(--color-primary)",
-              textTransform: "uppercase",
-              lineHeight: 1,
-              marginBottom: "20px",
-            }}
-          >
-            ON ORDERS $75+
-          </p>
-          {/* TODO: replace with pink delivery truck illustration */}
-          <span style={{ fontSize: "52px", color: "var(--color-primary)", opacity: 0.5, lineHeight: 1 }}>
-            🚚
-          </span>
-        </div>
-
-        {/* Panel 3 — Warm pink / Be Kind */}
+        {/* Panel 2 — Warm pink / Be Kind */}
         <div
           className="flex flex-col items-center justify-center text-center overflow-hidden"
           style={{
@@ -176,7 +133,7 @@ export function PromoBanners() {
           {/* TODO: floral/bee decoration bottom right */}
         </div>
 
-        {/* Panel 4 — White / Thank You */}
+        {/* Panel 3 — White / Thank You */}
         <div
           className="flex flex-col items-center justify-center text-center overflow-hidden"
           style={{
