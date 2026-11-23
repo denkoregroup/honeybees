@@ -7,8 +7,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 })
   }
 
-  // TODO: integrate Resend audience / email list API here
-  console.log("[newsletter] new subscriber:", email)
-
-  return NextResponse.json({ success: true })
+  // Nothing stores subscribers yet (#13), so say so instead of reporting success. Never log the address.
+  return NextResponse.json(
+    { error: "Newsletter signups aren't live yet. Please check back soon!" },
+    { status: 503 }
+  )
 }
