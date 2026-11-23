@@ -8,7 +8,22 @@ const ITEMS = [
 
 export function TopBar() {
   return (
-    <div
+    <>
+      {/* Mobile: one message on honey */}
+      <div
+        className="flex h-8 items-center justify-center px-4 md:hidden"
+        style={{ backgroundColor: "var(--color-honey-yellow)" }}
+      >
+        <p
+          className="text-[11px] font-semibold uppercase tracking-wide"
+          style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+        >
+          Free shipping on orders $75+
+        </p>
+      </div>
+
+      <div className="hidden md:contents">
+        <div
       className="border-b overflow-hidden"
       style={{
         backgroundColor: "var(--color-topbar-bg)",
@@ -51,5 +66,7 @@ export function TopBar() {
         </div>
       </div>
     </div>
+      </div>
+    </>
   )
 }

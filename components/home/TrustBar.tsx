@@ -29,7 +29,7 @@ const ITEMS = [
 export function TrustBar() {
   return (
     <section
-      className="border-y"
+      className="hidden border-y md:block"
       style={{
         backgroundColor: "var(--color-surface)",
         borderColor: "var(--color-border)",

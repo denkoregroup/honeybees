@@ -57,6 +57,10 @@
   --color-ink:          var(--color-black);
   --color-secondary:    var(--color-gray);
 
+  /* ── Coral for display type (24px and up) and for smaller text/badges ── */
+  --color-coral-display: oklch(0.67 0.20 21);  /* #F8525D */
+  --color-coral-ink:     oklch(0.55 0.18 15);  /* #C2344E */
+
   /* ── shadcn/ui semantic tokens ── */
   --background:             var(--color-bg);
   --foreground:             var(--color-black);
@@ -171,6 +175,67 @@ button, .btn {
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
+}
+
+/* ─── Mobile homepage building blocks ── */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+/* Buttons: 44px minimum height, 6px radius, Montserrat 14px/700 uppercase. Ink or cream text only, never white. */
+@utility btn-primary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 0 24px;
+  background-color: var(--color-blush);
+  color: var(--color-ink);
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+@utility btn-secondary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 0 24px;
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+@utility btn-outline {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  border: 2px solid var(--color-ink);
+  padding: 0 24px;
+  color: var(--color-ink);
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
 }
 
 /* ─── Utilities ── */

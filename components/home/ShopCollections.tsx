@@ -41,7 +41,7 @@ const COLLECTIONS = [
 
 export function ShopCollections() {
   return (
-    <section style={{ backgroundColor: "var(--color-cream)", padding: "48px 0" }}>
+    <section className="hidden md:block" style={{ backgroundColor: "var(--color-cream)", padding: "48px 0" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 32px" }}>
         {/* Heading */}
         <h2

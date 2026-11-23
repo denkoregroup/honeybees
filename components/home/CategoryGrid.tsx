@@ -3,16 +3,14 @@
 import Link from "next/link"
 import { ImageIcon } from "lucide-react"
 
-const CATEGORIES = [
-  { name: "APPAREL",           handle: "apparel" },
-  { name: "DRINKWARE",         handle: "drinkware" },
-  { name: "TOTE BAGS",         handle: "tote-bags" },
-  { name: "KEYCHAINS",         handle: "keychains" },
-  { name: "DECALS & STICKERS", handle: "stickers-decals" },
-  { name: "HOME DECOR",        handle: "home-lifestyle" },
-  { name: "CUSTOM ITEMS",      handle: "custom-items" },
-  { name: "GIFTS",             handle: "gift-ideas" },
-  { name: "NEW ARRIVALS",      handle: "new-arrivals" },
+// Handles must exist in Shopify and have products today, or the tile 404s / lands on an empty page.
+// Add or remove a tile here only after checking the collection in the store.
+export const CATEGORIES = [
+  { name: "APPAREL",               handle: "apparel-1" },
+  { name: "TURTLEY AWESOME MERCH", handle: "turtley-awesome-merch" },
+  { name: "TURTLEY COASTERS",      handle: "turtley-coasters" },
+  { name: "TURTLEY DECALS",        handle: "turtley-decals" },
+  { name: "TURTLEY KEYCHAINS",     handle: "turtley-keychains" },
 ]
 
 function CategoryTile({ name, handle }: { name: string; handle: string }) {
@@ -82,9 +80,42 @@ function CategoryTile({ name, handle }: { name: string; handle: string }) {
   )
 }
 
+const MOBILE_TILE_COUNT = 8
+
 export function CategoryGrid() {
   return (
-    <section style={{ backgroundColor: "var(--color-cream)", padding: "48px 0" }}>
+    <>
+    {/* Mobile (below md): swipe row of small tiles, the next one peeking */}
+    <section className="pb-8 md:hidden">
+      <h2
+        className="mb-6 px-4 text-center text-[28px] font-extrabold uppercase leading-9"
+        style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+      >
+        Shop by category
+      </h2>
+      <ul className="no-scrollbar flex snap-x gap-2 overflow-x-auto px-4">
+        {CATEGORIES.slice(0, MOBILE_TILE_COUNT).map(({ name, handle }) => (
+          <li key={handle} className="w-[92px] flex-shrink-0 snap-start">
+            <Link href={`/shop/${handle}`} className="focus-ring flex flex-col items-center gap-2">
+              <span
+                className="flex h-[92px] w-[92px] items-center justify-center rounded-xl border"
+                style={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }}
+              >
+                <ImageIcon className="h-8 w-8" style={{ color: "var(--color-gray)" }} aria-hidden />
+              </span>
+              <span
+                className="text-center text-[11px] font-semibold uppercase leading-4 tracking-[0.04em]"
+                style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+              >
+                {name}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section className="hidden md:block" style={{ backgroundColor: "var(--color-cream)", padding: "48px 0" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         {/* Heading */}
         <div
@@ -148,5 +179,6 @@ export function CategoryGrid() {
         </div>
       </div>
     </section>
+    </>
   )
 }

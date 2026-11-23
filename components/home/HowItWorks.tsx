@@ -20,7 +20,38 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section style={{ backgroundColor: "var(--color-surface)", padding: "64px 0" }}>
+    <>
+    {/* Mobile (below md): stacked steps, no arrows */}
+    <section className="px-4 pb-8 md:hidden">
+      <h2
+        className="mb-6 text-center text-[28px] font-extrabold leading-9"
+        style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+      >
+        Custom is easy as{" "}
+        <span style={{ color: "var(--color-coral-display)" }}>1-2-3!</span>
+      </h2>
+      <ol className="flex flex-col gap-6">
+        {STEPS.map(({ number, label }) => (
+          <li key={number} className="flex items-center gap-4">
+            <span
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-[24px] font-black"
+              style={{ backgroundColor: "var(--color-coral-display)", color: "white", fontFamily: "var(--font-montserrat)" }}
+              aria-hidden
+            >
+              {number}
+            </span>
+            <span
+              className="text-[14px] font-bold uppercase leading-5 tracking-[0.04em]"
+              style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+            >
+              {label}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section className="hidden md:block" style={{ backgroundColor: "var(--color-surface)", padding: "64px 0" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 32px" }}>
         {/* Heading */}
         <h2
@@ -125,5 +156,6 @@ export function HowItWorks() {
         </div>
       </div>
     </section>
+    </>
   )
 }

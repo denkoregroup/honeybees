@@ -65,7 +65,51 @@ export function EmailSignup() {
   }
 
   return (
+    <>
+    {/* Mobile (below md): no band, straight on cream */}
+    <section className="px-4 pb-8 md:hidden">
+      <h2 className="text-center text-[28px] leading-10" style={{ fontFamily: "var(--font-pacifico)", color: "var(--color-ink)" }}>
+        Join the hive!
+      </h2>
+      <p className="mt-2 text-center text-[16px] leading-6" style={{ fontFamily: "var(--font-inter)", color: "var(--color-ink)" }}>
+        Be the first to know about new arrivals, sales &amp; more!
+      </p>
+
+      {status === "success" ? (
+        <p role="status" className="mt-4 text-center text-[16px] font-bold" style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}>
+          You&apos;re in! Welcome to the hive 🐝
+        </p>
+      ) : (
+        <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
+          <label htmlFor="signup-email-mobile" className="sr-only">
+            Email address
+          </label>
+          <input
+            id="signup-email-mobile"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email address..."
+            className="focus-ring h-11 w-full rounded-md border px-4 text-[16px] placeholder:text-[var(--color-gray)]"
+            style={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)", color: "var(--color-ink)", fontFamily: "var(--font-inter)" }}
+          />
+          <button type="submit" disabled={status === "loading"} className="btn-primary focus-ring w-full disabled:opacity-60">
+            {status === "loading" ? "Joining…" : "Join now"}
+          </button>
+        </form>
+      )}
+
+      {status === "error" && (
+        <p role="alert" className="mt-3 text-center text-[14px]" style={{ fontFamily: "var(--font-inter)", color: "var(--color-coral-ink)" }}>
+          Something went wrong. Please try again!
+        </p>
+      )}
+    </section>
+
     <section
+      className="hidden md:block"
       style={{
         backgroundColor: "white",
         borderTop: "1px solid var(--color-border)",
@@ -251,5 +295,6 @@ export function EmailSignup() {
         }
       `}</style>
     </section>
+    </>
   )
 }

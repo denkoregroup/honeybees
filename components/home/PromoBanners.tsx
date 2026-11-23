@@ -2,7 +2,32 @@ import Link from "next/link"
 
 export function PromoBanners() {
   return (
-    <section style={{ backgroundColor: "var(--color-cream)", padding: "24px 0" }}>
+    <>
+    {/* Mobile (below md): only the custom order card */}
+    <section className="px-4 pb-8 md:hidden">
+      <div
+        className="flex flex-col rounded-xl border p-6"
+        style={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }}
+      >
+        <p className="text-[15px] font-bold uppercase" style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}>
+          🐝 NEED SOMETHING
+        </p>
+        <p
+          className="text-[32px] font-black uppercase leading-none"
+          style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-coral-display)" }}
+        >
+          CUSTOM?
+        </p>
+        <p className="mt-1 text-[13px] font-semibold" style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}>
+          WE&apos;VE GOT YOU!
+        </p>
+        <Link href="/contact" className="btn-secondary focus-ring mt-6 w-full">
+          Custom order →
+        </Link>
+      </div>
+    </section>
+
+    <section className="hidden md:block" style={{ backgroundColor: "var(--color-cream)", padding: "24px 0" }}>
       <div
         style={{
           display: "grid",
@@ -176,5 +201,6 @@ export function PromoBanners() {
         </div>
       </div>
     </section>
+    </>
   )
 }

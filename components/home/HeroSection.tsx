@@ -7,8 +7,33 @@ const hasImages = false
 
 export function HeroSection() {
   return (
+    <>
+    {/* Mobile (below md): no card, straight on cream */}
+    <section className="px-4 pb-8 pt-6 md:hidden">
+      <span
+        className="inline-block rounded-full px-3.5 py-1 text-[11px] font-bold tracking-[0.05em]"
+        style={{ backgroundColor: "var(--color-honey-yellow)", color: "var(--color-ink)", fontFamily: "var(--font-montserrat)" }}
+      >
+        MADE JUST FOR YOU!
+      </span>
+
+      <h1
+        className="mt-4 text-[40px] font-extrabold uppercase leading-[40px]"
+        style={{ fontFamily: "var(--font-montserrat)", color: "var(--color-ink)" }}
+      >
+        Cute. Custom. <span style={{ color: "var(--color-coral-display)" }}>Made</span>
+      </h1>
+      <p className="mt-2 text-[24px] leading-8" style={{ fontFamily: "var(--font-pacifico)", color: "var(--color-ink)" }}>
+        to make you smile!
+      </p>
+
+      <Link href="/shop" className="btn-primary focus-ring mt-6 w-full">
+        Shop now ♥
+      </Link>
+    </section>
+
     <section
-      className="relative w-full overflow-hidden"
+      className="relative hidden w-full overflow-hidden md:block"
       style={{
         backgroundColor: "#FFFFFF",
         minHeight: "480px",
@@ -284,5 +309,6 @@ export function HeroSection() {
         </div>
       </div>
     </section>
+    </>
   )
 }
