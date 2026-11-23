@@ -1,3 +1,4 @@
+import { trimmedColor } from "@/lib/cart-input"
 import type { Money, Product, ProductOption, Variant } from "@/lib/storefront/types"
 
 // Availability is Shopify's `availableForSale`, which already accounts for "continue selling when out
@@ -72,20 +73,42 @@ export interface PurchaseState {
   /** True while the price should read "From $X". */
   showFrom: boolean
   price: Money
-  /** Add to cart is enabled only for a resolved variant that can be bought. */
+  /** Add to cart is enabled only for a resolved variant that can be bought (and, for "Other", a typed color). */
   canAdd: boolean
+  /** The typed color to send with the line, only when "Other" is chosen; null otherwise. */
+  requestedColor: string | null
 }
 
 export function purchaseState(
   product: Pick<Product, "options" | "variants" | "priceRange">,
-  selection: Selection
+  selection: Selection,
+  typedRequestedColor = ""
 ): PurchaseState {
   if (missingOptions(product.options, selection).length > 0) {
-    return { variant: null, showFrom: true, price: fromPrice(product, selection), canAdd: false }
+    return { variant: null, showFrom: true, price: fromPrice(product, selection), canAdd: false, requestedColor: null }
   }
   const variant = resolveVariant(product.variants, product.options, selection)
-  if (!variant) return { variant: null, showFrom: false, price: fromPrice(product, {}), canAdd: false }
-  return { variant, showFrom: false, price: variant.price, canAdd: variant.availableForSale }
+  if (!variant) {
+    return { variant: null, showFrom: false, price: fromPrice(product, {}), canAdd: false, requestedColor: null }
+  }
+  const other = isOtherColor(COLOR_OPTION, selection[COLOR_OPTION])
+  const requestedColor = other ? trimmedColor(typedRequestedColor) : null
+  const canAdd = variant.availableForSale && (!other || requestedColor !== "")
+  return { variant, showFrom: false, price: variant.price, canAdd, requestedColor }
+}
+
+// A Color value named exactly "Other" lets the customer type a color we don't offer.
+const COLOR_OPTION = "Color"
+export const OTHER_COLOR = "Other"
+export const OTHER_COLOR_LABEL = "Other (request a color)"
+
+export const isOtherColor = (optionName: string, value: string | undefined) =>
+  optionName === COLOR_OPTION && value === OTHER_COLOR
+
+/** The values in the order the picker shows them: "Other" always last in the Color row, the rest as Shopify has them. */
+export function orderedValues(option: ProductOption): string[] {
+  if (option.name !== COLOR_OPTION || !option.values.includes(OTHER_COLOR)) return option.values
+  return [...option.values.filter((v) => v !== OTHER_COLOR), OTHER_COLOR]
 }
 
 /** Options that need a picker. A "Title: Default Title" product has one value, so it gets none. */

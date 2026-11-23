@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { LineAttributes } from "@/components/features/LineAttributes"
 import { CheckoutButton } from "@/components/features/CheckoutButton"
 import { useCartStore } from "@/store/cart"
 import { formatMoney } from "@/lib/utils"
@@ -94,6 +95,7 @@ export default function CartPage() {
                         {item.variantTitle !== "Default Title" && (
                           <p className="text-[12px] text-[var(--color-secondary)]">{item.variantTitle}</p>
                         )}
+                        <LineAttributes attributes={item.attributes} />
                       </div>
                       <p className="font-semibold text-[var(--color-ink)]">
                         {formatMoney(item.totalPrice)}

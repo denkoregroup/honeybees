@@ -21,7 +21,7 @@ interface CartStore {
   openCart: () => void
   closeCart: () => void
   refresh: () => Promise<void>
-  addItem: (variantId: string, quantity: number) => Promise<void>
+  addItem: (variantId: string, quantity: number, requestedColor?: string | null) => Promise<void>
   updateQuantity: (lineId: string, quantity: number) => Promise<void>
   removeItem: (lineId: string) => Promise<void>
 }
@@ -52,7 +52,7 @@ export const useCartStore = create<CartStore>()((set) => {
     openCart: () => set({ isOpen: true }),
     closeCart: () => set({ isOpen: false }),
     refresh: () => run(() => getCart()),
-    addItem: (variantId, quantity) => run(() => addToCart(variantId, quantity)),
+    addItem: (variantId, quantity, requestedColor) => run(() => addToCart(variantId, quantity, requestedColor)),
     updateQuantity: (lineId, quantity) => run(() => updateLine(lineId, quantity)),
     removeItem: (lineId) => run(() => removeLine(lineId)),
   }

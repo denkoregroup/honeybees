@@ -8,7 +8,14 @@ import {
   updateLine as updateShopifyLine,
 } from "@/lib/storefront"
 import type { Cart } from "@/lib/storefront/types"
-import { parseCartId, parseLineId, parseQuantity, parseVariantId } from "@/lib/cart-input"
+import {
+  REQUESTED_COLOR_KEY,
+  parseCartId,
+  parseLineId,
+  parseQuantity,
+  parseRequestedColor,
+  parseVariantId,
+} from "@/lib/cart-input"
 
 // The cart id never reaches the browser: it lives in this httpOnly cookie and the actions return the
 // cart contents only.
@@ -64,13 +71,23 @@ export async function getCart(): Promise<CartResult> {
   })
 }
 
-export async function addToCart(variantId: string, quantity: number): Promise<CartResult> {
+/**
+ * Adds a line. `requestedColor` is the color a customer typed for an "Other" color; it becomes the line
+ * attribute "Requested color". Leave it out (or null) for every other add and no attribute is sent.
+ */
+export async function addToCart(
+  variantId: string,
+  quantity: number,
+  requestedColor?: string | null
+): Promise<CartResult> {
   const variant = parseVariantId(variantId)
   const count = parseQuantity(quantity, 1)
-  if (!variant || count === null) return invalid("addToCart")
+  const color = requestedColor == null ? null : parseRequestedColor(requestedColor)
+  if (!variant || count === null || (requestedColor != null && color === null)) return invalid("addToCart")
+  const attributes = color === null ? [] : [{ key: REQUESTED_COLOR_KEY, value: color }]
 
   return run("addToCart", async () => {
-    const stored = await addLine(await readCartId(), variant, count)
+    const stored = await addLine(await readCartId(), variant, count, attributes)
     await storeCartId(stored.cartId)
     return stored.cart
   })

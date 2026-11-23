@@ -15,6 +15,7 @@ const CART_FIELDS = `
     nodes {
       id
       quantity
+      attributes { key value }
       cost { amountPerQuantity { amount currencyCode } totalAmount { amount currencyCode } }
       merchandise {
         ... on ProductVariant {
@@ -86,6 +87,7 @@ interface RawCart {
     nodes: {
       id: string
       quantity: number
+      attributes: { key: string; value: string }[]
       cost: { amountPerQuantity: RawMoney; totalAmount: RawMoney }
       merchandise: {
         title: string
@@ -123,6 +125,7 @@ function normalizeCart(raw: RawCart): StoredCart {
         quantity: line.quantity,
         unitPrice: line.cost.amountPerQuantity,
         totalPrice: line.cost.totalAmount,
+        attributes: line.attributes,
       })),
     },
   }
@@ -144,9 +147,19 @@ export async function getCart(cartId: string): Promise<StoredCart | null> {
   return data.cart ? normalizeCart(data.cart) : null
 }
 
-async function createCart(variantId: string, quantity: number): Promise<StoredCart> {
+/** A line to add. `attributes` is left out entirely when there are none, so ordinary adds are unchanged. */
+function lineInput(variantId: string, quantity: number, attributes: LineAttribute[]) {
+  return attributes.length > 0 ? { merchandiseId: variantId, quantity, attributes } : { merchandiseId: variantId, quantity }
+}
+
+export interface LineAttribute {
+  key: string
+  value: string
+}
+
+async function createCart(variantId: string, quantity: number, attributes: LineAttribute[]): Promise<StoredCart> {
   const data = await cartRequest<{ cartCreate: MutationPayload }>("cartCreate", CART_CREATE_MUTATION, {
-    lines: [{ merchandiseId: variantId, quantity }],
+    lines: [lineInput(variantId, quantity, attributes)],
   })
   return unwrap("cartCreate", data.cartCreate)
 }
@@ -154,20 +167,24 @@ async function createCart(variantId: string, quantity: number): Promise<StoredCa
 /**
  * Adds a line. Without a cart id, or when Shopify says the cart is gone, a new cart is created with
  * the line in it. The returned `cartId` is the one to keep.
+ *
+ * `attributes` ride on the line. Each call is its own request, so nothing here merges lines: Shopify
+ * keeps lines for the same variant apart when their attributes differ.
  */
 export async function addLine(
   cartId: string | undefined,
   variantId: string,
-  quantity: number
+  quantity: number,
+  attributes: LineAttribute[] = []
 ): Promise<StoredCart> {
-  if (!cartId) return createCart(variantId, quantity)
+  if (!cartId) return createCart(variantId, quantity, attributes)
 
   const data = await cartRequest<{ cartLinesAdd: MutationPayload }>("cartLinesAdd", CART_LINES_ADD_MUTATION, {
     cartId,
-    lines: [{ merchandiseId: variantId, quantity }],
+    lines: [lineInput(variantId, quantity, attributes)],
   })
   if (data.cartLinesAdd.userErrors.length > 0 && (await getCart(cartId)) === null) {
-    return createCart(variantId, quantity)
+    return createCart(variantId, quantity, attributes)
   }
   return unwrap("cartLinesAdd", data.cartLinesAdd)
 }

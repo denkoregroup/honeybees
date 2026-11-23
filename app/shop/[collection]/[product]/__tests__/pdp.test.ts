@@ -36,12 +36,12 @@ const product = {
   priceRange: { min: price("20.00"), max: price("28.00") },
 } as unknown as Product
 
-function render(params: Record<string, string> = {}) {
+function render(params: Record<string, string> = {}, shown: Product = product) {
   return renderToStaticMarkup(
     createElement(PDPClient, {
-      product,
+      product: shown,
       collectionHandle: "totes",
-      preselected: initialSelection(product.options, params),
+      preselected: initialSelection(shown.options, params),
     })
   )
 }
@@ -106,5 +106,70 @@ describe("PDP complete", () => {
     const button = addToCart(html)
     expect(button).not.toMatch(/\sdisabled(=|\s|>)/)
     expect(visibleText(button)).toBe("Add to cart")
+  })
+})
+
+// A product with an "Other" color, which Shopify lists first
+const withOther = {
+  ...product,
+  options: [
+    { name: "Size", values: ["Small", "Large"] },
+    { name: "Color", values: ["Other", "Sand", "Blue"] },
+  ],
+  variants: [
+    variant("s-sand", { Size: "Small", Color: "Sand" }, "20.00"),
+    variant("s-other", { Size: "Small", Color: "Other" }, "20.00"),
+    variant("l-other", { Size: "Large", Color: "Other" }, "26.00"),
+    variant("l-sand", { Size: "Large", Color: "Sand" }, "26.00"),
+    variant("l-blue", { Size: "Large", Color: "Blue" }, "28.00"),
+  ],
+} as unknown as Product
+
+const pills = (html: string, group: string) =>
+  [...html.match(new RegExp(`aria-labelledby="${group}"[\\s\\S]*?<\\/div><\\/div>`))![0].matchAll(/<button[^>]*>([\s\S]*?)<\/button>/g)].map((m) =>
+    m[1].replace(/<[^>]*>/g, "")
+  )
+
+describe("PDP with an 'Other' color", () => {
+  it("lists 'Other (request a color)' last in the Color row", () => {
+    expect(pills(render({}, withOther), "option-color")).toEqual(["Sand", "Blue", "Other (request a color)"])
+  })
+
+  it("never strikes 'Other' through or disables it", () => {
+    const html = render({}, withOther)
+    expect(html).not.toMatch(/<button[^>]*disabled=""[^>]*>[^<]*Other/)
+  })
+
+  it("shows the text box only once 'Other' is chosen, with its label, placeholder, limit and note", () => {
+    expect(render({}, withOther)).not.toContain("requested-color")
+    expect(render({ Color: "Sand" }, withOther)).not.toContain("requested-color")
+
+    const html = render({ Color: "Other" }, withOther)
+    expect(html).toContain("Which color would you like?")
+    expect(html).toMatch(/<input[^>]*id="requested-color"[^>]*maxLength="40"[^>]*placeholder="e\.g\. Forest green"/)
+    expect(html).toContain("We&#x27;ll confirm your color within 1 business day.")
+  })
+
+  it("puts the text box directly under the Color row", () => {
+    const html = render({ Color: "Other" }, withOther)
+    expect(html.indexOf('id="requested-color"')).toBeGreaterThan(html.indexOf('aria-labelledby="option-color"'))
+    expect(html.indexOf('id="requested-color"')).toBeLessThan(html.indexOf("btn-cta"))
+  })
+
+  it("keeps Add to cart disabled and labelled 'Add to cart' while the box is empty, with no helper text", () => {
+    const html = render({ Size: "Large", Color: "Other" }, withOther)
+    const button = addToCart(html)
+    expect(button).toMatch(/\sdisabled(=|\s|>)/)
+    expect(visibleText(button)).toBe("Add to cart")
+    expect(html).not.toContain("aria-live")
+  })
+})
+
+describe("PDP for a product without 'Other'", () => {
+  it("has no text box, no 'request a color' label, and the pills in Shopify's order", () => {
+    const html = render({ Size: "Large", Color: "Sand" })
+    expect(html).not.toContain("requested-color")
+    expect(html).not.toContain("request a color")
+    expect(pills(html, "option-color")).toEqual(["Sand", "Blue"])
   })
 })
