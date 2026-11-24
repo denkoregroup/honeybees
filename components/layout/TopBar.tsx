@@ -1,3 +1,12 @@
+import { AnnouncementStrip } from "@/components/layout/AnnouncementStrip"
+
+// Messages for the mobile strip above the header, shown one at a time. Keep them true: no shipping,
+// delivery-time, discount or customer-count claims.
+export const MOBILE_ANNOUNCEMENTS = [
+  "Custom colors available: request yours",
+  "Custom made with love, just for you",
+]
+
 const ITEMS = [
   { icon: "🤍", text: "Made with Love" },
   { icon: "📦", text: "Packed with Care" },
@@ -7,6 +16,8 @@ const ITEMS = [
 export function TopBar() {
   return (
     <>
+      <AnnouncementStrip messages={MOBILE_ANNOUNCEMENTS} />
+
       <div className="hidden md:contents">
         <div
       className="border-b overflow-hidden"
