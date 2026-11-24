@@ -97,6 +97,20 @@ describe("getProductByHandle", () => {
       CACHE_TAGS.product("bee-kind-tumbler"),
     ])
   })
+
+  it("loads a product whose handle contains an emoji, sending the raw handle and an ASCII tag", async () => {
+    const handle = "shop-small-sip-big-🐢-copy-1"
+    const fetchMock = stubFetch(() => gqlData({ product: rawProduct() }))
+    const { getProductByHandle } = await loadProducts()
+    const product = await getProductByHandle(handle)
+
+    expect(product?.title).toBe("Bee Kind Tumbler")
+    expect(sentRequests(fetchMock)[0].variables).toEqual({ handle })
+    expect(sentRequests(fetchMock)[0].next?.tags).toEqual([
+      CACHE_TAGS.products,
+      "shopify:product:shop-small-sip-big-%F0%9F%90%A2-copy-1",
+    ])
+  })
 })
 
 describe("variant paging", () => {
