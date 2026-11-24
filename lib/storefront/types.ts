@@ -116,3 +116,9 @@ export interface Cart {
   total: Money
   checkoutUrl: string
 }
+
+/** A store policy (privacy, terms, refund, shipping) as hosted by Shopify. */
+export interface ShopPolicy {
+  title: string
+  url: string
+}

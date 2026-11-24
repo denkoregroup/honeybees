@@ -31,7 +31,7 @@ Open http://localhost:3000. `npm run lint` runs ESLint.
 
 ## Catalog layer and data flow
 
-`lib/storefront/` is a server-only, read-only layer over the Shopify Storefront API: `getProducts` and `getCollectionByHandle` return `ProductSummary` records for cards, `getProductByHandle` returns the full `Product` with all variants, and `getCollections` lists collections. Results are typed and flattened. Run `pnpm verify:shopify` to check your env vars against the store (needs Node 22.9 or newer).
+`lib/storefront/` is a server-only, read-only layer over the Shopify Storefront API: `getProducts` and `getCollectionByHandle` return `ProductSummary` records for cards, `getProductByHandle` returns the full `Product` with all variants, `getCollections` lists collections, and `getShopPolicies` returns the store policies that exist in Shopify (title and Shopify-hosted URL; the footer links only those). Results are typed and flattened. Run `pnpm verify:shopify` to check your env vars against the store (needs Node 22.9 or newer).
 
 The home, `/shop`, `/shop/[collection]`, `/shop/[collection]/[product]` and `/collections` pages are server components that call this layer and pass props to the client components. There is no placeholder data and no fallback: Shopify is the source of truth.
 

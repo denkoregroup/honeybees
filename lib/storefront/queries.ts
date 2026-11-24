@@ -100,3 +100,17 @@ export const PRODUCT_VARIANTS_QUERY = `#graphql
     }
   }
 `
+
+const POLICY = `title url`
+
+/** Policies the merchant hasn't written come back as null. */
+export const SHOP_POLICIES_QUERY = `#graphql
+  query ShopPolicies {
+    shop {
+      privacyPolicy { ${POLICY} }
+      termsOfService { ${POLICY} }
+      refundPolicy { ${POLICY} }
+      shippingPolicy { ${POLICY} }
+    }
+  }
+`

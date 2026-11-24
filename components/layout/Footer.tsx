@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Logo } from "@/components/layout/Logo"
+import { getShopPolicies, type ShopPolicy } from "@/lib/storefront"
 
 const SHOP_LINKS = [
   { label: "All Products", href: "/shop" },
@@ -7,18 +8,11 @@ const SHOP_LINKS = [
 ]
 
 const HELP_LINKS = [
-  { label: "FAQ",               href: "#" },
-  { label: "Shipping & Returns",href: "#" },
-  { label: "Order Tracking",    href: "#" },
-  { label: "Care Instructions", href: "#" },
-  { label: "Size Charts",       href: "#" },
   { label: "Contact Us",        href: "/contact" },
-  { label: "Terms of Service",  href: "#" },
 ]
 
 const ABOUT_LINKS = [
   { label: "Our Story",         href: "/about" },
-  { label: "Wholesale",         href: "#" },
   { label: "Custom Orders",     href: "/contact" },
 ]
 
@@ -40,7 +34,18 @@ const linkStyle: React.CSSProperties = {
   color: "var(--color-gray)",
 }
 
-export function Footer() {
+/** Policies that exist in Shopify; none if they can't be fetched, so the footer still renders. */
+async function policyLinks(): Promise<ShopPolicy[]> {
+  try {
+    return await getShopPolicies()
+  } catch (error) {
+    console.error("[footer] policy links unavailable", error instanceof Error ? error.name : "unknown error")
+    return []
+  }
+}
+
+export async function Footer() {
+  const policies = await policyLinks()
   const accordions = [
     { title: "Shop", links: SHOP_LINKS },
     { title: "Help", links: HELP_LINKS },
@@ -88,6 +93,18 @@ export function Footer() {
       <p className="mt-6 text-[12px]" style={{ fontFamily: "var(--font-inter)", color: "var(--color-gray)" }}>
         © {new Date().getFullYear()}, Honey Bee Designs. All rights reserved.
       </p>
+      {policies.length > 0 && (
+        <p className="mt-2 text-[12px]" style={{ fontFamily: "var(--font-inter)", color: "var(--color-gray)" }}>
+          {policies.map((p, i) => (
+            <span key={p.url}>
+              {i > 0 && " | "}
+              <a href={p.url} className="focus-ring" style={{ color: "var(--color-gray)" }}>
+                {p.title}
+              </a>
+            </span>
+          ))}
+        </p>
+      )}
     </footer>
 
     <footer
@@ -217,15 +234,18 @@ export function Footer() {
           <p className="italic" style={{ fontFamily: "var(--font-inter)", fontSize: "11px", color: "var(--color-gray)" }}>
             Unique designs made just for you! 🌻
           </p>
-          <p style={{ fontFamily: "var(--font-inter)", fontSize: "11px", color: "var(--color-gray)" }}>
-            <Link href="#" className="transition-colors hover:text-[var(--color-primary)]" style={{ color: "var(--color-gray)" }}>
-              Privacy Policy
-            </Link>
-            {" | "}
-            <Link href="#" className="transition-colors hover:text-[var(--color-primary)]" style={{ color: "var(--color-gray)" }}>
-              Terms of Service
-            </Link>
-          </p>
+          {policies.length > 0 && (
+            <p style={{ fontFamily: "var(--font-inter)", fontSize: "11px", color: "var(--color-gray)" }}>
+              {policies.map((p, i) => (
+                <span key={p.url}>
+                  {i > 0 && " | "}
+                  <a href={p.url} className="transition-colors hover:text-[var(--color-primary)]" style={{ color: "var(--color-gray)" }}>
+                    {p.title}
+                  </a>
+                </span>
+              ))}
+            </p>
+          )}
         </div>
       </div>
     </footer>
