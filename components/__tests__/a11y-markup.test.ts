@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import { join } from "node:path"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
@@ -71,6 +73,15 @@ describe("Header", () => {
 
   it("has no search box, since the site has no search yet", () => {
     expect(tags(html, "input")).toEqual([])
+  })
+
+  it("has no Account or Wishlist controls, since the shop is guest checkout only (#45)", () => {
+    const labels = tags(html, "button").map((b) => attr(b, "aria-label"))
+    expect(labels).not.toContain("Account")
+    expect(labels).not.toContain("Wishlist")
+    // The mobile menu only renders when open, so check its source too.
+    const source = readFileSync(join(process.cwd(), "components/layout/Header.tsx"), "utf8")
+    expect(source).not.toMatch(/>\s*(Account|Wishlist)\s*</)
   })
 
   it("marks the current page's link, and only that one", () => {

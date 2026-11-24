@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { User, Heart, ShoppingCart, Menu, X } from "lucide-react"
+import { ShoppingCart, Menu, X } from "lucide-react"
 import { Logo } from "@/components/layout/Logo"
 import { useCartStore } from "@/store/cart"
 import { isNavActive } from "./nav"
@@ -96,18 +96,6 @@ export function Header() {
                 </li>
               ))}
             </ul>
-            <ul className="mt-2 border-t pt-2" style={{ borderColor: "var(--color-border)" }}>
-              <li>
-                <button className="focus-ring flex min-h-11 w-full items-center gap-3 text-[14px] font-bold uppercase tracking-[0.06em]" style={{ fontFamily: "var(--font-montserrat)" }}>
-                  <User className="h-5 w-5" /> Account
-                </button>
-              </li>
-              <li>
-                <button className="focus-ring flex min-h-11 w-full items-center gap-3 text-[14px] font-bold uppercase tracking-[0.06em]" style={{ fontFamily: "var(--font-montserrat)" }}>
-                  <Heart className="h-5 w-5" /> Wishlist
-                </button>
-              </li>
-            </ul>
           </nav>
         )}
       </div>
@@ -150,24 +138,8 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Right: Account · Wishlist · Cart */}
+        {/* Right: Cart. No accounts or wishlist at launch (guest checkout, #45). */}
         <div className="flex items-center justify-end gap-6">
-          <button
-            aria-label="Account"
-            className="focus-ring hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
-          >
-            <User className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
-            <span className="text-[10px]" style={{ color: "var(--color-gray)" }}>Account</span>
-          </button>
-
-          <button
-            aria-label="Wishlist"
-            className="focus-ring hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
-          >
-            <Heart className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
-            <span className="text-[10px]" style={{ color: "var(--color-gray)" }}>Wishlist</span>
-          </button>
-
           <button
             aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ""}`}
             onClick={openCart}
