@@ -20,7 +20,7 @@ function shopLinks(html: string): string[] {
   return [...html.matchAll(/href="(\/shop\/[^"]*)"/g)].map((m) => m[1])
 }
 
-const tiles: CollectionTile[] = CATEGORIES.map(({ name, handle }) => ({ name, handle, title: name, image: null }))
+const tiles: CollectionTile[] = CATEGORIES.map(({ name, handle }) => ({ name, handle, image: null }))
 const render = (t: CollectionTile[]) => renderToStaticMarkup(createElement(CategoryGrid, { tiles: t }))
 
 describe("CATEGORIES", () => {
@@ -42,12 +42,12 @@ describe("CategoryGrid", () => {
     }
   })
 
-  it("shows the tile's photo with the collection title as alt text", () => {
-    const html = render([{ name: "TURTLEY COASTERS", handle: "turtley-coasters", title: "Turtley Coasters", image: PHOTO }])
+  it("shows the tile's photo as decoration, since the tile's name is already in the link", () => {
+    const html = render([{ name: "TURTLEY COASTERS", handle: "turtley-coasters", image: PHOTO }])
     const imgs = [...html.matchAll(/<img\b[^>]*>/g)].map(([tag]) => tag)
     expect(imgs).toHaveLength(2)
     for (const img of imgs) {
-      expect(img).toContain('alt="Turtley Coasters"')
+      expect(img).toContain('alt=""')
       expect(img).toContain(encodeURIComponent(PHOTO.url))
     }
   })

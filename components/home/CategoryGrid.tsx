@@ -5,11 +5,11 @@ import Link from "next/link"
 import { ImageIcon } from "lucide-react"
 import type { CollectionTile } from "./collection-tiles"
 
-function CategoryTile({ name, handle, title, image }: CollectionTile) {
+function CategoryTile({ name, handle, image }: CollectionTile) {
   return (
     <Link
       href={`/shop/${handle}`}
-      className="group flex-shrink-0"
+      className="focus-ring-inset group flex-shrink-0"
       style={{
         width: "120px",
         display: "flex",
@@ -47,7 +47,8 @@ function CategoryTile({ name, handle, title, image }: CollectionTile) {
         }}
       >
         {image ? (
-          <Image src={image.url} alt={title} fill sizes="120px" className="object-cover" />
+          // Decorative: the category name is in the same link
+          <Image src={image.url} alt="" fill sizes="120px" className="object-cover" />
         ) : (
           <ImageIcon
             className="h-8 w-8"
@@ -58,7 +59,7 @@ function CategoryTile({ name, handle, title, image }: CollectionTile) {
 
       {/* Label */}
       <span
-        className="group-hover:text-[var(--color-primary)] transition-colors"
+        className="group-hover:text-[var(--color-coral-ink)] transition-colors"
         style={{
           marginTop: "8px",
           fontFamily: "var(--font-montserrat)",
@@ -92,15 +93,15 @@ export function CategoryGrid({ tiles }: { tiles: CollectionTile[] }) {
         Shop by category
       </h2>
       <ul className="no-scrollbar flex snap-x gap-2 overflow-x-auto px-4">
-        {tiles.slice(0, MOBILE_TILE_COUNT).map(({ name, handle, title, image }) => (
+        {tiles.slice(0, MOBILE_TILE_COUNT).map(({ name, handle, image }) => (
           <li key={handle} className="w-[92px] flex-shrink-0 snap-start">
-            <Link href={`/shop/${handle}`} className="focus-ring flex flex-col items-center gap-2">
+            <Link href={`/shop/${handle}`} className="focus-ring-inset flex flex-col items-center gap-2">
               <span
                 className="relative flex h-[92px] w-[92px] items-center justify-center overflow-hidden rounded-xl border"
                 style={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)" }}
               >
                 {image ? (
-                  <Image src={image.url} alt={title} fill sizes="92px" className="object-cover" />
+                  <Image src={image.url} alt="" fill sizes="92px" className="object-cover" />
                 ) : (
                   <ImageIcon className="h-8 w-8" style={{ color: "var(--color-gray)" }} aria-hidden />
                 )}
@@ -134,7 +135,7 @@ export function CategoryGrid({ tiles }: { tiles: CollectionTile[] }) {
               margin: 0,
             }}
           >
-            🤍 SHOP BY CATEGORY 🤍
+            <span aria-hidden>🤍 </span>SHOP BY CATEGORY<span aria-hidden> 🤍</span>
           </h2>
         </div>
 
@@ -158,7 +159,7 @@ export function CategoryGrid({ tiles }: { tiles: CollectionTile[] }) {
         <div style={{ marginTop: "20px", display: "flex", justifyContent: "center" }}>
           <Link
             href="/shop"
-            className="text-white transition-colors"
+            className="focus-ring transition-colors"
             style={{
               backgroundColor: "var(--color-primary)",
               padding: "10px 32px",
@@ -168,6 +169,7 @@ export function CategoryGrid({ tiles }: { tiles: CollectionTile[] }) {
               fontWeight: 700,
               letterSpacing: "0.06em",
               textDecoration: "none",
+              color: "var(--color-ink)",
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--color-primary-dark)"

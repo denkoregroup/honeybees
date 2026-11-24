@@ -31,7 +31,7 @@ export function Accordion({ items, defaultOpen }: AccordionProps) {
               aria-expanded={isOpen}
               aria-controls={panelId}
               onClick={() => setOpenIndex(isOpen ? null : i)}
-              className="flex w-full items-center justify-between py-4 text-left text-[14px] font-bold uppercase tracking-wide text-[var(--color-ink)] transition-colors hover:text-[var(--color-coral)]"
+              className="focus-ring flex w-full items-center justify-between py-4 text-left text-[14px] font-bold uppercase tracking-wide text-[var(--color-ink)] transition-colors hover:text-[var(--color-coral-ink)]"
             >
               {item.title}
               <motion.span

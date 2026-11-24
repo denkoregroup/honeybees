@@ -45,7 +45,7 @@ describe("getCategoryTiles", () => {
     const tiles = await getCategoryTiles()
 
     expect(tiles.map((t) => t.handle)).toEqual([withImage, withoutImage, noPhotos])
-    expect(tiles[0]).toMatchObject({ name: CATEGORIES[0].name, title: `Title ${withImage}` })
+    expect(tiles[0]).toMatchObject({ name: CATEGORIES[0].name, handle: withImage })
     expect(tiles.map((t) => t.image?.url ?? null)).toEqual([collectionPhoto.url, productPhoto.url, null])
     expect(sentRequests(fetchMock).map((r) => r.variables.first)).toEqual(CATEGORIES.map(() => 1))
   })
@@ -76,7 +76,7 @@ describe("getShopCollectionTiles", () => {
 
     expect(tiles).toHaveLength(SHOP_COLLECTIONS_MAX)
     expect(tiles.map((t) => t.handle)).toEqual(["turtley-apparel", "accessories", "car-accessories", "a", "b", "c"])
-    expect(tiles[0]).toMatchObject({ name: "Title turtley-apparel", title: "Title turtley-apparel" })
+    expect(tiles[0]).toMatchObject({ name: "Title turtley-apparel", handle: "turtley-apparel" })
     expect(tiles.slice(0, 3).map((t) => t.image?.url ?? null)).toEqual([collectionPhoto.url, productPhoto.url, null])
   })
 
@@ -99,13 +99,13 @@ describe("ShopCollections", () => {
 
   it("links each tile to its collection and shows its photo, or a plain surface without one", async () => {
     const html = await render([
-      { name: "Turtley Apparel", handle: "turtley-apparel", title: "Turtley Apparel", image: { url: collectionPhoto.url, altText: null, width: 800, height: 600 } },
-      { name: "Accessories", handle: "accessories", title: "Accessories", image: null },
+      { name: "Turtley Apparel", handle: "turtley-apparel", image: { url: collectionPhoto.url, altText: null, width: 800, height: 600 } },
+      { name: "Accessories", handle: "accessories", image: null },
     ])
     expect([...html.matchAll(/href="([^"]*)"/g)].map((m) => m[1])).toEqual(["/shop/turtley-apparel", "/shop/accessories"])
     const imgs = html.match(/<img\b[^>]*>/g) ?? []
     expect(imgs).toHaveLength(1)
-    expect(imgs[0]).toContain('alt="Turtley Apparel"')
+    expect(imgs[0]).toContain('alt=""')
     expect(html).toContain("grid-cols-2")
   })
 })

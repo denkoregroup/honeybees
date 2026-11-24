@@ -5,9 +5,10 @@ export interface CollectionTile {
   /** Text under or on the tile. */
   name: string
   handle: string
-  /** Shopify collection title, used as the image alt text. */
-  title: string
-  /** Collection image, else the first product's photo; null when Shopify has neither. */
+  /**
+   * Collection image, else the first product's photo; null when Shopify has neither. Decorative (empty
+   * alt): the name is the tile's text, in the same link.
+   */
   image: Image | null
 }
 
@@ -20,7 +21,7 @@ export async function getCategoryTiles(): Promise<CollectionTile[]> {
     const collection = collections[i]
     const firstProduct = collection?.products.items[0]
     if (!collection || !firstProduct) return []
-    return [{ name, handle, title: collection.title, image: collection.image ?? firstProduct.featuredImage }]
+    return [{ name, handle, image: collection.image ?? firstProduct.featuredImage }]
   })
 }
 
@@ -35,7 +36,6 @@ export async function getShopCollectionTiles(): Promise<CollectionTile[]> {
     .map(({ title, handle, image, firstProductImage }) => ({
       name: title,
       handle,
-      title,
       image: image ?? firstProductImage,
     }))
 }

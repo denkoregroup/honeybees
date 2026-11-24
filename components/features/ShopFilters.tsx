@@ -19,12 +19,14 @@ export function ShopFilters({ options, active, onChange }: ShopFiltersProps) {
         return (
           <button
             key={value}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onChange(value)}
             className={[
-              "rounded-full px-4 py-1.5 text-[12px] font-bold uppercase tracking-wide transition-all",
+              "focus-ring rounded-full px-4 py-1.5 text-[12px] font-bold uppercase tracking-wide transition-all",
               isActive
-                ? "bg-[var(--color-coral)] text-white shadow-sm"
-                : "border border-[var(--color-border)] bg-white text-[var(--color-ink)] hover:border-[var(--color-coral)] hover:text-[var(--color-coral)]",
+                ? "bg-[var(--color-coral)] text-[var(--color-ink)] shadow-sm"
+                : "border border-[var(--color-border)] bg-white text-[var(--color-ink)] hover:border-[var(--color-coral-ink)] hover:text-[var(--color-coral-ink)]",
             ].join(" ")}
           >
             {label}

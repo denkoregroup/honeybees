@@ -63,7 +63,7 @@ export function HowItWorks() {
             fontFamily: "var(--font-montserrat)",
           }}
         >
-          🤍 CUSTOM IS EASY AS 1-2-3! 🤍
+          <span aria-hidden>🤍 </span>CUSTOM IS EASY AS 1-2-3!<span aria-hidden> 🤍</span>
         </h2>
 
         {/* Steps row */}

@@ -69,7 +69,8 @@
   --popover:                var(--color-surface);
   --popover-foreground:     var(--color-black);
   --primary:                var(--color-primary);
-  --primary-foreground:     oklch(1 0 0);
+  /* Ink, not white: white on blush is 1.7:1, ink on blush is 12:1 (WCAG AA needs 4.5:1). */
+  --primary-foreground:     var(--color-ink);
   --secondary:              oklch(0.96 0.004 5);
   --secondary-foreground:   var(--color-black);
   --muted:                  oklch(0.97 0.003 5);
@@ -80,7 +81,8 @@
   --destructive-foreground: oklch(0.98 0 0);
   --border:                 var(--color-border);
   --input:                  var(--color-border);
-  --ring:                   var(--color-primary);
+  /* Focus rings in ink: blush is 1.7:1 on white, too faint to see (focus indicators need 3:1). */
+  --ring:                   var(--color-ink);
   --radius:                 0.5rem;
 
   /* ── Charts ── */
@@ -182,6 +184,13 @@ button, .btn {
   &:focus-visible {
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
+  }
+}
+/* Same ring drawn just inside the edge, for items in a scrolling row that would clip an outside ring. */
+@utility focus-ring-inset {
+  &:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
   }
 }
 
