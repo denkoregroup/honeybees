@@ -8,6 +8,7 @@ import type {
   PriceRange,
   Product,
   ProductSummary,
+  ShopPolicy,
   Variant,
 } from "./types"
 
@@ -64,6 +65,16 @@ export interface RawCollection {
 export interface RawConnection<T> {
   nodes: T[]
   pageInfo: PageInfo
+}
+export interface RawShopPolicy {
+  title: string
+  url: string
+}
+export interface RawShopPolicies {
+  privacyPolicy: RawShopPolicy | null
+  termsOfService: RawShopPolicy | null
+  refundPolicy: RawShopPolicy | null
+  shippingPolicy: RawShopPolicy | null
 }
 
 const money = (m: RawMoney): Money => ({ amount: m.amount, currencyCode: m.currencyCode })
@@ -142,4 +153,11 @@ export function normalizeCollectionWithProducts(
   c: RawCollection & { products: RawConnection<RawProductSummary> }
 ): CollectionWithProducts {
   return { ...normalizeCollection(c), products: normalizePage(c.products, normalizeProductSummary) }
+}
+
+/** The policies the merchant has written, in a fixed order; unwritten ones (null) are left out. */
+export function normalizeShopPolicies(shop: RawShopPolicies): ShopPolicy[] {
+  return [shop.privacyPolicy, shop.termsOfService, shop.refundPolicy, shop.shippingPolicy]
+    .filter((p): p is RawShopPolicy => p !== null)
+    .map(({ title, url }) => ({ title, url }))
 }
