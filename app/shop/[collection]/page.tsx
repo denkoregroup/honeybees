@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getCollectionByHandle } from "@/lib/storefront"
 import { ProductCard } from "@/components/features/ProductCard"
+import { BASE_OPEN_GRAPH, shareImage } from "@/lib/site"
 
 interface Props {
   params: Promise<{ collection: string }>
@@ -15,9 +16,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { collection: handle } = await params
   const collection = await getCollectionByHandle(handle, { first: PRODUCTS_PER_COLLECTION })
   if (!collection) notFound()
+  // The collection photo, else its first product's; the shared logo when it has neither.
+  const image = collection.image ?? collection.products.items[0]?.featuredImage
   return {
-    title: `${collection.title} | HoneyBee Designs`,
-    description: collection.description,
+    title: collection.title,
+    // Left out when Shopify has none, so the site description stays (an empty one would replace it).
+    ...(collection.description && { description: collection.description }),
+    openGraph: { ...BASE_OPEN_GRAPH, ...(image && { images: [shareImage(image, collection.title)] }) },
   }
 }
 

@@ -3,8 +3,8 @@ import Link from "next/link"
 import { getCollections } from "@/lib/storefront"
 
 export const metadata: Metadata = {
-  title: "Collections | HoneyBee Designs",
-  description: "Shop by occasion — gifts for mamas, teachers, nurses, and everyone you love.",
+  title: "Collections",
+  description: "Find the perfect custom gift for every person & every moment.",
 }
 
 // Presentation only: Shopify has no emoji field, so known collection handles get their tile emoji here.

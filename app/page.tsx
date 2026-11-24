@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { HeroSection } from "@/components/home/HeroSection"
 import { TrustBar } from "@/components/home/TrustBar"
 import { CategoryGrid } from "@/components/home/CategoryGrid"
@@ -10,6 +11,11 @@ import { getCategoryTiles, getShopCollectionTiles } from "@/components/home/coll
 import { getProducts } from "@/lib/storefront"
 
 const FEATURED_COUNT = 12
+
+// The hero's tagline. Absolute, so the layout's "%s | HoneyBee Designs" template doesn't apply.
+export const metadata: Metadata = {
+  title: { absolute: "HoneyBee Designs | Cute. Custom. Made to Make You Smile!" },
+}
 
 export default async function HomePage() {
   const [featured, categoryTiles, collectionTiles] = await Promise.all([

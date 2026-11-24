@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getCollectionByHandle, getProductByHandle } from "@/lib/storefront"
 import { initialSelection } from "@/lib/variant-selection"
+import { BASE_OPEN_GRAPH, productPath, shareImage } from "@/lib/site"
 import { PDPClient } from "./PDPClient"
 
 interface Props {
@@ -13,9 +14,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { product: handle } = await params
   const product = await getProductByHandle(handle)
   if (!product) notFound()
+  // A product is reachable under every collection it's in; point search engines at the one the site links.
+  const canonical = productPath(product)
+  const image = product.featuredImage
   return {
-    title: `${product.title} | HoneyBee Designs`,
-    description: product.description,
+    title: product.title,
+    // Left out when Shopify has none, so the site description stays (an empty one would replace it).
+    ...(product.description && { description: product.description }),
+    alternates: { canonical },
+    openGraph: { ...BASE_OPEN_GRAPH, url: canonical, ...(image && { images: [shareImage(image, product.title)] }) },
   }
 }
 

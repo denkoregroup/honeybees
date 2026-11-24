@@ -5,6 +5,7 @@ import { TopBar } from "@/components/layout/TopBar"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { CartDrawer } from "@/components/features/CartDrawer"
+import { BASE_OPEN_GRAPH, SITE_NAME, SITE_URL } from "@/lib/site"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,9 +28,11 @@ const pacifico = Pacifico({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  // Pages set a short title ("Shop All") and the template adds the brand; the home page sets its own.
   title: {
-    default: "HoneyBee Designs | Cute. Custom. Made to Make You Smile!",
-    template: "%s | HoneyBee Designs",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
   description:
     "Custom sublimation apparel, drinkware, keychains, accessories and gifts. Handmade with love, shipped with smiles.",
@@ -42,12 +45,8 @@ export const metadata: Metadata = {
     "keychains",
     "decals",
   ],
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://honeybeedesigns.com",
-    siteName: "HoneyBee Designs",
-  },
+  // No og:url here: every page would inherit the home URL. Product pages set their own.
+  openGraph: BASE_OPEN_GRAPH,
 }
 
 export default function RootLayout({
