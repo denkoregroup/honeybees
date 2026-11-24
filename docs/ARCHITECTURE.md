@@ -2,6 +2,8 @@
 
 Detail behind the README: how the catalog and cart work, and how the tests are laid out.
 
+Shopify problems we hit, their fixes, and where failures show up in the logs: [SHOPIFY_LESSONS.md](SHOPIFY_LESSONS.md).
+
 ## Catalog layer and data flow
 
 `lib/storefront/` is a server-only, read-only layer over the Shopify Storefront API: `getProducts` and `getCollectionByHandle` return `ProductSummary` records for cards, `getProductByHandle` returns the full `Product` with all variants, `getCollections` lists collections, and `getShopPolicies` returns the store policies that exist in Shopify (title and Shopify-hosted URL; the footer links only those). Results are typed and flattened. Run `pnpm verify:shopify` to check your env vars against the store (needs Node 22.9 or newer).

@@ -23,6 +23,7 @@ Open http://localhost:3000. Create `.env.local` first:
 - `components/`: UI, grouped by area
 - `lib/`: the server-only Shopify layer (`storefront/`) and shared helpers
 - `store/`: cart UI state
+- `docs/`: architecture notes, the agent guide and Shopify integration lessons
 
 Shopify is the source of truth for products, collections and the cart; checkout is Shopify-hosted. How it fits together is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
