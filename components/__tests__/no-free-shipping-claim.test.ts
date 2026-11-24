@@ -40,9 +40,10 @@ describe("no free-shipping claim", () => {
     }
   })
 
-  it("has no mobile announcement bar left, only the desktop one", () => {
+  it("has a mobile announcement strip, but with no shipping claim in it", () => {
     const html = renderToStaticMarkup(createElement(TopBar))
-    expect(html).not.toContain("md:hidden")
+    expect(html).toContain("md:hidden")
     expect(html).toContain("Site announcements")
+    expect(html).not.toMatch(CLAIM)
   })
 })
