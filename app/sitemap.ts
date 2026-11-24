@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next"
 import { getCollections, getProducts } from "@/lib/storefront"
 import { absoluteUrl, collectionPath, productPath } from "@/lib/site"
 
-const PAGES = ["/", "/shop", "/collections", "/about", "/contact"]
+const PAGES = ["/", "/shop", "/collections", "/about", "/contact", "/faq"]
 
 // Same page sizes as /shop and /collections, so this lists what those pages link to. getCollections
 // already drops empty collections. Cached like other catalog reads (5 minutes).

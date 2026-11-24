@@ -55,10 +55,17 @@ describe("Footer", () => {
     expect(hrefs(html).filter((href) => href.trim() === "" || href.startsWith("#"))).toEqual([])
   })
 
+  it("links FAQ to /faq under Help, on mobile and desktop", async () => {
+    stubFetch(() => gqlData({ shop: NO_POLICIES }))
+    const html = await renderFooter()
+    expect(hrefs(html).filter((href) => href === "/faq")).toHaveLength(2)
+    expect([...html.matchAll(/<a\b[^>]*href="\/faq"[^>]*>FAQ<\/a>/g)]).toHaveLength(2)
+  })
+
   it("drops links to pages that don't exist yet", async () => {
     stubFetch(() => gqlData({ shop: NO_POLICIES }))
     const html = await renderFooter()
-    for (const label of ["FAQ", "Order Tracking", "Care Instructions", "Size Charts", "Wholesale", "Reviews", "Shipping &amp; Returns"]) {
+    for (const label of ["Order Tracking", "Care Instructions", "Size Charts", "Wholesale", "Reviews", "Shipping &amp; Returns"]) {
       expect(html).not.toContain(label)
     }
   })
