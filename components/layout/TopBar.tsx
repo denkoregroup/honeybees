@@ -3,7 +3,7 @@ import { AnnouncementStrip } from "@/components/layout/AnnouncementStrip"
 // Messages for the mobile strip above the header, shown one at a time. Keep them true: no shipping,
 // delivery-time, discount or customer-count claims.
 export const MOBILE_ANNOUNCEMENTS = [
-  "Custom colors available: request yours",
+  "Request a custom color on any apparel",
   "Custom made with love, just for you",
 ]
 

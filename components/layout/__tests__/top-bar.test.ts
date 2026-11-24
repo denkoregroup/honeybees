@@ -7,7 +7,7 @@ import { MOBILE_ANNOUNCEMENTS, TopBar } from "../TopBar"
 describe("mobile announcement messages", () => {
   it("are exactly these two", () => {
     expect(MOBILE_ANNOUNCEMENTS).toEqual([
-      "Custom colors available: request yours",
+      "Request a custom color on any apparel",
       "Custom made with love, just for you",
     ])
   })
@@ -25,7 +25,7 @@ describe("AnnouncementStrip", () => {
   it("renders both messages, one paragraph each, the first visible", () => {
     expect(html.match(/<p /g)).toHaveLength(2)
     for (const message of MOBILE_ANNOUNCEMENTS) expect(html).toContain(message)
-    expect(html).toMatch(/aria-hidden="false"[^>]*opacity:1[^>]*>Custom colors available: request yours/)
+    expect(html).toMatch(/aria-hidden="false"[^>]*opacity:1[^>]*>Request a custom color on any apparel/)
     expect(html).toMatch(/aria-hidden="true"[^>]*opacity:0[^>]*>Custom made with love, just for you/)
   })
 
@@ -35,9 +35,9 @@ describe("AnnouncementStrip", () => {
     expect(html).toContain("var(--color-honey-yellow)")
   })
 
-  it("uses 11px bold uppercase Montserrat in ink", () => {
+  it("uses 11px semibold uppercase Montserrat in ink", () => {
     expect(html).toContain("text-[11px]")
-    expect(html).toContain("font-bold")
+    expect(html).toContain("font-semibold")
     expect(html).toContain("uppercase")
     expect(html).toContain("var(--font-montserrat)")
     expect(html).toContain("var(--color-ink)")

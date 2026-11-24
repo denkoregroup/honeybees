@@ -45,7 +45,7 @@ export function AnnouncementStrip({ messages }: { messages: readonly string[] })
         <p
           key={message}
           aria-hidden={i !== index}
-          className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-4 text-[11px] font-bold uppercase tracking-wide transition-opacity duration-700 motion-reduce:transition-none"
+          className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-4 text-[11px] font-semibold uppercase tracking-wide transition-opacity duration-700 motion-reduce:transition-none"
           style={{
             fontFamily: "var(--font-montserrat)",
             color: "var(--color-ink)",
