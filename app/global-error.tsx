@@ -19,7 +19,7 @@ export default function GlobalError({ unstable_retry }: { error: Error & { diges
           <button
             type="button"
             onClick={() => unstable_retry()}
-            className="focus-ring mt-6 rounded-full bg-[var(--color-coral)] px-6 py-2.5 text-[13px] font-bold text-white hover:bg-[var(--color-coral-dark)]"
+            className="focus-ring mt-6 rounded-full bg-[var(--color-coral)] px-6 py-2.5 text-[13px] font-bold text-[var(--color-ink)] hover:bg-[var(--color-coral-dark)]"
           >
             Try again
           </button>

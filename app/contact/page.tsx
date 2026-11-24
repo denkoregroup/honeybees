@@ -14,7 +14,7 @@ export default function ContactPage() {
       {/* Heading */}
       <div className="mb-10 text-center">
         <h1 className="text-[28px] font-black text-[var(--color-ink)]">
-          ♥ CONTACT US ♥
+          <span aria-hidden>♥ </span>CONTACT US<span aria-hidden> ♥</span>
         </h1>
         <p className="mt-2 text-[14px] text-[var(--color-secondary)]">
           Questions, custom orders, or just want to say hi? We&apos;d love to hear from you!
@@ -43,7 +43,7 @@ export default function ContactPage() {
           ].map(({ Icon, title, lines }) => (
             <div key={title} className="flex gap-4">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-topbar)]">
-                <Icon className="h-5 w-5 text-[var(--color-coral)]" />
+                <Icon className="h-5 w-5 text-[var(--color-coral-ink)]" />
               </div>
               <div>
                 <p className="text-[14px] font-bold text-[var(--color-ink)]">{title}</p>
@@ -55,7 +55,7 @@ export default function ContactPage() {
           ))}
 
           <div className="rounded-2xl bg-[var(--color-topbar)] p-5">
-            <p className="text-[14px] font-black text-[var(--color-coral)]">CUSTOM ORDERS</p>
+            <p className="text-[14px] font-black text-[var(--color-coral-ink)]">CUSTOM ORDERS</p>
             <p className="mt-1 text-[13px] text-[var(--color-secondary)]">
               Looking for a fully custom design, bulk order, or team package? Use the form and
               describe your vision — we&apos;ll send a quote within 24hrs.
@@ -67,7 +67,7 @@ export default function ContactPage() {
         <div className="lg:col-span-2">
           <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6 sm:p-8">
             <h2 className="mb-6 text-[18px] font-black text-[var(--color-ink)]">
-              Send a Message ♥
+              Send a Message <span aria-hidden>♥</span>
             </h2>
             <ContactForm />
           </div>

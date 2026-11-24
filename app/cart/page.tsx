@@ -25,13 +25,13 @@ export default function CartPage() {
           Looks like you haven&apos;t added anything yet.
         </p>
         {error && (
-          <div role="alert" className="mt-4 flex items-center gap-3 text-[13px] text-red-600">
+          <div role="alert" className="mt-4 flex items-center gap-3 text-[13px] text-red-700">
             <span>{error}</span>
             {retry && (
               <button
                 onClick={() => void retry()}
                 disabled={isPending}
-                className="rounded-full border border-red-300 px-3 py-1 font-semibold hover:bg-red-50 disabled:opacity-40"
+                className="focus-ring rounded-full border border-red-300 px-3 py-1 font-semibold hover:bg-red-50 disabled:opacity-40"
               >
                 Retry
               </button>
@@ -40,7 +40,7 @@ export default function CartPage() {
         )}
         <Link
           href="/shop"
-          className="mt-6 rounded-full bg-[var(--color-coral)] px-6 py-2.5 text-[14px] font-bold text-white hover:bg-[var(--color-coral-dark)]"
+          className="focus-ring mt-6 rounded-full bg-[var(--color-coral)] px-6 py-2.5 text-[14px] font-bold text-[var(--color-ink)] hover:bg-[var(--color-coral-dark)]"
         >
           Browse the Shop
         </Link>
@@ -61,12 +61,12 @@ export default function CartPage() {
 
       {error && (
         <div role="alert" className="mb-6 flex items-center justify-between gap-3 rounded-xl bg-red-50 px-4 py-3">
-          <p className="text-[13px] text-red-600">{error}</p>
+          <p className="text-[13px] text-red-700">{error}</p>
           {retry && (
             <button
               onClick={() => void retry()}
               disabled={isPending}
-              className="flex-shrink-0 rounded-full border border-red-300 px-3 py-1 text-[12px] font-semibold text-red-600 hover:bg-red-100 disabled:opacity-40"
+              className="focus-ring flex-shrink-0 rounded-full border border-red-300 px-3 py-1 text-[12px] font-semibold text-red-700 hover:bg-red-100 disabled:opacity-40"
             >
               Retry
             </button>
@@ -83,9 +83,10 @@ export default function CartPage() {
                 <li key={item.id} className="flex gap-5">
                   <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-[var(--color-topbar)]">
                     {item.image ? (
-                      <Image src={item.image.url} alt={item.image.altText ?? item.title} fill className="object-cover" />
+                      // Decorative: the product name is right beside it
+                      <Image src={item.image.url} alt="" fill className="object-cover" />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-3xl">🐝</div>
+                      <div className="flex h-full items-center justify-center text-3xl" aria-hidden>🐝</div>
                     )}
                   </div>
                   <div className="flex flex-1 flex-col justify-between">
@@ -106,8 +107,8 @@ export default function CartPage() {
                         <button
                           disabled={isPending}
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="px-3 py-1.5 text-[var(--color-secondary)] hover:text-[var(--color-coral)] disabled:opacity-40"
-                          aria-label="Decrease"
+                          className="focus-ring px-3 py-1.5 text-[var(--color-secondary)] hover:text-[var(--color-coral-ink)] disabled:opacity-40"
+                          aria-label={`Decrease quantity of ${item.title}`}
                         >
                           <Minus className="h-3 w-3" />
                         </button>
@@ -115,8 +116,8 @@ export default function CartPage() {
                         <button
                           disabled={isPending}
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-3 py-1.5 text-[var(--color-secondary)] hover:text-[var(--color-coral)] disabled:opacity-40"
-                          aria-label="Increase"
+                          className="focus-ring px-3 py-1.5 text-[var(--color-secondary)] hover:text-[var(--color-coral-ink)] disabled:opacity-40"
+                          aria-label={`Increase quantity of ${item.title}`}
                         >
                           <Plus className="h-3 w-3" />
                         </button>
@@ -124,8 +125,8 @@ export default function CartPage() {
                       <button
                         disabled={isPending}
                         onClick={() => removeItem(item.id)}
-                        className="p-1.5 text-[var(--color-secondary)] hover:text-red-500 disabled:opacity-40"
-                        aria-label="Remove"
+                        className="focus-ring p-1.5 text-[var(--color-secondary)] hover:text-red-700 disabled:opacity-40"
+                        aria-label={`Remove ${item.title}`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
