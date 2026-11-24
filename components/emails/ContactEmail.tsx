@@ -7,7 +7,7 @@ import {
   Text,
   Heading,
   Hr,
-} from "@react-email/components"
+} from "react-email"
 import type { ContactFormData } from "@/lib/types"
 
 interface ContactEmailProps {
@@ -72,7 +72,7 @@ export function ContactEmail({ data }: ContactEmailProps) {
             </Text>
           </Section>
 
-          <Hr style={{ borderColor: "#e8e4de", margin: "32px 0 16px" }} />
+          <Hr style={{ borderTop: "1px solid #e8e4de", margin: "32px 0 16px" }} />
           <Text style={{ fontSize: "12px", color: "#999", textAlign: "center" }}>
             HoneyBee Designs · hello@honeybeedesigns.com
           </Text>

@@ -87,9 +87,8 @@ function componentFiles(dir: string): string[] {
   })
 }
 
-// Not rendered by any page, so not checked: components/header.tsx (slated for deletion in #36) and
-// four leftovers that nothing imports.
-const UNUSED = ["header.tsx", "home/CustomOrderCTA.tsx", "home/MarqueeBar.tsx", "features/BundleCard.tsx", "features/CollectionFilter.tsx"]
+// Not rendered by any page, so not checked: four leftovers that nothing imports.
+const UNUSED = ["home/CustomOrderCTA.tsx", "home/MarqueeBar.tsx", "features/BundleCard.tsx", "features/CollectionFilter.tsx"]
 const sources = componentFiles(join(root, "components"))
   .filter((file) => !UNUSED.some((unused) => file.endsWith(join("components", unused))))
   .map((file) => ({ file: file.replace(root, ""), text: readFileSync(file, "utf8") }))
