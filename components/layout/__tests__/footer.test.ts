@@ -33,6 +33,13 @@ describe("Footer", () => {
     expect(html).toContain(">Privacy policy</a>")
   })
 
+  it("has no Reviews link, and keeps Our Story and Custom Orders", async () => {
+    stubFetch(() => gqlData({ shop: NO_POLICIES }))
+    const html = await renderFooter()
+    expect(html).not.toMatch(/>Reviews</)
+    for (const label of ["Our Story", "Custom Orders"]) expect(html).toContain(label)
+  })
+
   it("shows no policy link that Shopify doesn't have", async () => {
     stubFetch(() => gqlData({ shop: NO_POLICIES }))
     const html = await renderFooter()
