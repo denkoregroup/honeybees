@@ -11,7 +11,7 @@ describe("robots", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", undefined)
     expect(await robots()).toEqual({
       rules: { userAgent: "*", allow: "/", disallow: ["/cart", "/api/"] },
-      sitemap: "https://honeybeedesigns.com/sitemap.xml",
+      sitemap: "https://honeybeedesigns.shop/sitemap.xml",
     })
   })
 

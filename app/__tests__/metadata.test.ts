@@ -50,7 +50,7 @@ describe("root layout metadata", () => {
 
   it("resolves relative URLs against the default site URL", async () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", undefined)
-    expect(String((await layoutMetadata()).metadataBase)).toBe("https://honeybeedesigns.com/")
+    expect(String((await layoutMetadata()).metadataBase)).toBe("https://honeybeedesigns.shop/")
   })
 
   it("resolves relative URLs against NEXT_PUBLIC_SITE_URL when it is set", async () => {

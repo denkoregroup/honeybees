@@ -37,11 +37,11 @@ beforeEach(() => {
 describe("sitemap", () => {
   it("lists the static pages under the default site URL, but not the cart", async () => {
     expect(await urls()).toEqual([
-      "https://honeybeedesigns.com/",
-      "https://honeybeedesigns.com/shop",
-      "https://honeybeedesigns.com/collections",
-      "https://honeybeedesigns.com/about",
-      "https://honeybeedesigns.com/contact",
+      "https://honeybeedesigns.shop/",
+      "https://honeybeedesigns.shop/shop",
+      "https://honeybeedesigns.shop/collections",
+      "https://honeybeedesigns.shop/about",
+      "https://honeybeedesigns.shop/contact",
     ])
   })
 
@@ -59,32 +59,32 @@ describe("sitemap", () => {
   it("lists each collection Shopify returns at /shop/[collection]", async () => {
     getCollections.mockResolvedValue(page([ref("apparel-1"), ref("turtley-decals")]))
     const list = await urls()
-    expect(list).toContain("https://honeybeedesigns.com/shop/apparel-1")
-    expect(list).toContain("https://honeybeedesigns.com/shop/turtley-decals")
+    expect(list).toContain("https://honeybeedesigns.shop/shop/apparel-1")
+    expect(list).toContain("https://honeybeedesigns.shop/shop/turtley-decals")
   })
 
   it("lists a product once, under its first collection, even when it is in several", async () => {
     getProducts.mockResolvedValue(page([product("tote", ["turtley-awesome-merch", "apparel-1"])]))
     const products = (await urls()).filter((url) => url.endsWith("/tote"))
-    expect(products).toEqual(["https://honeybeedesigns.com/shop/turtley-awesome-merch/tote"])
+    expect(products).toEqual(["https://honeybeedesigns.shop/shop/turtley-awesome-merch/tote"])
   })
 
   it("lists a product in no collection under /shop/shop, as the product cards link it", async () => {
     getProducts.mockResolvedValue(page([product("loose", [])]))
-    expect(await urls()).toContain("https://honeybeedesigns.com/shop/shop/loose")
+    expect(await urls()).toContain("https://honeybeedesigns.shop/shop/shop/loose")
   })
 
   it("percent-encodes emoji and other non-ASCII handles", async () => {
     getCollections.mockResolvedValue(page([ref("café-🐝")]))
     getProducts.mockResolvedValue(page([product("shop-small-sip-big-🐢-copy-1", ["café-🐝"])]))
     const list = await urls()
-    expect(list).toContain("https://honeybeedesigns.com/shop/caf%C3%A9-%F0%9F%90%9D")
-    expect(list).toContain("https://honeybeedesigns.com/shop/caf%C3%A9-%F0%9F%90%9D/shop-small-sip-big-%F0%9F%90%A2-copy-1")
+    expect(list).toContain("https://honeybeedesigns.shop/shop/caf%C3%A9-%F0%9F%90%9D")
+    expect(list).toContain("https://honeybeedesigns.shop/shop/caf%C3%A9-%F0%9F%90%9D/shop-small-sip-big-%F0%9F%90%A2-copy-1")
   })
 
   it("encodes characters that would otherwise change the URL", async () => {
     getProducts.mockResolvedValue(page([product("a?b#c/d", ["x&y"])]))
-    expect(await urls()).toContain("https://honeybeedesigns.com/shop/x%26y/a%3Fb%23c%2Fd")
+    expect(await urls()).toContain("https://honeybeedesigns.shop/shop/x%26y/a%3Fb%23c%2Fd")
   })
 
   it("gives the same product URL the product card links to", async () => {

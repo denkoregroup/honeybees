@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import type { Image, ProductSummary } from "@/lib/storefront/types"
 
 /** Public origin of the site. Set NEXT_PUBLIC_SITE_URL to the real domain at cutover (#43). */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://honeybeedesigns.com"
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://honeybeedesigns.shop"
 
 export const SITE_NAME = "HoneyBee Designs"
 
