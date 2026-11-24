@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react"
+import { User, Heart, ShoppingCart, Menu, X } from "lucide-react"
 import { Logo } from "@/components/layout/Logo"
 import { useCartStore } from "@/store/cart"
 import { isNavActive } from "./nav"
@@ -19,7 +19,6 @@ const NAV_LINKS = [
 export function Header() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [search, setSearch] = useState("")
   const { cart, openCart } = useCartStore()
   const itemCount = cart?.totalQuantity ?? 0
 
@@ -32,7 +31,7 @@ export function Header() {
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
-      {/* ── Mobile (below md): 72px bar with menu, centered logo, search and cart ── */}
+      {/* ── Mobile (below md): 72px bar with menu, centered logo, shop link and cart ── */}
       <div className="md:hidden">
         <div className="grid h-[72px] grid-cols-[88px_1fr_88px] items-center px-2">
           <button
@@ -50,9 +49,9 @@ export function Header() {
           </Link>
 
           <div className="flex items-center justify-end">
-            {/* No search UI exists yet, so this goes to the shop. */}
-            <Link href="/shop" aria-label="Search the shop" className="focus-ring flex h-11 w-11 items-center justify-center">
-              <Search className="h-6 w-6" />
+            {/* There's no search yet (a dead search box loses buyers), so this is a plain shop link. */}
+            <Link href="/shop" className="focus-ring flex h-11 w-11 items-center justify-center text-[12px] font-bold uppercase tracking-wide text-[var(--color-ink)]">
+              Shop
             </Link>
             <button
               aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ""}`}
@@ -115,7 +114,7 @@ export function Header() {
 
       {/* ── md and up: unchanged ── */}
       <div className="hidden md:contents">
-      {/* ── Row 1: Hamburger · Search · Logo · Icons ── */}
+      {/* ── Row 1: Hamburger · Logo · Icons ── */}
       <div
         className="grid px-6"
         style={{
@@ -127,7 +126,7 @@ export function Header() {
           margin: "0 auto",
         }}
       >
-        {/* Left: hamburger + search */}
+        {/* Left: hamburger */}
         <div className="flex items-center gap-2">
           <button
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -142,36 +141,6 @@ export function Header() {
             }
           </button>
 
-          {/* Search bar */}
-          <div className="relative hidden sm:flex" style={{ width: "220px" }}>
-            <input
-              type="search"
-              aria-label="Search custom designs"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search custom designs..."
-              className="focus-ring w-full rounded-full border py-2 pl-4 pr-10 text-[13px] transition-colors placeholder:text-[var(--color-gray)]"
-              style={{
-                borderColor: "var(--color-border)",
-                backgroundColor: "var(--color-surface)",
-              }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-primary)" }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "var(--color-border)" }}
-            />
-            <button
-              aria-label="Search"
-              className="focus-ring absolute right-1 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full text-[var(--color-ink)] transition-colors"
-              style={{
-                width: "28px",
-                height: "28px",
-                backgroundColor: "var(--color-primary)",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--color-primary-dark)" }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--color-primary)" }}
-            >
-              <Search className="h-3.5 w-3.5" />
-            </button>
-          </div>
         </div>
 
         {/* Center: Logo */}
@@ -267,22 +236,6 @@ export function Header() {
           className="border-t px-4 py-3 lg:hidden"
           style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-cream)" }}
         >
-          <div className="relative mb-3">
-            <input
-              type="search"
-              aria-label="Search custom designs"
-              placeholder="Search custom designs..."
-              className="focus-ring w-full rounded-full border py-2 pl-4 pr-10 text-[13px]"
-              style={{ borderColor: "var(--color-border)" }}
-            />
-            <button
-              aria-label="Search"
-              className="focus-ring absolute right-1 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full text-[var(--color-ink)]"
-              style={{ width: "28px", height: "28px", backgroundColor: "var(--color-primary)" }}
-            >
-              <Search className="h-3.5 w-3.5" />
-            </button>
-          </div>
           <ul className="space-y-0.5">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
