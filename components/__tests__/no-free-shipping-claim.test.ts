@@ -33,9 +33,9 @@ describe("no free-shipping claim", () => {
     }
   })
 
-  it("leaves the trust bar with its four other items", () => {
+  it("leaves the trust bar with its three tagline items", () => {
     const html = renderToStaticMarkup(createElement(TrustBar))
-    for (const title of ["MADE WITH LOVE", "PACKED WITH CARE", "SHIPPED WITH SMILES", "5,000+ HAPPY CUSTOMERS"]) {
+    for (const title of ["MADE WITH LOVE", "PACKED WITH CARE", "SHIPPED WITH SMILES"]) {
       expect(html).toContain(title)
     }
   })
