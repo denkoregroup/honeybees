@@ -6,10 +6,10 @@ This file adds what's specific to this repo. Read `AGENTS.md` and the README fir
 
 ## Project
 
-- Headless Shopify + Next.js 16 store for client Sarah Tabb (sublimation merch). Checkout is
+- Headless Shopify + Next.js 16 store for client Sarah (sublimation merch). Checkout is
   Shopify-hosted.
 - Stack: React 19, TypeScript, Tailwind v4, pnpm, Vitest.
-- Vercel: team `davids-projects-0ec1b950`, project `honeybees`.
+- Vercel: project `honeybees` in the davids-projects team.
 - Go-live target: about **Dec 8, 2026**. David's target; the client has no hard date.
 
 ## Commands
@@ -74,3 +74,6 @@ is empty; the privacy policy has an empty "opt out here" link and a Gmail contac
 confirmation of shipping times, returns and the about story.
 
 **After launch:** #25, #29, #23, #22, #36, #33, #13, #12.
+
+This repo is public: keep this file free of tokens, store credentials, customer data and anything
+the client wouldn't want published.
