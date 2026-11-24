@@ -69,10 +69,8 @@ describe("Header", () => {
     expect(unnamedButtons(html)).toEqual([])
   })
 
-  it("labels every search box", () => {
-    const inputs = tags(html, "input")
-    expect(inputs.length).toBeGreaterThan(0)
-    for (const input of inputs) expect(attr(input, "aria-label")).toBe("Search custom designs")
+  it("has no search box, since the site has no search yet", () => {
+    expect(tags(html, "input")).toEqual([])
   })
 
   it("marks the current page's link, and only that one", () => {
