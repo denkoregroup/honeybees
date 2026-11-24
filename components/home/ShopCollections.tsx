@@ -1,45 +1,23 @@
+import Image from "next/image"
 import Link from "next/link"
+import { SHOP_COLLECTIONS_MAX, type CollectionTile } from "./collection-tiles"
 
-const COLLECTIONS = [
-  {
-    name: "DOG TAGS",
-    handle: "dog-tags",
-    // TODO: real collection photo from Drive (dark bg, dog tag photo)
-    placeholder: "#1A1A1A",
-  },
-  {
-    name: "CAR COASTERS",
-    handle: "car-coasters",
-    // TODO: real collection photo (dark bg, sunflower coaster)
-    placeholder: "#2D2D2D",
-  },
-  {
-    name: "VINYL DECALS",
-    handle: "vinyl-decals",
-    // TODO: real collection photo (black bg, mountain decal)
-    placeholder: "#1A1A1A",
-  },
-  {
-    name: "STICKERS",
-    handle: "stickers-decals",
-    // TODO: real collection photo (checkered bg, "Good Vibes")
-    placeholder: "#E8D5C4",
-  },
-  {
-    name: "CUSTOM SIGNS",
-    handle: "custom-signs",
-    // TODO: real collection photo (cream bg, "home sweet home")
-    placeholder: "#F5ECD7",
-  },
-  {
-    name: "GIFT IDEAS",
-    handle: "gift-ideas",
-    // TODO: real collection photo (pink bg, gift box + mug)
-    placeholder: "#FFE4E8",
-  },
-]
+// Static class names so Tailwind can see them. Six tiles keep the old 3-then-6 layout; fewer sit in one
+// centered row, each no wider than a tile in the six-up row.
+const GRID_COLUMNS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+  6: "grid-cols-3 lg:grid-cols-6",
+}
+const GAP_PX = 8
 
-export function ShopCollections() {
+export function ShopCollections({ tiles }: { tiles: CollectionTile[] }) {
+  if (tiles.length === 0) return null
+  const count = Math.min(tiles.length, SHOP_COLLECTIONS_MAX)
+
   return (
     <section className="hidden md:block" style={{ backgroundColor: "var(--color-cream)", padding: "48px 0" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 32px" }}>
@@ -57,9 +35,16 @@ export function ShopCollections() {
           🤍 SHOP OUR COLLECTIONS 🤍
         </h2>
 
-        {/* 6-tile grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" style={{ gap: "8px" }}>
-          {COLLECTIONS.map(({ name, handle, placeholder }) => (
+        {/* Up to 6 tiles */}
+        <div
+          className={`grid ${GRID_COLUMNS[count]}`}
+          style={{
+            gap: `${GAP_PX}px`,
+            margin: "0 auto",
+            maxWidth: count < SHOP_COLLECTIONS_MAX ? `calc((100% + ${GAP_PX}px) * ${count} / ${SHOP_COLLECTIONS_MAX} - ${GAP_PX}px)` : undefined,
+          }}
+        >
+          {tiles.slice(0, count).map(({ name, handle, title, image }) => (
             <Link
               key={handle}
               href={`/shop/${handle}`}
@@ -71,12 +56,11 @@ export function ShopCollections() {
                 textDecoration: "none",
               }}
             >
-              {/* Image area — full tile */}
-              <div
-                className="absolute inset-0 flex items-center justify-center"
-                style={{ backgroundColor: placeholder }}
-              >
-                {/* TODO: real collection photo */}
+              {/* Image area — full tile; a plain surface when Shopify has no photo */}
+              <div className="absolute inset-0" style={{ backgroundColor: "var(--color-gray-light)" }}>
+                {image && (
+                  <Image src={image.url} alt={title} fill sizes="(min-width: 1024px) 190px, 33vw" className="object-cover" />
+                )}
               </div>
 
               {/* Label overlay — gradient at bottom */}

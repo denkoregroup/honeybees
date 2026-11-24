@@ -3,28 +3,30 @@ import "server-only"
 import { CACHE_TAGS } from "./cache"
 import { storefrontRequest } from "./client"
 import {
-  normalizeCollection,
+  normalizeCollectionSummary,
   normalizeCollectionWithProducts,
   normalizePage,
   type RawCollection,
   type RawConnection,
+  type RawImage,
   type RawProductSummary,
 } from "./normalize"
 import { pageVariables } from "./pagination"
 import { COLLECTIONS_QUERY, COLLECTION_BY_HANDLE_QUERY } from "./queries"
-import type { Collection, CollectionWithProducts, Page, PageArgs } from "./types"
+import type { CollectionSummary, CollectionWithProducts, Page, PageArgs } from "./types"
 
 /**
- * Collections that have at least one product (the list query peeks at one product per collection).
+ * Collections that have at least one product (the list query peeks at one product per collection,
+ * and keeps its photo as `firstProductImage`).
  * Empty ones are dropped after the fetch, so a page can hold fewer than `first` items even when
  * `hasNextPage` is true; the only caller asks for the largest page and has no pagination UI.
  */
-export async function getCollections(args: PageArgs = {}): Promise<Page<Collection>> {
+export async function getCollections(args: PageArgs = {}): Promise<Page<CollectionSummary>> {
   const data = await storefrontRequest<{
-    collections: RawConnection<RawCollection & { products: { nodes: unknown[] } }>
+    collections: RawConnection<RawCollection & { products: { nodes: { featuredImage: RawImage | null }[] } }>
   }>("getCollections", COLLECTIONS_QUERY, pageVariables(args, 20), [CACHE_TAGS.collections])
   const nonEmpty = { ...data.collections, nodes: data.collections.nodes.filter((c) => c.products.nodes.length > 0) }
-  return normalizePage(nonEmpty, normalizeCollection)
+  return normalizePage(nonEmpty, normalizeCollectionSummary)
 }
 
 /** Returns null when the handle doesn't exist or the collection isn't published to this storefront. */

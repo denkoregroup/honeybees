@@ -1,5 +1,6 @@
 import type {
   Collection,
+  CollectionSummary,
   CollectionWithProducts,
   Image,
   Money,
@@ -13,7 +14,7 @@ import type {
 } from "./types"
 
 // Raw shapes mirror the GraphQL selections in queries.ts.
-interface RawImage {
+export interface RawImage {
   url: string
   altText: string | null
   width: number | null
@@ -134,6 +135,12 @@ export function normalizeCollection(c: RawCollection): Collection {
     descriptionHtml: c.descriptionHtml,
     image: image(c.image),
   }
+}
+
+export function normalizeCollectionSummary(
+  c: RawCollection & { products: { nodes: { featuredImage: RawImage | null }[] } }
+): CollectionSummary {
+  return { ...normalizeCollection(c), firstProductImage: image(c.products.nodes[0]?.featuredImage ?? null) }
 }
 
 export function normalizePage<Raw, Out>(

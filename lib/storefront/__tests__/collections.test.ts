@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { CACHE_TAGS } from "../cache"
-import { gqlData, rawCollection, rawSummary, sentRequests, stubFetch, stubShopifyEnv } from "./helpers"
+import { gqlData, rawCollection, rawImage, rawSummary, sentRequests, stubFetch, stubShopifyEnv } from "./helpers"
 
 async function loadCollections() {
   vi.resetModules()
@@ -12,7 +12,7 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {})
 })
 
-const withProduct = { products: { nodes: [{ id: "gid://shopify/Product/1" }] } }
+const withProduct = { products: { nodes: [{ featuredImage: null }] } }
 const noProducts = { products: { nodes: [] } }
 
 describe("getCollections", () => {
@@ -55,6 +55,22 @@ describe("getCollections", () => {
 
     expect(page.items.map((c) => c.handle)).toEqual(["mama"])
     expect(sentRequests(fetchMock)[0].query).toMatch(/products\(first: 1\)/)
+  })
+
+  it("keeps the first product's photo for collections without their own image", async () => {
+    stubFetch(() =>
+      gqlData({
+        collections: {
+          nodes: [{ ...rawCollection(), products: { nodes: [{ featuredImage: rawImage() }] } }, { ...rawCollection({ handle: "plain" }), ...withProduct }],
+          pageInfo: { hasNextPage: false, endCursor: null },
+        },
+      })
+    )
+    const { getCollections } = await loadCollections()
+    const page = await getCollections()
+
+    expect(page.items[0].firstProductImage).toEqual(rawImage())
+    expect(page.items[1].firstProductImage).toBeNull()
   })
 
   it("rejects an invalid page size before making a request", async () => {

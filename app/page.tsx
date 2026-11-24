@@ -6,22 +6,27 @@ import { PromoBanners } from "@/components/home/PromoBanners"
 import { HowItWorks } from "@/components/home/HowItWorks"
 import { ShopCollections } from "@/components/home/ShopCollections"
 import { EmailSignup } from "@/components/home/EmailSignup"
+import { getCategoryTiles, getShopCollectionTiles } from "@/components/home/collection-tiles"
 import { getProducts } from "@/lib/storefront"
 
 const FEATURED_COUNT = 12
 
 export default async function HomePage() {
-  const featured = await getProducts({ first: FEATURED_COUNT })
+  const [featured, categoryTiles, collectionTiles] = await Promise.all([
+    getProducts({ first: FEATURED_COUNT }),
+    getCategoryTiles(),
+    getShopCollectionTiles(),
+  ])
 
   return (
     <>
       <HeroSection />
       <TrustBar />
-      <CategoryGrid />
+      <CategoryGrid tiles={categoryTiles} />
       <FeaturedProducts products={featured.items} />
       <PromoBanners />
       <HowItWorks />
-      <ShopCollections />
+      <ShopCollections tiles={collectionTiles} />
       <EmailSignup />
     </>
   )

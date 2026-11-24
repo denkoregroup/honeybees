@@ -75,6 +75,9 @@ export interface Collection {
   image: Image | null
 }
 
+/** A collection from the list query, with the photo of its first product for tiles without a collection image. */
+export type CollectionSummary = Collection & { firstProductImage: Image | null }
+
 export interface PageInfo {
   hasNextPage: boolean
   endCursor: string | null
