@@ -18,7 +18,6 @@ const HELP_LINKS = [
 
 const ABOUT_LINKS = [
   { label: "Our Story",         href: "/about" },
-  { label: "Reviews",           href: "#" },
   { label: "Wholesale",         href: "#" },
   { label: "Custom Orders",     href: "/contact" },
 ]

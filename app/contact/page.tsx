@@ -38,7 +38,7 @@ export default function ContactPage() {
             {
               Icon: MapPin,
               title: "Location",
-              lines: ["Based in the USA", "Shipping worldwide"],
+              lines: ["Based in the USA", "Shipping within the US"],
             },
           ].map(({ Icon, title, lines }) => (
             <div key={title} className="flex gap-4">
