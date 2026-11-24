@@ -36,11 +36,13 @@ const product = {
   priceRange: { min: price("20.00"), max: price("28.00") },
 } as unknown as Product
 
-function render(params: Record<string, string> = {}, shown: Product = product) {
+const totes = { handle: "totes", title: "Totes" }
+
+function render(params: Record<string, string> = {}, shown: Product = product, collection: { handle: string; title: string } | null = totes) {
   return renderToStaticMarkup(
     createElement(PDPClient, {
       product: shown,
-      collectionHandle: "totes",
+      collection,
       preselected: initialSelection(shown.options, params),
     })
   )
@@ -171,5 +173,32 @@ describe("PDP for a product without 'Other'", () => {
     expect(html).not.toContain("requested-color")
     expect(html).not.toContain("request a color")
     expect(pills(html, "option-color")).toEqual(["Sand", "Blue"])
+  })
+})
+
+describe("PDP breadcrumb and collection label", () => {
+  const breadcrumb = (html: string) => html.match(/<nav[\s\S]*?<\/nav>/)![0]
+  const text = (html: string) => html.replace(/<[^>]*>/g, "")
+
+  it("shows Shopify's collection title, linked by its handle, not a title derived from the handle", () => {
+    // /shop/apparel-1/... used to read "Apparel 1" because the label was made from the URL handle
+    const html = render({}, product, { handle: "apparel-1", title: "Apparel" })
+    const nav = breadcrumb(html)
+    expect(text(nav)).toBe("Shop/Apparel/Tote")
+    expect(nav).toContain('href="/shop/apparel-1"')
+    expect(text(html)).not.toContain("Apparel 1")
+  })
+
+  it("shows the same real title in the label above the product name", () => {
+    const html = render({}, product, { handle: "apparel-1", title: "Apparel" })
+    expect(html).toMatch(/tracking-widest[^>]*>Apparel<\/p>/)
+  })
+
+  it("falls back to a plain Shop breadcrumb, with no collection link or label, when there is no collection", () => {
+    const html = render({}, product, null)
+    const nav = breadcrumb(html)
+    expect(text(nav)).toBe("Shop/Tote")
+    expect(nav).not.toMatch(/href="\/shop\/[^"]/)
+    expect(html).not.toContain("tracking-widest")
   })
 })
