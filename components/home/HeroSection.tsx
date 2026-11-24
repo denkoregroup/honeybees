@@ -28,7 +28,7 @@ export function HeroSection() {
       </p>
 
       <Link href="/shop" className="btn-primary focus-ring mt-6 w-full">
-        Shop now ♥
+        Shop now <span aria-hidden>♥</span>
       </Link>
     </section>
 
@@ -58,9 +58,10 @@ export function HeroSection() {
           {/* Eyebrow pill with floating hearts */}
           <div className="relative inline-block mb-4" style={{ alignSelf: "flex-start" }}>
             <span
-              className="inline-block text-white"
+              className="inline-block"
               style={{
                 backgroundColor: "var(--color-primary)",
+                color: "var(--color-ink)",
                 borderRadius: "9999px",
                 padding: "4px 14px",
                 fontFamily: "var(--font-montserrat)",
@@ -106,7 +107,8 @@ export function HeroSection() {
                 fontFamily: "var(--font-montserrat)",
                 fontSize: "clamp(72px, 10vw, 120px)",
                 fontWeight: 900,
-                color: "var(--color-primary)",
+                // Display coral, not blush: blush text on white is 1.7:1, below even the 3:1 for large text
+                color: "var(--color-coral-display)",
                 letterSpacing: "-0.03em",
                 lineHeight: 0.9,
               }}
@@ -130,34 +132,28 @@ export function HeroSection() {
                 fontFamily: "var(--font-montserrat)",
                 fontSize: "clamp(30px, 4vw, 52px)",
                 fontWeight: 900,
-                color: "var(--color-primary)",
+                color: "var(--color-coral-display)",
               }}
             >
-              SMILE! 🤍 🤍
+              SMILE!<span aria-hidden> 🤍 🤍</span>
             </span>
           </h1>
 
           {/* CTA */}
           <div style={{ marginTop: "28px" }}>
+            {/* Hover goes to sunflower with ink text, as on btn-cta: white on blush would be 1.7:1 */}
             <Link
               href="/shop"
-              className="inline-flex items-center gap-1.5 text-white transition-colors"
+              className="focus-ring inline-flex items-center gap-1.5 bg-[var(--color-black)] text-white transition-colors hover:bg-[var(--color-sunflower)] hover:text-[var(--color-ink)]"
               style={{
-                backgroundColor: "var(--color-black)",
                 padding: "13px 32px",
                 borderRadius: "9999px",
                 fontFamily: "var(--font-montserrat)",
                 fontSize: "14px",
                 fontWeight: 700,
               }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--color-primary)"
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--color-black)"
-              }}
             >
-              SHOP NOW 🤍
+              SHOP NOW <span aria-hidden>🤍</span>
             </Link>
           </div>
         </div>
@@ -290,8 +286,9 @@ export function HeroSection() {
 
           {/* Floating circle badge — top right */}
           <div
-            className="absolute flex flex-col items-center justify-center text-center text-white"
+            className="absolute flex flex-col items-center justify-center text-center"
             style={{
+              color: "var(--color-ink)",
               top: "20px",
               right: "20px",
               width: "110px",

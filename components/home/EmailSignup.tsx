@@ -30,7 +30,7 @@ const SOCIAL = [
   {
     label: "Email",
     href: "mailto:hello@honeybeedesigns.com",
-    bg: "var(--color-primary)",
+    bg: "var(--color-coral-ink)",
     content: <span style={{ color: "white", fontSize: "16px" }}>✉</span>,
   },
 ]
@@ -133,7 +133,7 @@ export function EmailSignup() {
           className="hidden md:flex items-center justify-center"
         >
           {/* TODO: real bee + flower illustration from Sarah */}
-          <div style={{ width: "120px", height: "80px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "48px" }}>
+          <div aria-hidden style={{ width: "120px", height: "80px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "48px" }}>
             🐝🌸
           </div>
         </div>
@@ -141,7 +141,7 @@ export function EmailSignup() {
         {/* Col 2 — Heading + form */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px" }}>
           <h2 style={{ fontFamily: "var(--font-pacifico)", fontSize: "20px", color: "var(--color-black)", margin: 0 }}>
-            🐝 JOIN THE HIVE!
+            <span aria-hidden>🐝 </span>JOIN THE HIVE!
           </h2>
           <p style={{ fontFamily: "var(--font-inter)", fontSize: "12px", color: "var(--color-gray)", margin: 0 }}>
             Be the first to know about new arrivals, sales &amp; more! 🌻
@@ -149,6 +149,7 @@ export function EmailSignup() {
 
           {status === "success" ? (
             <p
+              role="status"
               style={{
                 backgroundColor: "var(--color-primary)",
                 borderRadius: "9999px",
@@ -156,7 +157,7 @@ export function EmailSignup() {
                 fontFamily: "var(--font-montserrat)",
                 fontSize: "13px",
                 fontWeight: 700,
-                color: "white",
+                color: "var(--color-ink)",
                 margin: 0,
               }}
             >
@@ -167,35 +168,39 @@ export function EmailSignup() {
               onSubmit={handleSubmit}
               style={{ display: "flex", flexDirection: "row", gap: "8px", alignItems: "center" }}
             >
+              <label htmlFor="signup-email-desktop" className="sr-only">
+                Email address
+              </label>
               <input
+                id="signup-email-desktop"
                 type="email"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address..."
+                className="focus-ring"
                 style={{
                   flex: 1,
                   maxWidth: "280px",
                   height: "38px",
                   borderRadius: "9999px",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--color-gray)",
                   padding: "0 16px",
                   fontFamily: "var(--font-inter)",
                   fontSize: "13px",
-                  outline: "none",
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-primary)" }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = "var(--color-border)" }}
               />
               <button
                 type="submit"
                 disabled={status === "loading"}
+                className="focus-ring"
                 style={{
                   height: "38px",
                   padding: "0 20px",
                   borderRadius: "9999px",
                   backgroundColor: "var(--color-primary)",
-                  color: "white",
+                  color: "var(--color-ink)",
                   fontFamily: "var(--font-montserrat)",
                   fontSize: "13px",
                   fontWeight: 700,
@@ -213,7 +218,7 @@ export function EmailSignup() {
           )}
 
           {status === "error" && (
-            <p style={{ fontFamily: "var(--font-inter)", fontSize: "12px", color: "#ef4444", margin: 0 }}>
+            <p role="alert" style={{ fontFamily: "var(--font-inter)", fontSize: "12px", color: "var(--color-coral-ink)", margin: 0 }}>
               {errorMessage || "Something went wrong. Please try again!"}
             </p>
           )}
@@ -235,7 +240,7 @@ export function EmailSignup() {
               fontFamily: "var(--font-montserrat)",
               fontSize: "11px",
               fontWeight: 700,
-              color: "var(--color-primary)",
+              color: "var(--color-coral-ink)",
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               margin: 0,
@@ -249,6 +254,7 @@ export function EmailSignup() {
                 key={label}
                 href={href}
                 aria-label={label}
+                className="focus-ring"
                 style={{
                   width: "36px",
                   height: "36px",

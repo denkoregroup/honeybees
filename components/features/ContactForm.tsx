@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { CONTACT_HONEYPOT_FIELD, CONTACT_LIMITS } from "@/lib/contact"
 
 const SUBJECTS = [
@@ -26,6 +26,11 @@ export function ContactForm() {
     message: "",
   })
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  // The form is replaced by the thank-you message, so move focus there; otherwise it falls back to the page.
+  const sentHeading = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    if (status === "success") sentHeading.current?.focus()
+  }, [status])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -52,20 +57,23 @@ export function ContactForm() {
   }
 
   const inputClass =
-    "w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-2.5 text-[14px] outline-none transition-colors focus:border-[var(--color-coral)] focus:ring-2 focus:ring-[var(--color-coral)]/20"
+    // Gray border: the light border color is 1.2:1 on white, too faint to show where a field is (needs 3:1)
+    "focus-ring w-full rounded-xl border border-[var(--color-gray)] bg-white px-4 py-2.5 text-[14px] transition-colors"
   const labelClass = "mb-1 block text-[12px] font-bold uppercase tracking-wide text-[var(--color-ink)]"
 
   if (status === "success") {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">
-        <span className="text-5xl">🐝</span>
-        <p className="text-[18px] font-black text-[var(--color-ink)]">Message sent!</p>
+        <span className="text-5xl" aria-hidden>🐝</span>
+        <p ref={sentHeading} tabIndex={-1} className="text-[18px] font-black text-[var(--color-ink)] outline-none">
+          Message sent!
+        </p>
         <p className="text-[14px] text-[var(--color-secondary)]">
           We&apos;ll get back to you within 1 business day.
         </p>
         <button
           onClick={() => setStatus("idle")}
-          className="mt-2 text-[13px] text-[var(--color-coral)] underline underline-offset-2"
+          className="focus-ring mt-2 text-[13px] text-[var(--color-coral-ink)] underline underline-offset-2"
         >
           Send another message
         </button>
@@ -85,6 +93,7 @@ export function ContactForm() {
           <input
             id="cf-name"
             required
+            autoComplete="name"
             maxLength={CONTACT_LIMITS.name}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -98,6 +107,7 @@ export function ContactForm() {
             id="cf-email"
             type="email"
             required
+            autoComplete="email"
             maxLength={CONTACT_LIMITS.email}
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -138,13 +148,13 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="w-full rounded-full bg-[var(--color-coral)] py-3.5 text-[14px] font-bold text-white transition-all hover:bg-[var(--color-coral-dark)] disabled:opacity-60 sm:w-auto sm:min-w-[200px]"
+        className="focus-ring w-full rounded-full bg-[var(--color-coral)] py-3.5 text-[14px] font-bold text-[var(--color-ink)] transition-all hover:bg-[var(--color-coral-dark)] disabled:opacity-60 sm:w-auto sm:min-w-[200px]"
       >
-        {status === "loading" ? "Sending…" : "SEND MESSAGE ♥"}
+        {status === "loading" ? "Sending…" : <>SEND MESSAGE <span aria-hidden>♥</span></>}
       </button>
 
       {status === "error" && (
-        <p className="text-[12px] text-red-500">
+        <p role="alert" className="text-[12px] text-[var(--color-coral-ink)]">
           Something went wrong. Please try again or email us directly.
         </p>
       )}

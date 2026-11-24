@@ -43,10 +43,11 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                 style={{ backgroundColor: "var(--color-gray-light)" }}
               >
                 {p.featuredImage ? (
+                  // Decorative: the product name is in the same link
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={p.featuredImage.url}
-                    alt={p.featuredImage.altText ?? p.title}
+                    alt=""
                     loading="lazy"
                     className="h-full w-full object-cover"
                   />
@@ -88,7 +89,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
             marginBottom: "24px",
           }}
         >
-          🤍 FEATURED PRODUCTS 🤍
+          <span aria-hidden>🤍 </span>FEATURED PRODUCTS<span aria-hidden> 🤍</span>
         </h2>
 
         {/* Carousel */}
@@ -97,7 +98,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
           <button
             onClick={() => scroll("left")}
             aria-label="Scroll left"
-            className="absolute z-10 hidden lg:flex items-center justify-center transition-colors"
+            className="focus-ring absolute z-10 hidden lg:flex items-center justify-center transition-colors"
             style={{
               left: "-20px",
               top: "50%",
@@ -134,7 +135,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                 <Link
                   key={p.id}
                   href={href}
-                  className="group flex-shrink-0 transition-transform"
+                  className="focus-ring-inset group flex-shrink-0 transition-transform"
                   style={{
                     width: "calc((100% - 5 * 12px) / 6)",
                     minWidth: "140px",
@@ -163,10 +164,11 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                     }}
                   >
                     {image ? (
+                      // Decorative: the product name is in the same link
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={image.url}
-                        alt={image.altText ?? p.title}
+                        alt=""
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       />
                     ) : (
@@ -215,7 +217,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
           <button
             onClick={() => scroll("right")}
             aria-label="Scroll right"
-            className="absolute z-10 hidden lg:flex items-center justify-center transition-colors"
+            className="focus-ring absolute z-10 hidden lg:flex items-center justify-center transition-colors"
             style={{
               right: "-20px",
               top: "50%",

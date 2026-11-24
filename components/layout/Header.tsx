@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react"
 import { Logo } from "@/components/layout/Logo"
 import { useCartStore } from "@/store/cart"
-import { cn } from "@/lib/utils"
+import { isNavActive } from "./nav"
 
 const NAV_LINKS = [
   { label: "HOME",        href: "/" },
@@ -83,11 +83,12 @@ export function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
+                    aria-current={isNavActive(pathname, link.href) ? "page" : undefined}
                     className="focus-ring flex min-h-11 items-center text-[14px] font-bold uppercase tracking-[0.06em]"
                     style={{
                       fontFamily: "var(--font-montserrat)",
                       color: "var(--color-ink)",
-                      textDecoration: pathname === link.href ? "underline" : undefined,
+                      textDecoration: isNavActive(pathname, link.href) ? "underline" : undefined,
                       textUnderlineOffset: "4px",
                     }}
                   >
@@ -129,8 +130,10 @@ export function Header() {
         {/* Left: hamburger + search */}
         <div className="flex items-center gap-2">
           <button
-            aria-label="Toggle navigation"
-            className="rounded-full p-2 transition-colors hover:bg-[var(--color-topbar-bg)] lg:hidden"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="tablet-menu"
+            className="focus-ring rounded-full p-2 transition-colors hover:bg-[var(--color-topbar-bg)] lg:hidden"
             onClick={() => setMobileOpen((o) => !o)}
           >
             {mobileOpen
@@ -143,10 +146,11 @@ export function Header() {
           <div className="relative hidden sm:flex" style={{ width: "220px" }}>
             <input
               type="search"
+              aria-label="Search custom designs"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search custom designs..."
-              className="w-full rounded-full border py-2 pl-4 pr-10 text-[13px] outline-none transition-colors placeholder:text-[var(--color-gray)]"
+              className="focus-ring w-full rounded-full border py-2 pl-4 pr-10 text-[13px] transition-colors placeholder:text-[var(--color-gray)]"
               style={{
                 borderColor: "var(--color-border)",
                 backgroundColor: "var(--color-surface)",
@@ -156,7 +160,7 @@ export function Header() {
             />
             <button
               aria-label="Search"
-              className="absolute right-1 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full text-white transition-colors"
+              className="focus-ring absolute right-1 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full text-[var(--color-ink)] transition-colors"
               style={{
                 width: "28px",
                 height: "28px",
@@ -172,7 +176,7 @@ export function Header() {
 
         {/* Center: Logo */}
         <div className="flex justify-center">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="focus-ring flex items-center">
             <Logo className="h-[70px] w-auto" />
           </Link>
         </div>
@@ -181,7 +185,7 @@ export function Header() {
         <div className="flex items-center justify-end gap-6">
           <button
             aria-label="Account"
-            className="hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
+            className="focus-ring hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
           >
             <User className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
             <span className="text-[10px]" style={{ color: "var(--color-gray)" }}>Account</span>
@@ -189,7 +193,7 @@ export function Header() {
 
           <button
             aria-label="Wishlist"
-            className="hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
+            className="focus-ring hidden flex-col items-center gap-1 transition-opacity hover:opacity-70 sm:flex"
           >
             <Heart className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
             <span className="text-[10px]" style={{ color: "var(--color-gray)" }}>Wishlist</span>
@@ -198,12 +202,12 @@ export function Header() {
           <button
             aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ""}`}
             onClick={openCart}
-            className="relative flex flex-col items-center gap-1 transition-opacity hover:opacity-70"
+            className="focus-ring relative flex flex-col items-center gap-1 transition-opacity hover:opacity-70"
           >
             <div className="relative">
               <ShoppingCart className="h-5 w-5" style={{ color: "var(--color-gray)" }} />
               <span
-                className="absolute -right-2 -top-2 flex items-center justify-center rounded-full text-[10px] font-bold text-white"
+                className="absolute -right-2 -top-2 flex items-center justify-center rounded-full text-[10px] font-bold text-[var(--color-ink)]"
                 style={{
                   width: "16px",
                   height: "16px",
@@ -220,6 +224,7 @@ export function Header() {
 
       {/* ── Row 2: Nav (desktop) ── */}
       <nav
+        aria-label="Main menu"
         className="hidden border-t lg:block"
         style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-cream)", height: "40px" }}
       >
@@ -228,32 +233,22 @@ export function Header() {
           style={{ maxWidth: "1200px", margin: "0 auto", gap: "2rem", padding: "0 24px" }}
         >
           {NAV_LINKS.map((link) => {
-            const active = pathname === link.href
-            const isHome = link.href === "/"
+            const active = isNavActive(pathname, link.href)
             return (
               <li key={link.href}>
+                {/* Text stays ink: sunflower text on cream is 1.9:1. The sunflower underline marks the link. */}
                 <Link
                   href={link.href}
-                  className="relative inline-block whitespace-nowrap transition-colors"
+                  aria-current={active ? "page" : undefined}
+                  className="focus-ring relative inline-block whitespace-nowrap text-[var(--color-black)] transition-colors hover:text-[var(--color-coral-ink)]"
                   style={{
                     fontFamily: "var(--font-montserrat)",
                     fontSize: "12px",
-                    fontWeight: 500,
+                    fontWeight: active ? 700 : 500,
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
-                    color: isHome || active
-                      ? "var(--color-sunflower)"
-                      : "var(--color-black)",
-                    borderBottom: (active || isHome) ? "2px solid var(--color-sunflower)" : undefined,
-                    paddingBottom: (active || isHome) ? "2px" : undefined,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isHome && !active)
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-primary)"
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isHome && !active)
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-black)"
+                    borderBottom: active ? "2px solid var(--color-sunflower)" : undefined,
+                    paddingBottom: active ? "2px" : undefined,
                   }}
                 >
                   {link.label}
@@ -267,18 +262,22 @@ export function Header() {
       {/* ── Mobile menu ── */}
       {mobileOpen && (
         <nav
+          id="tablet-menu"
+          aria-label="Main menu"
           className="border-t px-4 py-3 lg:hidden"
           style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-cream)" }}
         >
           <div className="relative mb-3">
             <input
               type="search"
+              aria-label="Search custom designs"
               placeholder="Search custom designs..."
-              className="w-full rounded-full border py-2 pl-4 pr-10 text-[13px] outline-none focus:border-[var(--color-primary)]"
+              className="focus-ring w-full rounded-full border py-2 pl-4 pr-10 text-[13px]"
               style={{ borderColor: "var(--color-border)" }}
             />
             <button
-              className="absolute right-1 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full text-white"
+              aria-label="Search"
+              className="focus-ring absolute right-1 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full text-[var(--color-ink)]"
               style={{ width: "28px", height: "28px", backgroundColor: "var(--color-primary)" }}
             >
               <Search className="h-3.5 w-3.5" />
@@ -289,13 +288,16 @@ export function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="block rounded-lg px-3 py-2.5 text-[13px] uppercase tracking-wide transition-colors"
+                  aria-current={isNavActive(pathname, link.href) ? "page" : undefined}
+                  className="focus-ring block rounded-lg px-3 py-2.5 text-[13px] uppercase tracking-wide transition-colors"
                   style={{
                     fontFamily: "var(--font-montserrat)",
-                    fontWeight: 500,
-                    color: pathname === link.href
-                      ? "var(--color-sunflower)"
-                      : "var(--color-black)",
+                    fontWeight: isNavActive(pathname, link.href) ? 700 : 500,
+                    color: "var(--color-black)",
+                    textDecoration: isNavActive(pathname, link.href) ? "underline" : undefined,
+                    textDecorationColor: "var(--color-sunflower)",
+                    textDecorationThickness: "2px",
+                    textUnderlineOffset: "4px",
                   }}
                   onClick={() => setMobileOpen(false)}
                 >

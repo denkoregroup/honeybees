@@ -22,7 +22,7 @@ export function PromoBanners() {
           WE&apos;VE GOT YOU!
         </p>
         <Link href="/contact" className="btn-secondary focus-ring mt-6 w-full">
-          Custom order →
+          Custom order <span aria-hidden>→</span>
         </Link>
       </div>
     </section>
@@ -66,7 +66,7 @@ export function PromoBanners() {
               fontFamily: "var(--font-montserrat)",
               fontSize: "32px",
               fontWeight: 900,
-              color: "var(--color-primary)",
+              color: "var(--color-primary)", // on the near-black panel: 11:1
               textTransform: "uppercase",
               lineHeight: 1,
               marginBottom: "4px",
@@ -87,13 +87,12 @@ export function PromoBanners() {
           </p>
           <Link
             href="/contact"
-            className="transition-colors hover:bg-[var(--color-primary-dark)]"
+            className="focus-ring bg-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-dark)]"
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              backgroundColor: "var(--color-primary)",
-              color: "white",
+              color: "var(--color-ink)",
               fontFamily: "var(--font-montserrat)",
               fontSize: "11px",
               fontWeight: 700,
@@ -105,7 +104,7 @@ export function PromoBanners() {
               alignSelf: "flex-start",
             }}
           >
-            CUSTOM ORDER →
+            CUSTOM ORDER <span aria-hidden>→</span>
           </Link>
           {/* TODO: bee mascot illustration — position absolute, right 0, bottom 0, height 90% */}
         </div>
@@ -121,13 +120,13 @@ export function PromoBanners() {
             borderRadius: "16px",
           }}
         >
-          <p style={{ fontFamily: "var(--font-montserrat)", fontSize: "30px", fontWeight: 900, color: "var(--color-primary)", lineHeight: 1.1 }}>
+          <p style={{ fontFamily: "var(--font-montserrat)", fontSize: "30px", fontWeight: 900, color: "var(--color-coral-ink)", lineHeight: 1.1 }}>
             🌸 BE KIND
           </p>
           <p style={{ fontFamily: "var(--font-montserrat)", fontSize: "30px", fontWeight: 900, color: "var(--color-black)", lineHeight: 1.1 }}>
             🌻 BE HAPPY
           </p>
-          <p style={{ fontFamily: "var(--font-montserrat)", fontSize: "30px", fontWeight: 900, color: "var(--color-primary)", lineHeight: 1.1 }}>
+          <p style={{ fontFamily: "var(--font-montserrat)", fontSize: "30px", fontWeight: 900, color: "var(--color-coral-ink)", lineHeight: 1.1 }}>
             🐝 BE YOU
           </p>
           {/* TODO: floral/bee decoration bottom right */}
@@ -144,7 +143,7 @@ export function PromoBanners() {
             borderRadius: "16px",
           }}
         >
-          <p style={{ fontFamily: "var(--font-pacifico)", fontSize: "28px", color: "var(--color-primary)", marginBottom: "8px" }}>
+          <p style={{ fontFamily: "var(--font-pacifico)", fontSize: "28px", color: "var(--color-coral-display)", marginBottom: "8px" }}>
             💛 THANK YOU!
           </p>
           <p style={{ fontFamily: "var(--font-inter)", fontSize: "14px", color: "var(--color-black)", marginBottom: "2px" }}>

@@ -32,7 +32,7 @@ export function ShopCollections({ tiles }: { tiles: CollectionTile[] }) {
             marginBottom: "32px",
           }}
         >
-          🤍 SHOP OUR COLLECTIONS 🤍
+          <span aria-hidden>🤍 </span>SHOP OUR COLLECTIONS<span aria-hidden> 🤍</span>
         </h2>
 
         {/* Up to 6 tiles */}
@@ -44,11 +44,11 @@ export function ShopCollections({ tiles }: { tiles: CollectionTile[] }) {
             maxWidth: count < SHOP_COLLECTIONS_MAX ? `calc((100% + ${GAP_PX}px) * ${count} / ${SHOP_COLLECTIONS_MAX} - ${GAP_PX}px)` : undefined,
           }}
         >
-          {tiles.slice(0, count).map(({ name, handle, title, image }) => (
+          {tiles.slice(0, count).map(({ name, handle, image }) => (
             <Link
               key={handle}
               href={`/shop/${handle}`}
-              className="block overflow-hidden relative transition-transform duration-[250ms] hover:scale-[1.04]"
+              className="focus-ring block overflow-hidden relative transition-transform duration-[250ms] hover:scale-[1.04]"
               style={{
                 aspectRatio: "1/1",
                 borderRadius: "12px",
@@ -59,7 +59,8 @@ export function ShopCollections({ tiles }: { tiles: CollectionTile[] }) {
               {/* Image area — full tile; a plain surface when Shopify has no photo */}
               <div className="absolute inset-0" style={{ backgroundColor: "var(--color-gray-light)" }}>
                 {image && (
-                  <Image src={image.url} alt={title} fill sizes="(min-width: 1024px) 190px, 33vw" className="object-cover" />
+                  // Decorative: the collection name is on the tile, in the same link
+                  <Image src={image.url} alt="" fill sizes="(min-width: 1024px) 190px, 33vw" className="object-cover" />
                 )}
               </div>
 
