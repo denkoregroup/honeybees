@@ -33,7 +33,7 @@ export default function ContactPage() {
             {
               Icon: Clock,
               title: "Hours",
-              lines: ["Mon–Fri: 9am – 5pm CST", "Weekends: Closed"],
+              lines: ["Mon–Fri: 9am – 5pm EST", "Weekends: Closed"],
             },
             {
               Icon: MapPin,
