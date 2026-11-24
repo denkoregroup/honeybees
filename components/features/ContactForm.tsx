@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { CONTACT_HONEYPOT_FIELD, CONTACT_LIMITS } from "@/lib/contact"
 
 const SUBJECTS = [
   "General Question",
@@ -26,8 +27,9 @@ export function ContactForm() {
   })
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const honeypot = new FormData(e.currentTarget).get(CONTACT_HONEYPOT_FIELD)
     setStatus("loading")
     try {
       const res = await fetch("/api/contact", {
@@ -38,6 +40,7 @@ export function ContactForm() {
           email: form.email,
           subject: form.subject,
           message: form.message,
+          [CONTACT_HONEYPOT_FIELD]: honeypot,
         }),
       })
       if (!res.ok) throw new Error()
@@ -72,12 +75,17 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Honeypot: off-screen and hidden from assistive tech; only bots fill it in. */}
+      <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+        <input type="text" name={CONTACT_HONEYPOT_FIELD} tabIndex={-1} autoComplete="off" defaultValue="" />
+      </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="cf-name" className={labelClass}>Name</label>
           <input
             id="cf-name"
             required
+            maxLength={CONTACT_LIMITS.name}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Jane Smith"
@@ -90,6 +98,7 @@ export function ContactForm() {
             id="cf-email"
             type="email"
             required
+            maxLength={CONTACT_LIMITS.email}
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             placeholder="jane@example.com"
@@ -118,6 +127,7 @@ export function ContactForm() {
           id="cf-message"
           required
           rows={5}
+          maxLength={CONTACT_LIMITS.message}
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           placeholder="Tell us how we can help..."
