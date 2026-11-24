@@ -14,6 +14,7 @@ const STATIC_PAGES = {
   "/about": () => import("../about/page"),
   "/collections": () => import("../collections/page"),
   "/contact": () => import("../contact/page"),
+  "/faq": () => import("../faq/page"),
   "/shop": () => import("../shop/page"),
 }
 

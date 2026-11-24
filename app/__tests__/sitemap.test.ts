@@ -42,6 +42,7 @@ describe("sitemap", () => {
       "https://honeybeedesigns.shop/collections",
       "https://honeybeedesigns.shop/about",
       "https://honeybeedesigns.shop/contact",
+      "https://honeybeedesigns.shop/faq",
     ])
   })
 

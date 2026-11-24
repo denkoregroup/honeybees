@@ -9,6 +9,7 @@ const SHOP_LINKS = [
 
 const HELP_LINKS = [
   { label: "Contact Us",        href: "/contact" },
+  { label: "FAQ",               href: "/faq" },
 ]
 
 const ABOUT_LINKS = [
