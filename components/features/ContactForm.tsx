@@ -15,7 +15,6 @@ interface FormState {
   email: string
   subject: string
   message: string
-  file: File | null
 }
 
 export function ContactForm() {
@@ -24,7 +23,6 @@ export function ContactForm() {
     email: "",
     subject: SUBJECTS[0],
     message: "",
-    file: null,
   })
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
@@ -44,7 +42,7 @@ export function ContactForm() {
       })
       if (!res.ok) throw new Error()
       setStatus("success")
-      setForm({ name: "", email: "", subject: SUBJECTS[0], message: "", file: null })
+      setForm({ name: "", email: "", subject: SUBJECTS[0], message: "" })
     } catch {
       setStatus("error")
     }
@@ -124,19 +122,6 @@ export function ContactForm() {
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           placeholder="Tell us how we can help..."
           className={inputClass}
-        />
-      </div>
-
-      <div>
-        <label htmlFor="cf-file" className={labelClass}>
-          Attach a File <span className="font-normal normal-case text-[var(--color-secondary)]">(optional — design reference, photo, etc.)</span>
-        </label>
-        <input
-          id="cf-file"
-          type="file"
-          accept="image/*,.pdf"
-          onChange={(e) => setForm({ ...form, file: e.target.files?.[0] ?? null })}
-          className="w-full rounded-xl border border-[var(--color-border)] bg-white px-4 py-2 text-[13px] text-[var(--color-secondary)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-coral)] file:px-3 file:py-1 file:text-[11px] file:font-bold file:text-white"
         />
       </div>
 
