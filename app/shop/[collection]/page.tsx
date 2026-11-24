@@ -39,7 +39,7 @@ export default async function CollectionPage({ params }: Props) {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-[12px] text-[var(--color-secondary)]">
-        <Link href="/shop" className="hover:text-[var(--color-coral)]">
+        <Link href="/shop" className="focus-ring hover:text-[var(--color-coral-ink)]">
           Shop
         </Link>
         <span>/</span>
@@ -49,7 +49,9 @@ export default async function CollectionPage({ params }: Props) {
       {/* Hero banner */}
       <div className="mb-10 rounded-2xl bg-[var(--color-topbar)] px-8 py-10 text-center">
         <h1 className="text-[28px] font-black text-[var(--color-ink)]">
-          ♥ {title.toUpperCase()} ♥
+          <span aria-hidden>♥ </span>
+          {title.toUpperCase()}
+          <span aria-hidden> ♥</span>
         </h1>
         {description && (
           <p className="mt-2 text-[14px] text-[var(--color-secondary)]">{description}</p>
@@ -62,13 +64,13 @@ export default async function CollectionPage({ params }: Props) {
       {/* Grid */}
       {products.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <span className="text-5xl">🐝</span>
+          <span className="text-5xl" aria-hidden>🐝</span>
           <p className="mt-4 text-[14px] text-[var(--color-secondary)]">
             No products in this collection yet. Check back soon!
           </p>
           <Link
             href="/shop"
-            className="mt-6 rounded-full bg-[var(--color-coral)] px-6 py-2.5 text-[13px] font-bold text-white hover:bg-[var(--color-coral-dark)]"
+            className="focus-ring mt-6 rounded-full bg-[var(--color-coral)] px-6 py-2.5 text-[13px] font-bold text-[var(--color-ink)] hover:bg-[var(--color-coral-dark)]"
           >
             Shop All
           </Link>

@@ -37,7 +37,7 @@ export default function AboutPage() {
       <section className="bg-gradient-to-br from-honey/10 to-cream-dark">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-honey/20">
-            <Hexagon className="h-8 w-8 text-primary fill-primary/20" />
+            <Hexagon className="h-8 w-8 fill-primary/20 text-[var(--color-coral-ink)]" />
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
             The Story Behind the Hive
@@ -77,7 +77,7 @@ export default function AboutPage() {
             {values.map((v) => (
               <div key={v.title} className="text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-honey/15">
-                  <v.icon className="h-6 w-6 text-primary" />
+                  <v.icon className="h-6 w-6 text-[var(--color-coral-ink)]" />
                 </div>
                 <h3 className="mb-2 font-semibold">{v.title}</h3>
                 <p className="text-sm text-muted-foreground">{v.description}</p>

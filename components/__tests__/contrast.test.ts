@@ -131,3 +131,9 @@ describe("components", () => {
     expect(BLUSH_FILL.test("bg-[var(--color-coral-ink)] text-white")).toBe(false)
   })
 })
+
+describe("blush on the ink panel (app/collections/page.tsx)", () => {
+  it("blush text on an ink fill passes for small text", () => {
+    expect(contrast("color-blush", "color-ink")).toBeGreaterThanOrEqual(AA_TEXT)
+  })
+})

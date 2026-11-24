@@ -57,9 +57,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${montserrat.variable} ${pacifico.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-[var(--color-cream)] text-[var(--color-ink)]">
+        {/* First thing a keyboard user reaches: jumps past the top bar and header. Hidden until focused. */}
+        <a
+          href="#main-content"
+          className="focus-ring sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-white focus:px-5 focus:py-2.5 focus:text-[14px] focus:font-bold focus:text-[var(--color-ink)] focus:shadow-md"
+        >
+          Skip to main content
+        </a>
         <TopBar />
         <Header />
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
         <Footer />
         <CartDrawer />
       </body>

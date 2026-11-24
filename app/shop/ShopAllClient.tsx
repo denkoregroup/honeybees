@@ -22,7 +22,7 @@ export function ShopAllClient({ products }: ShopAllClientProps) {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       {/* Heading */}
       <h1 className="mb-2 text-center text-[28px] font-black text-[var(--color-ink)]">
-        ♥ SHOP ALL ♥
+        <span aria-hidden>♥ </span>SHOP ALL<span aria-hidden> ♥</span>
       </h1>
       <p className="mb-8 text-center text-[13px] text-[var(--color-secondary)]">
         {filtered.length} product{filtered.length !== 1 ? "s" : ""}
@@ -40,7 +40,7 @@ export function ShopAllClient({ products }: ShopAllClientProps) {
       {/* Grid */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <span className="text-5xl">🐝</span>
+          <span className="text-5xl" aria-hidden>🐝</span>
           <p className="mt-4 text-[14px] text-[var(--color-secondary)]">
             No products found in this category yet.
           </p>
