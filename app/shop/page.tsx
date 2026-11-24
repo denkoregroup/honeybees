@@ -1,9 +1,10 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { getProducts } from "@/lib/storefront"
 import { ShopAllClient } from "./ShopAllClient"
 
-export const metadata = {
-  title: "Shop All | HoneyBee Designs",
+export const metadata: Metadata = {
+  title: "Shop All",
   description: "Browse all custom sublimation products — decals, keychains, apparel, drinkware & more.",
 }
 

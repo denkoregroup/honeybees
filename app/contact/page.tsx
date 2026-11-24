@@ -3,7 +3,7 @@ import { Mail, Clock, MapPin } from "lucide-react"
 import { ContactForm } from "@/components/features/ContactForm"
 
 export const metadata: Metadata = {
-  title: "Contact Us | HoneyBee Designs",
+  title: "Contact Us",
   description:
     "Get in touch with HoneyBee Designs — custom orders, bulk pricing, and general inquiries welcome.",
 }
