@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react"
 import { Logo } from "@/components/layout/Logo"
 import { useCartStore } from "@/store/cart"
+import { isNavActive } from "./nav"
 
 const NAV_LINKS = [
   { label: "HOME",        href: "/" },
@@ -82,12 +83,12 @@ export function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    aria-current={pathname === link.href ? "page" : undefined}
+                    aria-current={isNavActive(pathname, link.href) ? "page" : undefined}
                     className="focus-ring flex min-h-11 items-center text-[14px] font-bold uppercase tracking-[0.06em]"
                     style={{
                       fontFamily: "var(--font-montserrat)",
                       color: "var(--color-ink)",
-                      textDecoration: pathname === link.href ? "underline" : undefined,
+                      textDecoration: isNavActive(pathname, link.href) ? "underline" : undefined,
                       textUnderlineOffset: "4px",
                     }}
                   >
@@ -232,8 +233,7 @@ export function Header() {
           style={{ maxWidth: "1200px", margin: "0 auto", gap: "2rem", padding: "0 24px" }}
         >
           {NAV_LINKS.map((link) => {
-            const active = pathname === link.href
-            const isHome = link.href === "/"
+            const active = isNavActive(pathname, link.href)
             return (
               <li key={link.href}>
                 {/* Text stays ink: sunflower text on cream is 1.9:1. The sunflower underline marks the link. */}
@@ -244,11 +244,11 @@ export function Header() {
                   style={{
                     fontFamily: "var(--font-montserrat)",
                     fontSize: "12px",
-                    fontWeight: (active || isHome) ? 700 : 500,
+                    fontWeight: active ? 700 : 500,
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
-                    borderBottom: (active || isHome) ? "2px solid var(--color-sunflower)" : undefined,
-                    paddingBottom: (active || isHome) ? "2px" : undefined,
+                    borderBottom: active ? "2px solid var(--color-sunflower)" : undefined,
+                    paddingBottom: active ? "2px" : undefined,
                   }}
                 >
                   {link.label}
@@ -288,13 +288,13 @@ export function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  aria-current={pathname === link.href ? "page" : undefined}
+                  aria-current={isNavActive(pathname, link.href) ? "page" : undefined}
                   className="focus-ring block rounded-lg px-3 py-2.5 text-[13px] uppercase tracking-wide transition-colors"
                   style={{
                     fontFamily: "var(--font-montserrat)",
-                    fontWeight: pathname === link.href ? 700 : 500,
+                    fontWeight: isNavActive(pathname, link.href) ? 700 : 500,
                     color: "var(--color-black)",
-                    textDecoration: pathname === link.href ? "underline" : undefined,
+                    textDecoration: isNavActive(pathname, link.href) ? "underline" : undefined,
                     textDecorationColor: "var(--color-sunflower)",
                     textDecorationThickness: "2px",
                     textUnderlineOffset: "4px",
