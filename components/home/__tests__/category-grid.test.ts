@@ -1,7 +1,9 @@
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
-import { CATEGORIES, CategoryGrid } from "../CategoryGrid"
+import { CATEGORIES } from "../categories"
+import { CategoryGrid } from "../CategoryGrid"
+import type { CollectionTile } from "../collection-tiles"
 
 // Collections that exist in Shopify and have products. Changing this list is a deliberate act.
 const ALLOWED_HANDLES = [
@@ -12,29 +14,49 @@ const ALLOWED_HANDLES = [
   "turtley-keychains",
 ]
 
+const PHOTO = { url: "https://cdn.shopify.com/s/files/1/coasters.png?v=1", altText: null, width: 800, height: 800 }
+
 function shopLinks(html: string): string[] {
   return [...html.matchAll(/href="(\/shop\/[^"]*)"/g)].map((m) => m[1])
 }
 
-describe("CategoryGrid", () => {
-  const html = renderToStaticMarkup(createElement(CategoryGrid))
-  const links = shopLinks(html)
+const tiles: CollectionTile[] = CATEGORIES.map(({ name, handle }) => ({ name, handle, title: name, image: null }))
+const render = (t: CollectionTile[]) => renderToStaticMarkup(createElement(CategoryGrid, { tiles: t }))
 
-  it("only links to allowed collection handles", () => {
-    expect(links.length).toBeGreaterThan(0)
-    for (const href of links) {
-      expect(ALLOWED_HANDLES).toContain(href.replace("/shop/", ""))
-    }
-  })
-
-  it("renders every category in both the mobile and desktop markup", () => {
-    for (const { handle } of CATEGORIES) {
-      expect(links.filter((l) => l === `/shop/${handle}`)).toHaveLength(2)
-    }
+describe("CATEGORIES", () => {
+  it("only lists allowed collection handles", () => {
+    for (const { handle } of CATEGORIES) expect(ALLOWED_HANDLES).toContain(handle)
   })
 
   it("has no duplicate handles", () => {
     const handles = CATEGORIES.map((c) => c.handle)
     expect(new Set(handles).size).toBe(handles.length)
+  })
+})
+
+describe("CategoryGrid", () => {
+  it("renders every tile in both the mobile and desktop markup", () => {
+    const links = shopLinks(render(tiles))
+    for (const { handle } of tiles) {
+      expect(links.filter((l) => l === `/shop/${handle}`)).toHaveLength(2)
+    }
+  })
+
+  it("shows the tile's photo with the collection title as alt text", () => {
+    const html = render([{ name: "TURTLEY COASTERS", handle: "turtley-coasters", title: "Turtley Coasters", image: PHOTO }])
+    const imgs = [...html.matchAll(/<img\b[^>]*>/g)].map(([tag]) => tag)
+    expect(imgs).toHaveLength(2)
+    for (const img of imgs) {
+      expect(img).toContain('alt="Turtley Coasters"')
+      expect(img).toContain(encodeURIComponent(PHOTO.url))
+    }
+  })
+
+  it("keeps the placeholder icon when a tile has no photo", () => {
+    expect(render(tiles)).not.toContain("<img")
+  })
+
+  it("renders nothing when there are no tiles", () => {
+    expect(render([])).toBe("")
   })
 })

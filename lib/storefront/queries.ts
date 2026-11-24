@@ -71,7 +71,7 @@ export const COLLECTIONS_QUERY = `#graphql
     collections(first: $first, after: $after) {
       nodes {
         ${COLLECTION_FIELDS}
-        products(first: 1) { nodes { id } }
+        products(first: 1) { nodes { featuredImage { ${IMAGE} } } }
       }
       ${PAGE_INFO}
     }
