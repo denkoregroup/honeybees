@@ -37,7 +37,8 @@ const QUESTIONS = [
     content: (
       <p>
         Most orders have a turnaround time of approximately 3–4 business days unless otherwise stated. Larger
-        custom or bulk orders may take slightly longer depending on the size and details of the order.
+        custom or bulk orders may take slightly longer depending on the size and details of the order. This doesn&apos;t
+        include shipping time, and holidays and busy seasons may extend it slightly.
       </p>
     ),
   },

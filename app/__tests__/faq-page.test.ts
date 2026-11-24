@@ -59,6 +59,7 @@ describe("FAQ page", () => {
     const page = text(render(true))
     expect(page).toContain("approximately 3–4 business days unless otherwise stated")
     expect(page).toContain("Larger custom or bulk orders may take slightly longer depending on the size and details of the order.")
+    expect(page).toContain("include shipping time")
     expect(page).toContain("Orders are shipped after production is complete.")
   })
 
