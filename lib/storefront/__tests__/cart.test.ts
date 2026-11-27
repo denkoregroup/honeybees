@@ -313,7 +313,7 @@ describe("updateLine and removeLine", () => {
 })
 
 describe("logging", () => {
-  it("logs the operation and error codes only, never cart ids, checkout URLs or tokens", async () => {
+  it("logs the operation and error codes only, never cart ids, checkout URLs, tokens or the buyer IP", async () => {
     stubShopifyEnv()
     stubCartApi({
       CartLinesAdd: () => ({ cartLinesAdd: { cart: null, userErrors: [{ code: "MAXIMUM_EXCEEDED", field: ["lines"] }] } }),
@@ -324,7 +324,7 @@ describe("logging", () => {
     const logged = JSON.stringify(errorLog.mock.calls)
     expect(logged).toContain("cartLinesAdd")
     expect(logged).toContain("MAXIMUM_EXCEEDED")
-    for (const secret of [CART_ID, "secret-cart-key", CHECKOUT_URL, TOKEN, VARIANT_ID]) {
+    for (const secret of [CART_ID, "secret-cart-key", CHECKOUT_URL, TOKEN, VARIANT_ID, "203.0.113.7"]) {
       expect(logged).not.toContain(secret)
     }
   })
