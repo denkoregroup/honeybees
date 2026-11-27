@@ -9,7 +9,7 @@ import {
   Hr,
   Row,
   Column,
-} from "@react-email/components"
+} from "react-email"
 import type { CartItem } from "@/lib/types"
 
 interface OrderEmailProps {
